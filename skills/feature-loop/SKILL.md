@@ -366,9 +366,18 @@ Créer `$WORK/.feature-loop/.feature-loop.json` :
 3. Project insights (cross-runs)
 4. Rubrique des axes (résumée)
 5. Contraintes (CLAUDE.md)
+6. Charte du code (bloc ci-dessous, verbatim)
+
+**Charte du code** (les conventions du projet priment en cas de conflit) :
+> - Le nom EST l'explication : si un commentaire décrit le *quoi*, renommer au lieu de commenter.
+> - Fonction profonde : petite surface (un appel), beaucoup de travail caché. Découper sans exposer — le sur-découpage (helpers que l'appelant doit enchaîner, méthodes siamoises) est un défaut au même titre que la fonction-fleuve.
+> - Commentaires, 3 genres seulement : le **pourquoi** (décision non évidente), l'**avertissement** (piège, ordre à ne pas casser), le **contrat** (ce que la fonction promet). Jamais de paraphrase ; 1 ligne par défaut ; dans le doute, ne pas commenter. Un commentaire long et pénible à écrire signale une abstraction ratée : reconcevoir plutôt que documenter.
+> - Erreurs : quand la sémantique le permet, faire disparaître le cas d'erreur (borner, valeur par défaut, null object) au lieu d'imposer des checks à chaque appelant — tirer la complexité vers le bas, dans le module.
+> - DRY = savoir, pas code : deux fragments identiques qui évolueront pour des raisons différentes ne sont PAS une duplication — ne pas les fusionner. Boussole ETC : « est-ce plus facile à changer après ? »
+> - Boy-scout borné au périmètre : dans les zones touchées, supprimer les commentaires morts/paraphrases existants ; ne rien nettoyer hors scope.
 
 Puis en queue (volatile) :
-6. État spécifique à l'itération (critiques précédentes, notes_for_implementer, scores cibles)
+7. État spécifique à l'itération (critiques précédentes, notes_for_implementer, scores cibles)
 
 Cette structure permet à Anthropic prompt cache de réutiliser le préambule sur toutes les itérations.
 
