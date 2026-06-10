@@ -1,0 +1,9 @@
+# Versions archivées des skills — ne jamais publier (peuvent contenir d'anciens exemples)
+.archive/
+**/.archive/
+
+# Bruit OS / éditeur
+.DS_Store
+*.swp
+.idea/
+.vscode/
