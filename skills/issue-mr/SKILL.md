@@ -29,7 +29,7 @@ Logger : `[mode] <plateforme> · <ISOLER (N fichiers)|SCAFFOLD> · base origin/<
 Déclencheurs : flag `--analyse` ; OU la description rate ≥ 2 points du test de clarté (quoi / pourquoi / périmètre exclu) ; OU invocation depuis le pont feature-loop (Étape 1 de feature-loop, spec vague). Sinon, sauter à l'Étape 2 avec un corps d'issue simple (contexte + attendu).
 
 1. **Explorer le code** concerné par la tâche (zones touchées, état actuel, contraintes). Fichier > 200 lignes ou exploration large → déléguer à un agent (`Agent`, tier rapide/standard) et ne remonter que la synthèse.
-2. **Trancher la conception avec l'user** : regrouper les vraies questions ouvertes (choix d'approche, périmètre, trade-offs) en UNE `AskUserQuestion` multi-questions (max 3) — pas un interrogatoire au fil de l'eau.
+2. **Trancher la conception avec l'user** : regrouper les vraies questions ouvertes (choix d'approche, périmètre, trade-offs) en UNE `AskUserQuestion` multi-questions (max 3) — pas un interrogatoire au fil de l'eau. À valeur égale, recommander l'option qui laisse le système le plus facile à changer (boussole ETC).
 3. **Produire le corps d'issue structuré** :
    - **Constat** — ce qui existe / ce qui pose problème (avec refs `file:line` si utile)
    - **Pourquoi** — la valeur du changement

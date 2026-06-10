@@ -124,7 +124,7 @@ Un **agent distinct par dimension**, contexte vierge, recevant le context pack (
 - **spec-alignment** : le diff couvre-t-il TOUT le ticket (chemins, critères d'acceptation) ? gaps non implémentés ? scope creep (modifs hors ticket) ?
 - **correctness / bugs** : logique, cas limites, concurrence/races, nil/maps, off-by-one, fuites de ressources, `defer` en boucle, error shadowing, aliasing de slices, gestion d'erreurs. (Language-aware.)
 - **security** (mindset attaquant) : entrées contrôlées par l'attaquant → sinks (injection, XSS, SSRF, path traversal), authz/authn, secrets/PII en logs, crypto, trust boundaries, fail-open. Modèle de menace, pas check-list mécanique (gosec couvre le mécanique).
-- **design / maintainability** : abstraction au bon niveau, sur-ingénierie/YAGNI, lisibilité (« compréhensible en 5 s »), nommage, commentaires (pourquoi non-évident, pas paraphrase), adhérence conventions projet.
+- **design / maintainability** : abstraction au bon niveau, sur-ingénierie/YAGNI, boussole ETC (« ce choix rend-il le système plus facile ou plus dur à changer ? »), lisibilité (« compréhensible en 5 s »), nommage, commentaires (pourquoi non-évident, pas paraphrase ; un commentaire long et pénible à écrire signale une abstraction ratée), complexité poussée aux appelants (un check que chaque appelant doit répéter devrait être absorbé par le module — borner, défaut, null object), adhérence conventions projet.
 - **tests** : couverture du *comportement modifié*, cas d'erreur (pas que le happy path), assertions utiles, et — candidat red-check — *les tests échouent-ils vraiment si le code casse ?*
 - **perf** (cond.) : N+1, allocations, requêtes, complexité ; pas de micro-opt prématurée. **ux/a11y/i18n** (cond. front).
 
@@ -212,6 +212,8 @@ Non-bloquant (nit/suggestion) :
 - Le code **non modifié** (pre-existing), même mauvais — ce n'est pas ce changement.
 - Fichiers générés, lock files, `vendor/`, assets minifiés.
 - Defense-in-depth quand la défense primaire est adéquate.
+- La duplication de code identique *par hasard* quand les deux sites évolueront pour des raisons différentes — fusionner couplerait à tort (DRY porte sur le savoir, pas le texte).
+- Une fonction longue mais linéaire et claire — ne suggérer un découpage que s'il simplifie l'appelant (fonction profonde > fonction courte ; le sur-découpage en helpers à enchaîner est le défaut inverse).
 - Code de test qui viole intentionnellement des règles de prod.
 - Nitpicks qu'un senior ne soulèverait pas ; verbosité ; bikeshedding.
 - Findings sans `file:line` ou non vérifiables → jamais remontés.
