@@ -10,6 +10,7 @@ Skills personnels pour [Claude Code](https://claude.com/claude-code).
 | [`senior-review`](skills/senior-review) | Revue de code niveau senior — reviewers aveugles spécialisés par dimension (correctness/sécurité/design/tests), findings vérifiés (receipts grep/exec/test), panel adversarial sur les cas critiques. |
 | [`issue-mr`](skills/issue-mr) | Crée issue + branche + MR/PR à partir d'une description (GitLab `glab` / GitHub `gh`, auto-détecté). Modes scaffold / isoler / analyse. |
 | [`vide-contexte`](skills/vide-contexte) | Avant `/clear` : extrait les insights non-déductibles de la conversation (décisions, gotchas, préférences) et les persiste en fichiers mémoire — dédup contre l'index, format aligné sur le harnais — puis confirme et rend la main. |
+| [`book-distill`](skills/book-distill) | Lit un livre (PDF/EPUB) et produit une fiche de lecture markdown fidèle et pédagogique : cartographie Adler A/B/C, notes verbatim-first, distillation thématique, contrepoints, citations vérifiées mot à mot contre le texte (`check-claim.py`), boucle qualité ≥ 85/100. Chaque règle est adossée à la recherche (voir `reference/science.md`). |
 
 ## Installation
 
@@ -24,12 +25,12 @@ Ou en symlink pour rester synchronisé avec le repo :
 
 ```bash
 git clone https://github.com/ohugonnot/claude-skills.git ~/claude-skills
-for s in feature-loop senior-review issue-mr vide-contexte; do
+for s in feature-loop senior-review issue-mr vide-contexte book-distill; do
   ln -s ~/claude-skills/skills/$s ~/.claude/skills/$s
 done
 ```
 
-Les skills sont alors invocables via `/feature-loop`, `/senior-review`, `/issue-mr`, `/vide-contexte`.
+Les skills sont alors invocables via `/feature-loop`, `/senior-review`, `/issue-mr`, `/vide-contexte`, `/book-distill`.
 
 ## Notes
 
