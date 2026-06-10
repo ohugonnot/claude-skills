@@ -7,7 +7,7 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.2.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.4.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers du skill (progressive disclosure)** : `lessons.md` (meta-leçons cross-projet, chargées à l'Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique).
 
@@ -185,6 +185,8 @@ Métriques: lint <…> · typecheck <…> · tests <…/…> · SAST <…>
 ```
 
 Si rien de matériel : **le dire** (« Aucun bloquant. N suggestions mineures. Le changement améliore la base. ») — le silence est une feature (GitHub Copilot : 29 % des revues silencieuses, assumé). Le seuil de greenlight (Google) : le changement **améliore** la base, pas « est parfait ».
+
+Verdict `approve` ET un skill `branch-wrap-up` disponible ET la cible est du travail local non clôturé (working tree/branche, pas une PR déjà ouverte) → suggérer en une ligne `branch-wrap-up --no-review` pour la clôture (commit/push/MR-PR), la review étant faite.
 
 **Execution-grounding live (option, surtout `--deep` ou findings runtime)** : si l'app est runnable et qu'un bug bloquant est suspecté, exercer réellement le chemin pour confirmer qu'il reproduit (relancer un serveur stale, aligner le schéma DB runtime — cf. discipline smoke-live). Sinon, review-only.
 
