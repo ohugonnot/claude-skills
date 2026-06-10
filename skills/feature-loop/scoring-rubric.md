@@ -63,14 +63,14 @@ Le skill VÉRIFIE ces refs après la review. Si > 30% sont invalides, la review 
 ### Lisibilité
 | Score | Critères |
 |---|---|
-| 10 | Noms explicites partout, fonctions courtes (<30 lignes), pas de magic numbers, intentions claires sans commentaires superflus |
+| 10 | Noms explicites partout, fonctions profondes (petite surface, travail caché — courtes sans sur-découpage), pas de magic numbers, commentaires limités au pourquoi/avertissement/contrat |
 | 8 | Globalement clair, quelques zones perfectibles (un commentaire manquant sur logique non triviale) |
 | 6 | Compréhensible mais demande de l'effort, noms ambigus ponctuels |
 | 4 | Nécessite de relire plusieurs fois, abréviations cryptiques, fonctions trop longues |
 | 2 | Très difficile à suivre |
 | 0 | Illisible |
 
-Anti-patterns à pénaliser : `data`, `info`, `temp`, `tmp`, `i`/`j` hors itérateur de boucle, fonctions > 80 lignes, nesting > 4 niveaux, commentaires qui paraphrasent le code.
+Anti-patterns à pénaliser : `data`, `info`, `temp`, `tmp`, `i`/`j` hors itérateur de boucle, fonctions > 80 lignes, nesting > 4 niveaux, commentaires qui paraphrasent le code, sur-découpage (suite de helpers que l'appelant doit enchaîner, méthodes siamoises incompréhensibles l'une sans l'autre).
 
 ### Robustesse
 | Score | Critères |
@@ -103,7 +103,7 @@ Vérifier : un composant ne dépend pas directement d'un store global s'il pourr
 | 4 | Architecture lourde pour un besoin simple |
 | 0 | Sur-ingénierie massive |
 
-Red flags : struct juste pour grouper des fonctions, interface à 1 implémentation, factory pour 1 type, abstraction "au cas où".
+Red flags : struct juste pour grouper des fonctions, interface à 1 implémentation, factory pour 1 type, abstraction "au cas où", fusion de deux codes identiques par hasard qui évolueront séparément (DRY porte sur le savoir, pas le texte).
 
 ### YAGNI
 | Score | Critères |
