@@ -7,7 +7,7 @@ argument-hint: "<task description> [--analyse] [--issue-only]"
 
 # Issue + Branche + MR/PR
 
-**skill_version : 2.0.1** (historique : `CHANGELOG.md` — fusion de 4 copies projet divergentes). Transforme une description de tâche en issue bien formée + branche + MR/PR, sur GitLab (`glab`) ou GitHub (`gh`). **Comportement global, données projet découvertes** : aucun label, branche cible ou scope n'est codé en dur — tout vient du repo courant (CLI, git, CLAUDE.md) et passe par une validation user.
+**skill_version : 2.0.3** (historique : `CHANGELOG.md` — fusion de 4 copies projet divergentes). Transforme une description de tâche en issue bien formée + branche + MR/PR, sur GitLab (`glab`) ou GitHub (`gh`). **Comportement global, données projet découvertes** : aucun label, branche cible ou scope n'est codé en dur — tout vient du repo courant (CLI, git, CLAUDE.md) et passe par une validation user.
 
 La tâche : $ARGUMENTS
 
@@ -101,7 +101,7 @@ SCAFFOLD → ajouter `--create-source-branch` (la branche n'existe pas encore) ;
 
 ## Étape 7 — Checkout + résumé
 
-S'assurer que la branche est checkout localement (SCAFFOLD GitLab : `git fetch origin && git switch <branche>`). Résumé final : URL issue · URL MR/PR (ou « PR différée — GitHub scaffold ») · branche (checkout local) · labels · titre conventionnel · mode · plateforme. Si la suite est une implémentation non-triviale ET qu'un skill `feature-loop` est disponible, suggérer `feature-loop --issue=<N>`.
+S'assurer que la branche est checkout localement (SCAFFOLD GitLab : `git fetch origin && git switch <branche>`). Résumé final : URL issue · URL MR/PR (ou « PR différée — GitHub scaffold ») · branche (checkout local) · labels · titre conventionnel · mode · plateforme. Si la suite est une implémentation non-triviale ET qu'un skill `feature-loop` est disponible, suggérer `feature-loop --issue=<N>` (il chargera l'issue comme spec et reprendra la branche `<N>-<slug>` créée ici). Ne pas re-suggérer si issue-mr a été invoqué depuis le pont feature-loop : feature-loop reprend la main automatiquement.
 
 ## Ce que le skill NE fait PAS
 

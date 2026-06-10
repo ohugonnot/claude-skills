@@ -7,7 +7,7 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.6.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.8.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
 **Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande).
 
@@ -887,6 +887,8 @@ Puis `AskUserQuestion` : merger / garder / jeter. Sémantique du "jeter" selon l
 - **worktree** : `ExitWorktree` (supprime le worktree) après confirmation.
 - **in-place, branche `feature-loop/<slug>` créée par le skill** : `git checkout <base> && git branch -D feature-loop/<slug>` après confirmation explicite.
 - **in-place sur la branche courante de l'user** : action destructive sur SON arbre → confirmation explicite obligatoire (cf CLAUDE.md "input ambigu = pas d'action destructive"), puis proposer `git reset --hard $run_base_sha` SANS l'exécuter d'office. Ne jamais reset la branche de l'user sans un "oui" sans ambiguïté.
+
+Si l'user choisit merger/garder ET qu'un skill `branch-wrap-up` est disponible : suggérer `branch-wrap-up --no-review` pour la clôture (commit si mode no_auto_commit, push, MR/PR, capture) — la review en aveugle de ce run tient lieu de passe senior-review, ne pas la payer deux fois.
 
 ### 5.7 Runs-log persistant + lessons cross-projet
 
