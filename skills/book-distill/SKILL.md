@@ -100,12 +100,15 @@ Gabarit : `templates/fiche.md` (structure par défaut sensée ; adapter si le li
 2. **Concret avant abstrait** : pour chaque idée, l'exemple du livre d'abord, le principe ensuite. Jamais la règle abstraite seule (l'effet « exemples concrets » est un des mieux répliqués du champ).
 3. **Le pourquoi mécanistique sous chaque affirmation** : un néophyte ne peut pas générer l'explication lui-même, la fiche la livre (« ça marche parce que… », la chaîne causale, pas le seul résultat).
 4. **Vieux → neuf, phrase par phrase** : chaque phrase ouvre sur ce qui est déjà posé et ferme sur l'information neuve (contrat donné-nouveau, Clark & Haviland). Un passage « décousu », c'est presque toujours ça.
-5. **Signaler la structure** : titres porteurs de l'idée, phrases-clés en gras, renvois explicites entre idées (levier texte le mieux chiffré : g ≈ 0.5 en rétention).
+5. **Signaler la structure** : titres porteurs de l'idée, phrases-clés en gras, renvois explicites entre idées (levier texte le mieux chiffré : g ≈ 0.5 en rétention). Un titre est une promesse : la section doit l'encaisser (un titre « X fait moins peur » exige la phrase qui le démontre).
 6. **Une citation vérifiée par grande idée**, avec sa page : valeur lecteur + preuve d'ancrage.
 7. **Tout sigle décodé à sa première apparition ; tout terme technique suivi d'un exemple d'une ligne.**
 8. **Embarquer du rappel** : 2-3 questions de récupération en fin de fiche (réponses repliées) + 1 prompt d'auto-explication dans le corps (« avant de lire la suite : pourquoi X échouerait-il si… ? »). La lecture seule crée une illusion de connaissance ; le rappel est la technique d'apprentissage la plus efficace documentée.
-9. **Couper l'extraneous sans pitié** : zéro digression, zéro redite chapeau↔idée, zéro flourish. On ne « rajoute » pas de la bonne charge cognitive, on libère de la mémoire de travail.
+9. **Couper l'extraneous sans pitié** : zéro digression, zéro redite chapeau↔idée, zéro flourish. On ne « rajoute » pas de la bonne charge cognitive, on libère de la mémoire de travail. Un écho VOULU entre deux endroits emploie les MÊMES mots ; la paraphrase d'une idée déjà posée est une redite, pas un écho.
 10. **Honnêteté de périmètre** : une section finale dit ce que la fiche ne remplace pas (« le chapitre X mérite la lecture intégrale parce que… ») et quelle édition a été lue, combien de pages, comment.
+11. **Énumérations au point-virgule interdites** : trois propositions collées par « ; » ne racontent pas, réécrire en vraies phrases (souvent en escalade narrative). Exception : l'antithèse en deux volets, où le « ; » porte le contraste.
+12. **Italique d'emphase interdit** : l'italique est réservé aux titres d'œuvre et aux termes étrangers. L'emphase rhétorique (le *et*, le *est*) est redondante avec le texte ; si le contraste manque, l'écrire en toutes lettres.
+13. **Charge mémoire minimale** : jamais de référence que le lecteur doit résoudre (« le troisième temps » → le nommer : « le troisième temps : la vérification »), antécédent d'un pronom à une phrase maximum (deux noms du même genre en lice = répéter le nom), pas de « Et »/« Mais » nus en attaque de phrase (connecteur intégré : « Git, lui, … »). Le texte doit couler sans rien demander à retenir.
 
 **Sorties courtes par section** : rédiger idée par idée, jamais la fiche d'un seul jet (la fidélité d'une génération longue se dégrade vers la fin, c'est mesuré).
 
