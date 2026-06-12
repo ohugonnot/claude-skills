@@ -7,7 +7,7 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.4.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.5.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers du skill (progressive disclosure)** : `lessons.md` (meta-leçons cross-projet, chargées à l'Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique).
 
@@ -122,7 +122,7 @@ Passer leurs sorties au context pack : les reviewers **ne re-flaguent pas** ce q
 Un **agent distinct par dimension**, contexte vierge, recevant le context pack (stable) + sa rubrique (volatile). Décomposer plutôt qu'un « God reviewer » (chaque agent a un focus net, les FP d'une dimension ne contaminent pas les autres — Qodo, Intercom, Cursor). Dimensions standard (activer selon routage) :
 
 - **spec-alignment** : le diff couvre-t-il TOUT le ticket (chemins, critères d'acceptation) ? gaps non implémentés ? scope creep (modifs hors ticket) ?
-- **correctness / bugs** : logique, cas limites, concurrence/races, nil/maps, off-by-one, fuites de ressources, `defer` en boucle, error shadowing, aliasing de slices, gestion d'erreurs. (Language-aware.)
+- **correctness / bugs** : logique, cas limites, concurrence/races, nil/maps, off-by-one, fuites de ressources, `defer` en boucle, error shadowing, aliasing de slices, gestion d'erreurs. **Cohérence inter-couches (lentille obligatoire dès que le diff touche une requête agrégée OU un mapping post-requête)** : quand une couche COMPTE/agrège (SQL `COUNT`, total de pagination, `GROUP BY`) et qu'une autre FILTRE/projette ensuite (mapping applicatif, `continue`, dédup), vérifier que les deux opèrent sur le MÊME ensemble — un total calculé en amont d'un filtre aval est gonflé (pages courtes, « suivant » actif à tort). Vérifier la **granularité de jointure** (un `WHERE`/`NOT EXISTS` par-LIGNE jointe ≠ intention par-ENTITÉ : cas multi-items même clé) et la **symétrie de scope** entre filtre SQL et filtre applicatif (même clé tenant/slug ?). Tracer le count ET les rows jusqu'à l'UI. (Language-aware.)
 - **security** (mindset attaquant) : entrées contrôlées par l'attaquant → sinks (injection, XSS, SSRF, path traversal), authz/authn, secrets/PII en logs, crypto, trust boundaries, fail-open. Modèle de menace, pas check-list mécanique (gosec couvre le mécanique).
 - **design / maintainability** : abstraction au bon niveau, sur-ingénierie/YAGNI, boussole ETC (« ce choix rend-il le système plus facile ou plus dur à changer ? »), lisibilité (« compréhensible en 5 s »), nommage, commentaires (pourquoi non-évident, pas paraphrase ; un commentaire long et pénible à écrire signale une abstraction ratée), complexité poussée aux appelants (un check que chaque appelant doit répéter devrait être absorbé par le module — borner, défaut, null object), adhérence conventions projet.
 - **tests** : couverture du *comportement modifié*, cas d'erreur (pas que le happy path), assertions utiles, et — candidat red-check — *les tests échouent-ils vraiment si le code casse ?*
@@ -146,7 +146,7 @@ Logger `[review:<dim>] N findings (x bloquants, y importants)`.
 
 **Recherche web en appui (pas en substitut)** : pour un doute version/API/framework, consulter la doc officielle peut *confirmer ou réfuter* l'hypothèse (ex. « cette API plafonne-t-elle sans `first:` ? »). Mais le **receipt reste local** (grep/exec/test contre la version réelle du repo) ; la source web est citée (lien + date) et ne suffit jamais seule à remonter un finding bloquant.
 
-Findings non prouvés → **drop silencieux** (ou rétrogradés en `low confidence — à vérifier`). Logger `[verify] k/n findings confirmés, j droppés (faux positifs)`.
+Findings non prouvés → **drop silencieux** (ou rétrogradés en `low confidence — à vérifier`). **Exception au drop — désaccord inter-couches dont le receipt exige une donnée multi-entités** : un finding de cohérence count↔display ou de granularité de jointure dont la preuve demande de FABRIQUER un jeu de données (multi-items même clé, count ≠ rows visibles) ne se drope PAS faute de receipt rapide. Si la lecture du flux SQL→mapping rend le désaccord plausible, le remonter en `🟡 important — à vérifier manuellement` avec le scénario de données exact à construire. Un receipt cher n'est pas l'absence de bug. Logger `[verify] k/n findings confirmés, j droppés (faux positifs)`.
 
 ## Étape 5 — Synthèse calibrée (dédup + panel adversarial ciblé)
 
@@ -202,7 +202,7 @@ Verdict `approve` ET un skill `branch-wrap-up` disponible ET la cible est du tra
 Bloquant-potentiel d'abord :
 1. **Spec coverage** — couvre tout le ticket ? (pas seulement correct)
 2. **Design** — interactions cohérentes, abstraction au bon endroit, pas d'over-engineering (« résous le problème d'aujourd'hui, pas celui spéculé pour demain » — Google)
-3. **Correctness** — logique, cas limites, concurrence/races
+3. **Correctness** — logique, cas limites, concurrence/races ; **data-shape** : rejouer le chemin sur ZÉRO entité, UNE, PLUSIEURS du même groupe (multi-items même clé), doublons — les bugs de count/jointure/dédup sont invisibles au mono-entité happy-path
 4. **Security** — entrées validées, authz, secrets/PII, injection, fail-closed
 5. **Tests** — présents, rougissent si le code casse, cas d'erreur
 6. **Error handling** — wrap `%w`, pas de panic sur erreur normale

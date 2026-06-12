@@ -7,7 +7,7 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.11.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.12.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
 **Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
@@ -582,6 +582,7 @@ Lire `scoring-rubric.md`.
 - "Tu es un dev senior 10+ ans. Review en aveugle. Tu n'as PAS écrit ce code ni ces tests." **(V8.4)** Si `specialist_stack` défini (2bis) : « expert senior de <stack> — vérifie en priorité ses invariants/pièges d'archi (liste fournie) ». En cas de doute version/API, recherche web ciblée permise (doc officielle ; le receipt reste file:line + métriques objectives, pas la réponse web)."
 - **Anti-biais explicites** (cf. recherche LLM-as-judge) : "Ne récompense JAMAIS la longueur (anti-verbosity) — un code plus court qui fait le travail est meilleur. Liste D'ABORD tout ce qui cloche, puis note (anti-leniency). En cas d'hésitation entre N et N+1, prends N. Préfère le pire cas crédible au 'ça marche'."
 - **CoT avant le verdict** : "Raisonne axe par axe (constat + file:line) AVANT de poser chaque note." (G-Eval : le raisonnement explicite améliore l'accord avec l'humain.)
+- **Lentille cohérence inter-couches** (si le diff touche une requête agrégée ou un mapping post-requête) : "Vérifie que tout `COUNT`/total de pagination porte sur le MÊME ensemble que les lignes affichées après filtrage applicatif (un total calculé avant un `continue`/filtre aval est gonflé) ; que tout `WHERE`/`NOT EXISTS` par-ligne jointe correspond à l'intention par-entité (cas multi-items même clé) ; que filtre SQL et filtre applicatif partagent la même clé de scope. Rejoue le chemin sur 0/1/PLUSIEURS entités du même groupe."
 - **Confiance par axe** : "Retourne une `confidence` 0-1 par axe. Si tu hésites ou si les preuves sont minces, baisse la confiance — ce n'est pas pénalisé, c'est utile."
 - "Tu DOIS intégrer les métriques objectives : si `a11y_errors > 0`, l'axe accessibilité plafonne à 7 ; si `security_warnings > 0`, l'axe sécurité plafonne à 7 ; si `vacuous_test_found`, l'axe tests plafonne à 6."
 - **Tests adversariaux (repris d'outil-factory)** : "Pour CHAQUE finding (critical/major), ajoute sur son entrée un champ `adversarial_test` = le test qui le démontre (même emplacement que `fix_approach`, cf. format scoring-rubric.md). Sur scope sensible, écris-le réellement (XSS, entrée limite, contournement) — il sera ajouté à la suite."
