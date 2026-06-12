@@ -39,7 +39,7 @@ Chargé à l'Étape 2bis si Go détecté (`go.mod`). Go est typé : le compilate
 - Chaque `(val, err :=)` : `err` consommé ? `_` sur une erreur = à justifier explicitement. Erreur gérée DEUX fois (loggée ET retournée) = anti-pattern.
 - `resp.Body` fermé (et drainé si réutilisation de connexion) après chaque appel HTTP.
 - Accès concurrents : append/map partagés entre goroutines sans mutex/canal ; la review demande « quel test -race couvre ce chemin ? ».
-- Pagination/offsets : cf. frontières exactes (§2) — vérifier le pivot.
+- Pagination/offsets : cf. frontières exactes (§2) — vérifier le pivot, ET la **cohérence count↔rows** : un `COUNT`/total SQL calculé AVANT un filtre appliqué dans le mapping Go (`continue`, dédup) est gonflé — pages courtes, « suivant » actif à tort. Tracer total ET lignes jusqu'à l'UI. Granularité : un `NOT EXISTS`/`WHERE` par-ligne jointe ≠ intention par-entité (multi-items même clé).
 - API tierce : la sémantique d'un champ se vérifie sur un ARTEFACT RÉEL (dump, XML, réponse), pas sur son nom — les noms mentent.
 
 ## 4. Gate objectif Go
