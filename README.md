@@ -67,3 +67,7 @@ Les skills sont alors invocables via `/issue-mr`, `/feature-loop`, `/senior-revi
 
 - Chaque skill garde son `CHANGELOG.md` et, pour feature-loop/senior-review, un `lessons.md` (leçons distillées run après run, anonymisées).
 - L'historique `.archive/` (versions antérieures, données nommées) n'est volontairement pas publié.
+
+## Auteur
+
+[Odilon Hugonnot](https://www.web-developpeur.com/) — développeur full-stack senior. Sur le même site : [21 cours interactifs gratuits](https://www.web-developpeur.com/apprendre/) (dont [coder avec l'IA sans devenir un vibe codeur](https://www.web-developpeur.com/apprendre/coder-avec-ia/)), un [blog technique](https://www.web-developpeur.com/blog/) et la [bibliothèque de fiches de lecture](https://www.web-developpeur.com/bibliotheque/) que `book-distill` alimente.
