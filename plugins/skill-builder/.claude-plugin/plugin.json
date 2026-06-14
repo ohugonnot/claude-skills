@@ -1,0 +1,6 @@
+{
+  "name": "skill-builder",
+  "description": "Author, fix, or package a Claude Code skill: write a SKILL.md that actually triggers, pick the right primitive (skill / CLAUDE.md / subagent / hook / MCP), keep it skimmable, and bundle it into an installable plugin and marketplace.",
+  "version": "1.0.0",
+  "author": { "name": "Odilon Hugonnot", "url": "https://www.web-developpeur.com" }
+}
