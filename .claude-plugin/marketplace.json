@@ -184,7 +184,7 @@
       "name": "skill-builder",
       "displayName": "Skill Builder",
       "source": "./plugins/skill-builder",
-      "description": "Author, fix, or package a Claude Code skill: write a SKILL.md that actually triggers, pick the right primitive (skill / CLAUDE.md / subagent / hook / MCP), keep it skimmable, and bundle it into an installable plugin and marketplace.",
+      "description": "The opinionated principles and review checklist for a Claude Code skill that triggers reliably and stays focused: should it be a skill (vs CLAUDE.md / subagent / hook / MCP), why a description triggers, how to keep it skimmable, how to package it. Complements Anthropic's Skill Creator (which scaffolds); this is the judgment layer.",
       "version": "1.0.0",
       "author": {
         "name": "Odilon Hugonnot",
