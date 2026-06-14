@@ -21,19 +21,20 @@ If the answer is "knowledge or a procedure the model should apply when the situa
 
 ## The description is everything (the #1 lever)
 
-A skill only helps if it **triggers at the right moment and stays quiet otherwise**. That is decided almost entirely by the `description` in the frontmatter. Spend most of your effort here.
+A skill only helps if it triggers at the right moment. The `description` in the frontmatter decides that almost entirely. Spend most of your effort here — and know the real failure mode: **Claude UNDER-triggers skills** far more than it over-triggers (it only consults a skill when it can't trivially handle the task itself). So lean inclusive and a little "pushy".
 
-A strong description has three parts:
+A strong description:
 
-1. **"Use when…"** — the situations, in the user's words. Include concrete trigger phrases someone would actually type ("write a blog article", "why doesn't my skill trigger").
+1. **"Use when…" + real trigger phrases** someone would actually type, and be pushy: "use this whenever the user mentions X, Y or Z, **even if they don't say** '<skill>' explicitly". Anthropic's own docx/xlsx skills phrase it exactly that way.
 2. **What it does**, in one breath — enough for the model to know it's the right tool.
-3. **"NOT for…"** — the adjacent cases where it must stay silent. This single clause prevents most misfires (a skill that fires on everything is worse than no skill).
+3. **"NOT for…" — only if a sibling skill competes.** Anthropic's official skills mostly OMIT this, because their domains are distinct (pdf ≠ xlsx, no confusion possible). Add it when you have adjacent skills that could both match (a "review changes" skill vs a "ship a feature" skill) — there it disambiguates. Don't add it just to look careful: an over-restrictive description makes the skill under-trigger, which is the worse problem.
 
 ```
 ---
 name: my-skill
-description: Use when <situations + real trigger phrases> — <what it does in one line>.
-  Trigger on "<phrase>", "<phrase>". NOT for <adjacent case> (use <other thing>).
+description: Use when <situations>, e.g. "<real phrase>", "<real phrase>" — be a little pushy
+  ("whenever the user mentions …, even if they don't say '<skill>'"). <what it does in one line>.
+  [NOT for <adjacent case> — add only if a sibling skill competes.]
 ---
 ```
 
@@ -41,11 +42,11 @@ Name: lowercase, hyphens, a verb-or-noun that reads as a command (`book-distill`
 
 ## Keep the body skimmable (progressive disclosure)
 
-The SKILL.md body is loaded into context when the skill fires. A 2000-line SKILL.md blows the budget and dilutes attention. Rules:
+Three loading levels: **metadata** (name + description, always in context) → **SKILL.md body** (loaded when the skill fires) → **bundled resources** (loaded or executed on demand). Keep the body lean so it doesn't crowd the context.
 
-- **One screen of orientation, then structure.** Lead with the core principle and the loop/steps. A reader (human or model) should grasp it in 30 seconds.
-- **Push detail into `reference/` files** the skill points to, loaded on demand ("for the full stack conventions, see reference/stacks.md"). The main file stays lean.
-- **Imperative and concrete.** "Do X. Never Y." Show the minimal example, not paragraphs of theory.
+- **< 500 lines is the target, not a law.** Anthropic's own docx skill is 590. Go longer when the domain warrants it, but past ~500 add a layer of hierarchy and clear pointers ("for X, read references/x.md").
+- **Externalize the heavy stuff — when it pays.** Two thirds of Anthropic's official skills are a single SKILL.md; split only when it earns it. When you do, **`scripts/` (executable, deterministic ops) earns its place far more often than `references/` (docs)** — the document skills (pdf, xlsx, docx) are mostly scripts. Use `references/<variant>.md` for multi-framework domains; a reference over ~300 lines gets a table of contents.
+- **Imperative and concrete.** "Do X. Never Y." Minimal example over paragraphs of theory.
 - A checklist at the end beats a wall of prose.
 
 ## Folder shape
@@ -54,9 +55,9 @@ The SKILL.md body is loaded into context when the skill fires. A 2000-line SKILL
 my-skill/
 └── SKILL.md            # required: frontmatter (name, description) + body
     (optional alongside:)
-    reference/*.md       # detail loaded on demand
-    scripts/*            # helper scripts the skill calls
-    templates/*          # output templates
+    scripts/*           # executable code for deterministic ops (earns its place most often)
+    references/*.md     # detail loaded on demand (multi-framework, heavy domains)
+    assets/*            # templates, fonts, icons used in the output
 ```
 
 Personal skills live in `~/.claude/skills/<name>/` (or a project's `.claude/skills/`). To SHARE one, wrap it in a plugin.
@@ -86,7 +87,7 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 ## The loop to author one
 
 1. **Decide it's a skill** (see the five primitives).
-2. **Write the description first** — Use-when + trigger phrases + NOT-for. This is the product.
+2. **Write the description first** — Use-when + real trigger phrases, leaning pushy; add NOT-for only if a sibling competes. This is the product.
 3. **Write the lean body** — core principle, the steps/loop, a minimal example, a checklist.
 4. **Externalize the heavy stuff** to `reference/`.
 5. **Test triggering**: does it fire on the real phrases? Does it stay silent on the adjacent cases? Tune the description, not the body.
@@ -94,9 +95,9 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 
 ## Anti-patterns
 
-- **Vague description** ("helps with code") — it never triggers, or triggers on everything. The most common failure.
-- **No "NOT for"** — the skill misfires and erodes trust.
-- **Monster SKILL.md** — hundreds of lines loaded every time; split into reference/.
+- **Vague description** ("helps with code") — it never triggers. The most common failure, and worse than over-triggering.
+- **Over-restrictive description** — too many caveats and the skill under-triggers (the bigger risk). Lean pushy; reserve "NOT for" for genuine sibling competition.
+- **Monster SKILL.md** — only a problem if the bulk is detail that belongs in scripts/ or references/; size alone isn't the sin (docx is 590 lines).
 - **Hardcoding one project's specifics** in a skill meant to be reused — keep it stack-agnostic, discover specifics live.
 - **Renaming the concept mid-body** — one term, used consistently (the model anchors on it).
 - **Wrong primitive** — an always-on rule should be CLAUDE.md or a hook, not a skill.
@@ -104,7 +105,7 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 ## Checklist
 
 - [ ] A skill is the right primitive (not CLAUDE.md / subagent / hook / MCP)
-- [ ] `description` has Use-when + real trigger phrases + a NOT-for clause
+- [ ] `description` has Use-when + real trigger phrases, leans pushy (under-triggering is the bigger risk); NOT-for only if a sibling competes
 - [ ] Name is lowercase-hyphen, reads like a command
 - [ ] Body is skimmable; heavy detail lives in reference/
 - [ ] One concept = one word, imperative, minimal examples
