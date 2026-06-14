@@ -1,6 +1,11 @@
 ---
 name: code-mentor
-description: Use when you want to LEVEL UP while coding, not just get code shipped — the assistant slows down at each important decision, explains it from zero (the why, not just the what), keeps YOU doing the thinking, and saves a course-like markdown lesson you can review later. Trigger on "teach me while we build this", "explain your choices as you go", "I want to understand, not just copy", "level up", "mentor mode". NOT for when you just want the code fast (use a normal session).
+description: >-
+  Use when you want to LEVEL UP while coding, not just get code shipped — the assistant slows down
+  at each important decision, explains it from zero (the why, not just the what), keeps YOU doing the
+  thinking, and saves a course-like markdown lesson you can review later. Trigger on "teach me while
+  we build this", "explain your choices as you go", "I want to understand, not just copy", "level up",
+  "mentor mode". NOT for when you just want the code fast (use a normal session).
 ---
 
 # Code Mentor — learn while you build, don't just offload
