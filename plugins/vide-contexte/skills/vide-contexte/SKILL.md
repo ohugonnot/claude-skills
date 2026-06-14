@@ -1,6 +1,9 @@
 ---
 name: vide-contexte
-description: Use when the user says "vide le contexte", "clear context", "vide le context", "sauvegarde avant /clear", "save context before clearing" or similar — extract and persist the conversation's non-obvious insights into memory files before the context is cleared or compacted.
+description: >-
+  Use when the user says "vide le contexte", "clear context", "vide le context",
+  "sauvegarde avant /clear", "save context before clearing" or similar — extract and persist
+  the conversation's non-obvious insights into memory files before the context is cleared or compacted.
 ---
 
 # Vide le Contexte

@@ -1000,4 +1000,4 @@ Détail : `reference/limitations.md` — **à lire si l'un de ces contextes est 
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.6.0**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.12.0**.
