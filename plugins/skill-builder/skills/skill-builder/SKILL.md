@@ -1,6 +1,13 @@
 ---
 name: skill-builder
-description: Use when you want the opinionated PRINCIPLES and a review checklist for a Claude Code skill that triggers reliably and stays focused — the judgment behind a good SKILL.md: should this even be a skill (vs CLAUDE.md / subagent / hook / MCP), why a description does or doesn't trigger, how to keep it skimmable, how to package it. Trigger on "review my SKILL.md", "why doesn't my skill trigger", "principles of a good skill", "should this be a skill or a hook", "is my skill description good". NOT for interactive scaffolding from scratch (use Anthropic's Skill Creator), nor for general coding.
+description: >-
+  Use when you want the opinionated PRINCIPLES and a review checklist for a Claude Code skill
+  that triggers reliably and stays focused — the judgment behind a good SKILL.md: should this
+  even be a skill (vs CLAUDE.md / subagent / hook / MCP), why a description does or doesn't
+  trigger, how to keep it skimmable, how to package it. Trigger on "review my SKILL.md",
+  "why doesn't my skill trigger", "principles of a good skill", "should this be a skill or a
+  hook", "is my skill description good". NOT for interactive scaffolding from scratch (use
+  Anthropic's Skill Creator), nor for general coding.
 ---
 
 # Skill Builder — the principles behind a skill that triggers and stays focused
