@@ -1,0 +1,9 @@
+{
+  "name": "issue-mr",
+  "description": "Turns a task into a well-formed issue + branch + MR/PR (GitLab/GitHub auto-detected): scaffold, isolate uncommitted work, or produce an analysis-spec ready to feed feature-loop. Discovers project conventions live.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Odilon Hugonnot",
+    "url": "https://www.web-developpeur.com"
+  }
+}

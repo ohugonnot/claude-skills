@@ -1,0 +1,9 @@
+{
+  "name": "code-mentor",
+  "description": "Levels you up while you code: slows down at each important decision, explains it from zero, keeps you thinking (predict-before-reveal, teach-back), and saves a course-like markdown lesson. Grounded in learning science, anti cognitive-offloading.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Odilon Hugonnot",
+    "url": "https://www.web-developpeur.com"
+  }
+}
