@@ -17,12 +17,12 @@ Skills personnels pour [Claude Code](https://claude.com/claude-code) — une fam
 
 | # | Skill | Rôle | Entrée → Sortie |
 |---|---|---|---|
-| 1 | [`issue-mr`](skills/issue-mr) | **Cadrer.** Transforme une description de tâche en issue bien formée + branche + MR/PR shell (GitLab `glab` / GitHub `gh`, auto-détecté). Mode ANALYSE pour les tâches floues : exploration du code, design tranché avec l'utilisateur, issue-spec structurée. | idée floue → issue `#N` + branche `N-slug` |
-| 2 | [`feature-loop`](skills/feature-loop) | **Implémenter.** Boucle autonome quality-gated : writer ≠ test-writer ≠ reviewer aveugle, gate objectif (build/lint/tests + mutation check) avant toute revue LLM, smoke test live obligatoire. `--issue=N` consomme directement l'issue produite par issue-mr. | issue/spec → code livré + rapport |
-| 3 | [`senior-review`](skills/senior-review) | **Relire.** Revue niveau senior en seconde paire d'yeux : reviewers aveugles par dimension (correctness/sécurité/design/tests), findings vérifiés par receipts, panel adversarial sur les critiques. Tiers `--quick` / standard / `--deep`. | diff/branche/PR → verdict + findings prouvés |
-| 4 | [`branch-wrap-up`](skills/branch-wrap-up) | **Clôturer.** Review déléguée à senior-review, proposition de commit conventionnel, suggestion push + MR/PR, capture de connaissances (CLAUDE.md/mémoire). Propose-only : l'utilisateur valide chaque action git. | branche finie → commitée, poussée, documentée |
-| — | [`vide-contexte`](skills/vide-contexte) | **Mémoriser.** Orthogonal au pipeline : avant un `/clear`, extrait les insights non-déductibles de la conversation et les persiste en fichiers mémoire (dédup contre l'index). | conversation → mémoire persistante |
-| — | [`book-distill`](skills/book-distill) | **Distiller.** Hors pipeline dev : lit un livre (PDF/EPUB) et produit une fiche de lecture markdown fidèle et pédagogique — cartographie Adler A/B/C, notes verbatim-first, distillation thématique, contrepoints, citations vérifiées mot à mot contre le texte (`check-claim.py`), boucle qualité ≥ 85/100. | livre → fiche de lecture vérifiée |
+| 1 | [`issue-mr`](plugins/issue-mr) | **Cadrer.** Transforme une description de tâche en issue bien formée + branche + MR/PR shell (GitLab `glab` / GitHub `gh`, auto-détecté). Mode ANALYSE pour les tâches floues : exploration du code, design tranché avec l'utilisateur, issue-spec structurée. | idée floue → issue `#N` + branche `N-slug` |
+| 2 | [`feature-loop`](plugins/feature-loop) | **Implémenter.** Boucle autonome quality-gated : writer ≠ test-writer ≠ reviewer aveugle, gate objectif (build/lint/tests + mutation check) avant toute revue LLM, smoke test live obligatoire. `--issue=N` consomme directement l'issue produite par issue-mr. | issue/spec → code livré + rapport |
+| 3 | [`senior-review`](plugins/senior-review) | **Relire.** Revue niveau senior en seconde paire d'yeux : reviewers aveugles par dimension (correctness/sécurité/design/tests), findings vérifiés par receipts, panel adversarial sur les critiques. Tiers `--quick` / standard / `--deep`. | diff/branche/PR → verdict + findings prouvés |
+| 4 | [`branch-wrap-up`](plugins/branch-wrap-up) | **Clôturer.** Review déléguée à senior-review, proposition de commit conventionnel, suggestion push + MR/PR, capture de connaissances (CLAUDE.md/mémoire). Propose-only : l'utilisateur valide chaque action git. | branche finie → commitée, poussée, documentée |
+| — | [`vide-contexte`](plugins/vide-contexte) | **Mémoriser.** Orthogonal au pipeline : avant un `/clear`, extrait les insights non-déductibles de la conversation et les persiste en fichiers mémoire (dédup contre l'index). | conversation → mémoire persistante |
+| — | [`book-distill`](plugins/book-distill) | **Distiller.** Hors pipeline dev : lit un livre (PDF/EPUB) et produit une fiche de lecture markdown fidèle et pédagogique — cartographie Adler A/B/C, notes verbatim-first, distillation thématique, contrepoints, citations vérifiées mot à mot contre le texte (`check-claim.py`), boucle qualité ≥ 85/100. | livre → fiche de lecture vérifiée |
 
 ## Comment ils travaillent ensemble
 
@@ -38,23 +38,31 @@ Les jointures sont câblées dans les skills eux-mêmes — pas besoin de les or
 
 ## Installation
 
-Cloner puis copier dans le dossier skills de Claude Code :
+### Via le marketplace (recommandé)
+
+Ce dépôt est un **marketplace Claude Code**. On l'ajoute une fois, puis on installe les skills voulus :
 
 ```bash
-git clone https://github.com/ohugonnot/claude-skills.git /tmp/claude-skills
-cp -r /tmp/claude-skills/skills/* ~/.claude/skills/
+/plugin marketplace add ohugonnot/claude-skills
+/plugin                                          # parcourir l'onglet Discover
+/plugin install feature-loop@web-developpeur-skills
+/reload-plugins
 ```
 
-Ou en symlink pour rester synchronisé avec le repo :
+Chaque skill est un plugin installable séparément (`feature-loop`, `senior-review`, `issue-mr`, `branch-wrap-up`, `book-distill`, `vide-contexte`). On peut tout prendre ou juste ce qu'on veut.
+
+### À la main (sans le marketplace)
+
+En symlink, pour rester synchronisé avec le repo :
 
 ```bash
 git clone https://github.com/ohugonnot/claude-skills.git ~/claude-skills
 for s in issue-mr feature-loop senior-review branch-wrap-up vide-contexte book-distill; do
-  ln -s ~/claude-skills/skills/$s ~/.claude/skills/$s
+  ln -s ~/claude-skills/plugins/$s/skills/$s ~/.claude/skills/$s
 done
 ```
 
-Les skills sont alors invocables via `/issue-mr`, `/feature-loop`, `/senior-review`, `/branch-wrap-up`, `/vide-contexte`, `/book-distill` — ou déclenchés automatiquement quand la demande correspond à leur description.
+Les skills s'invoquent ensuite via `/issue-mr`, `/feature-loop`, `/senior-review`, `/branch-wrap-up`, `/vide-contexte`, `/book-distill` — ou se déclenchent automatiquement quand la demande correspond à leur description.
 
 ## Garanties communes
 

@@ -1,0 +1,184 @@
+{
+  "$schema": "https://code.claude.com/schemas/marketplace.json",
+  "name": "web-developpeur-skills",
+  "owner": {
+    "name": "Odilon Hugonnot",
+    "email": "odilon.hugonnot@gmail.com",
+    "url": "https://www.web-developpeur.com"
+  },
+  "description": "Battle-tested Claude Code skills by Odilon Hugonnot: quality-gated feature delivery, senior review, issue/MR workflow, branch wrap-up, book distillation, context saving, human-sounding tech writing, and a learning mentor.",
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "name": "feature-loop",
+      "displayName": "Feature Loop",
+      "source": "./plugins/feature-loop",
+      "description": "Ships a non-trivial feature in an autonomous, quality-gated loop: separate subagents (code, tests, blind review), an objective gate (build/lint/tests + mutation check) before any LLM review, a mandatory live smoke test, iterating until 8/10.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/feature-loop",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "feature",
+        "tdd",
+        "subagents",
+        "quality-gate",
+        "delivery",
+        "orchestration"
+      ],
+      "category": "Workflow"
+    },
+    {
+      "name": "senior-review",
+      "displayName": "Senior Review",
+      "source": "./plugins/senior-review",
+      "description": "Senior fresh-eyes review before merge: bugs, security, design, tests, ticket alignment. Blind reviewers (reviewer != author), a verification gate where every critical finding needs a receipt, and an adversarial refute-panel.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/senior-review",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "code-review",
+        "security",
+        "quality",
+        "fresh-eyes",
+        "pr"
+      ],
+      "category": "Workflow"
+    },
+    {
+      "name": "issue-mr",
+      "displayName": "Issue & MR",
+      "source": "./plugins/issue-mr",
+      "description": "Turns a task into a well-formed issue + branch + MR/PR (GitLab/GitHub auto-detected): scaffold, isolate uncommitted work, or produce an analysis-spec ready to feed feature-loop. Discovers project conventions live.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/issue-mr",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "git",
+        "gitlab",
+        "github",
+        "issue",
+        "merge-request",
+        "workflow"
+      ],
+      "category": "Workflow"
+    },
+    {
+      "name": "branch-wrap-up",
+      "displayName": "Branch Wrap-up",
+      "source": "./plugins/branch-wrap-up",
+      "description": "Wraps up a branch: gathers the changes, delegates the review to senior-review, proposes a conventional commit message in the project's own style, and suggests the push and MR/PR.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/branch-wrap-up",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "git",
+        "commit",
+        "branch",
+        "wrap-up",
+        "workflow"
+      ],
+      "category": "Workflow"
+    },
+    {
+      "name": "book-distill",
+      "displayName": "Book Distill",
+      "source": "./plugins/book-distill",
+      "description": "Reads a book (PDF or EPUB) and produces a faithful, pedagogical reading note: Adler-style mapping, targeted reading, citations verified word-for-word against the text, thematic distillation into linked ideas, and a reasoned rating.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/book-distill",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "books",
+        "knowledge",
+        "reading",
+        "distillation",
+        "pdf",
+        "epub"
+      ],
+      "category": "Knowledge"
+    },
+    {
+      "name": "vide-contexte",
+      "displayName": "Clear Context",
+      "source": "./plugins/vide-contexte",
+      "description": "Before a /clear or a compaction, extracts the non-derivable insights of a conversation and persists them to memory files (deduplicated against the index), so a future session keeps everything that was learned.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/vide-contexte",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "memory",
+        "context",
+        "persistence",
+        "workflow"
+      ],
+      "category": "Workflow"
+    },
+    {
+      "name": "tech-article",
+      "displayName": "Tech Article",
+      "source": "./plugins/tech-article",
+      "description": "Writes a technical blog article that reads like a human wrote it, not an AI: story-first, an AI-slop killer (EN + FR), research-grounded fluency mechanics (old-new, strong word last), an essential-oil cut, and diagrams only when they earn their place.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/tech-article",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "writing",
+        "blog",
+        "content",
+        "technical-writing",
+        "anti-ai-slop"
+      ],
+      "category": "Writing"
+    },
+    {
+      "name": "code-mentor",
+      "displayName": "Code Mentor",
+      "source": "./plugins/code-mentor",
+      "description": "Levels you up while you code: slows down at each important decision, explains it from zero (the why, not the what), keeps YOU thinking (predict-before-reveal, teach-back), and saves a course-like markdown lesson. Grounded in learning science, anti cognitive-offloading.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/code-mentor",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "learning",
+        "mentor",
+        "upskilling",
+        "pedagogy",
+        "teaching",
+        "cognitive-offloading"
+      ],
+      "category": "Learning"
+    }
+  ]
+}
