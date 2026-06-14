@@ -1,9 +1,11 @@
 ---
 name: skill-builder
-description: Use when you want to author, fix, or package a Claude Code skill — write a SKILL.md that actually triggers, choose between a skill / CLAUDE.md / subagent / hook / MCP, keep it skimmable, and bundle it into an installable plugin and marketplace. Trigger on "write a skill", "create a SKILL.md", "make a Claude Code skill", "why doesn't my skill trigger", "publish my skill", "package as a plugin". NOT for using an existing skill, nor for general coding.
+description: Use when you want the opinionated PRINCIPLES and a review checklist for a Claude Code skill that triggers reliably and stays focused — the judgment behind a good SKILL.md: should this even be a skill (vs CLAUDE.md / subagent / hook / MCP), why a description does or doesn't trigger, how to keep it skimmable, how to package it. Trigger on "review my SKILL.md", "why doesn't my skill trigger", "principles of a good skill", "should this be a skill or a hook", "is my skill description good". NOT for interactive scaffolding from scratch (use Anthropic's Skill Creator), nor for general coding.
 ---
 
-# Skill Builder — write a Claude Code skill that triggers and ships
+# Skill Builder — the principles behind a skill that triggers and stays focused
+
+> For interactive scaffolding, evaluation and benchmarking of a skill, use Anthropic's official **Skill Creator** (claude.com/plugins/skill-creator). This skill is the complementary **judgment layer**: the opinionated principles that make a skill trigger reliably and stay focused, plus a review checklist and the packaging path. Use it to design, review, or debug a skill, not to generate boilerplate.
 
 ## First: is a skill even the right tool?
 
