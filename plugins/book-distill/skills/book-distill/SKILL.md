@@ -1,12 +1,12 @@
 ---
 name: book-distill
 description: >-
-  Lit un livre (PDF ou EPUB) et produit une fiche de lecture markdown fidèle et pédagogique :
-  cartographie du livre, lecture ciblée, citations vérifiées mot à mot contre le texte,
-  distillation thématique en idées reliées, note argumentée, contrepoints. Use whenever the
-  user provides a book file or asks to summarize or distill a book — « résume ce livre »,
-  « fiche de lecture », « extrais la substance », "book summary", "distill this book" —
-  even if they never say the word « fiche ».
+  Reads a book (PDF or EPUB) and produces a faithful, pedagogical markdown reading note:
+  maps the book, reads with intent, verifies every citation word-for-word against the text,
+  distills by themes into linked ideas, with a reasoned rating and counterpoints. Use whenever
+  the user provides a book file or asks to summarize or distill a book — "book summary",
+  "distill this book", "reading note", « résume ce livre », « fiche de lecture »,
+  « extrais la substance » — even if they never say the word "note".
 argument-hint: "[chemin-du-livre] [audience]"
 ---
 
