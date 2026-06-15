@@ -97,7 +97,16 @@ SCAFFOLD → ajouter `--create-source-branch` (la branche n'existe pas encore) ;
 **GitHub ISOLER** : `gh pr create --title "<titre conventionnel>" --body "<description structurée>" --base <défaut> --head <N>-<slug>`.
 **GitHub SCAFFOLD — gotcha** : GitHub refuse une PR sans commit d'écart (« No commits between … ») → **pas de PR à ce stade** ; le dire dans le résumé (« PR à ouvrir au premier commit : `gh pr create --base <défaut>` »), l'issue + la branche liée suffisent.
 
-**Description de MR/PR** (markdown, générée depuis la tâche et le diff réel) : **Résumé** (quoi + pourquoi, 1-2 phrases) · **Contexte / problème** · **Changements** (par zone/fichier) · **Vérification** (build/lint/tests ; e2e/smoke si fait) · **Limites / risques** (si pertinent) · **Guide reviewer** (ordre de lecture, si diff non-trivial) · `Closes #<N>`. En SCAFFOLD (pas de diff) : contexte + plan attendu. Concis, pas de remplissage.
+**Description de MR/PR** — pédagogique pour un dev qui ne connaît pas le code, condensée sur la plus-value. Sections dans l'ordre :
+
+- **Contexte** — le modèle de données ou le flux système concerné, pour qu'un dev comprenne avant de lire le bug. Inclure toujours si la MR touche un mécanisme non-évident (stockage JSONB, event sourcing, saga, webhook).
+- **Problème** — le constat précis + un cas réel si disponible (ex : "10 items cassés sur staging immédiatement"). Pas de description du fix ici.
+- **Choix retenu** (si plusieurs approches possibles) — l'option choisie ET pourquoi les alternatives ont été écartées. Critique pour les MRs de bug non-trivial ou de design.
+- **Fix** — ce qui change, en langage métier. Préférer le format "Avant : … / Après : …" pour les changements de comportement. Pas de liste de fichiers modifiés (le diff est là pour ça).
+- **Effets de bord** (toujours présente) — "Aucun effet de bord" si le changement est purement additif, sinon liste explicite : ce qui devient plus tolérant / plus strict, quels appelants sont touchés, ce qui reste inchangé.
+- `Closes #<N>`
+
+En SCAFFOLD (pas de diff) : Contexte + Problème + Plan attendu. Jamais de placeholder vide. Jamais de liste de fichiers modifiés.
 
 ## Étape 7 — Checkout + résumé
 
