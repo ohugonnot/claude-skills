@@ -97,13 +97,16 @@ SCAFFOLD → ajouter `--create-source-branch` (la branche n'existe pas encore) ;
 **GitHub ISOLER** : `gh pr create --title "<titre conventionnel>" --body "<description structurée>" --base <défaut> --head <N>-<slug>`.
 **GitHub SCAFFOLD — gotcha** : GitHub refuse une PR sans commit d'écart (« No commits between … ») → **pas de PR à ce stade** ; le dire dans le résumé (« PR à ouvrir au premier commit : `gh pr create --base <défaut>` »), l'issue + la branche liée suffisent.
 
-**Description de MR/PR** — pédagogique pour un dev qui ne connaît pas le code, condensée sur la plus-value. Sections dans l'ordre :
+**Description de MR/PR** — objectif : qu'un dev qui n'a pas travaillé dessus comprenne immédiatement la valeur et puisse attaquer la review sans chercher. Dense en information utile, zéro remplissage. Sections dans l'ordre :
 
-- **Contexte** — le modèle de données ou le flux système concerné, pour qu'un dev comprenne avant de lire le bug. Inclure toujours si la MR touche un mécanisme non-évident (stockage JSONB, event sourcing, saga, webhook).
-- **Problème** — le constat précis + un cas réel si disponible (ex : "10 items cassés sur staging immédiatement"). Pas de description du fix ici.
-- **Choix retenu** (si plusieurs approches possibles) — l'option choisie ET pourquoi les alternatives ont été écartées. Critique pour les MRs de bug non-trivial ou de design.
-- **Fix** — ce qui change, en langage métier. Préférer le format "Avant : … / Après : …" pour les changements de comportement. Pas de liste de fichiers modifiés (le diff est là pour ça).
-- **Effets de bord** (toujours présente) — "Aucun effet de bord" si le changement est purement additif, sinon liste explicite : ce qui devient plus tolérant / plus strict, quels appelants sont touchés, ce qui reste inchangé.
+- **Contexte** — le modèle de données ou le flux système concerné. Obligatoire si la MR touche un mécanisme non-évident (JSONB, event sourcing, saga, webhook) ; optionnel si le domaine est évident.
+- **Problème** — le constat précis + un cas réel si disponible ("10 items cassés sur staging"). Pas de description du fix ici.
+- **Choix retenu** (si plusieurs approches possibles) — l'option choisie ET pourquoi les alternatives ont été écartées. Critique pour les bugs non-triviaux et les décisions de design.
+- **Fix** — ce qui change, en langage métier. Préférer "Avant : … / Après : …" pour les changements de comportement. Pas de liste de fichiers (le diff fait ça).
+- **Effets de bord** (toujours présente) — "Aucun" si le changement est purement additif ; sinon liste explicite : ce qui devient plus tolérant / plus strict, quels appelants sont touchés, ce qui reste inchangé.
+- **Vérification** — build/lint/tests passés, e2e ou smoke si réalisé. Permet au reviewer de savoir ce qui a déjà été vérifié.
+- **Limites / risques** (si pertinent) — ce qui n'est pas couvert, ce qui nécessite une attention particulière en prod, les cas limites connus.
+- **Guide reviewer** (si diff non-trivial) — ordre de lecture conseillé, fichiers clés à lire en premier.
 - `Closes #<N>`
 
 En SCAFFOLD (pas de diff) : Contexte + Problème + Plan attendu. Jamais de placeholder vide. Jamais de liste de fichiers modifiés.
