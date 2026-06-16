@@ -7,7 +7,7 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.5.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.5.1** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers du skill (progressive disclosure)** : `lessons.md` (meta-leçons cross-projet, chargées à l'Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique).
 
@@ -195,7 +195,7 @@ Verdict `approve` ET un skill `branch-wrap-up` disponible ET la cible est du tra
 ## Étape 7 — Learnings (mémoire par repo + lessons cross-projet)
 
 - **Faux positif confirmé** par l'user (« ça c'est voulu ») ou par la vérif → l'écrire dans `~/.claude/projects/<encoded-cwd>/memory/senior_review_learnings.md` (`codebase_fact` vs `team_preference`) pour ne pas le répéter. Ne pas polluer avec des learnings trop génériques/vieux.
-- **Leçon sur *comment reviewer*** réutilisable ailleurs → `~/.claude/skills/senior-review/lessons.md` (additive ; format : `- **<titre>** : <règle actionnable> — *vu sur N runs (<slugs>)*`). Ces leçons sont rechargées à l'Étape 1.8 de chaque run — c'est ce qui ferme la boucle d'apprentissage. Logger `[learn] N learnings repo, M lessons cross-projet`.
+- **Leçon sur *comment reviewer*** réutilisable ailleurs → `~/.claude/skills/senior-review/lessons.md` (additive ; format : `- **<titre>** : <règle actionnable> — *vu sur N runs*`). **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — jamais de nom client / projet / vendor / branche réels ; généraliser (« un projet réel »). Ces leçons sont rechargées à l'Étape 1.8 de chaque run — c'est ce qui ferme la boucle d'apprentissage. Logger `[learn] N learnings repo, M lessons cross-projet`.
 
 ## Rubrique des dimensions (ancres — ce qu'un senior regarde, par priorité)
 
@@ -254,4 +254,4 @@ Non-bloquant (nit/suggestion) :
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.2.0**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.5.1**.

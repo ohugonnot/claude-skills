@@ -7,7 +7,7 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.14.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.14.1** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
 **Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
@@ -200,7 +200,7 @@ Déduire :
     - *Sécurité/OWASP* : si keywords sensibles OU sortie consommée par un tiers (rubrique = checklist OWASP).
     - *Performance*, *observabilité* : selon scope.
     - **Pack user-facing** (repris d'outil-factory, si la feature produit une UI/contenu vu par un utilisateur final, typiquement un produit public) : i18n (si multilingue), copywriting (si texte user), SEO (si page publique), CTA/conversion (si page à objectif de conversion — rare en interne). Une route API n'active AUCUN de ces axes.
-- **Axes domain-specific** (optionnel) : l'agent peut proposer 1-3 axes complémentaires si la feature a une dimension propre (ex: "WAF anti-bot résilience" pour scraping, "Compat couche pure" pour refacto avec API publique stable). **Chaque axe additionnel doit avoir une rubrique 0-10 explicite définie AVANT l'impl** et stockée dans `.feature-loop.json` au champ `axes_custom`. **Substitution interdite** : jamais retirer/renommer un axe standard. L'axe "valeur vs concurrence" (outil-factory) n'est disponible que sur demande explicite (produit public comparable), jamais d'office.
+- **Axes domain-specific** (optionnel) : l'agent peut proposer 1-3 axes complémentaires si la feature a une dimension propre (ex: "résilience anti-bot/WAF" pour scraping, "Compat couche pure" pour refacto avec API publique stable). **Chaque axe additionnel doit avoir une rubrique 0-10 explicite définie AVANT l'impl** et stockée dans `.feature-loop.json` au champ `axes_custom`. **Substitution interdite** : jamais retirer/renommer un axe standard. L'axe "valeur vs concurrence" (outil-factory) n'est disponible que sur demande explicite (produit public comparable), jamais d'office.
 - **Conventions** : extraire 3-5 patterns concrets du codebase (composant, test, error handling, validation, styling)
 
 Présenter via `AskUserQuestion` :
@@ -845,7 +845,7 @@ Si l'user choisit merger/garder ET qu'un skill `branch-wrap-up` est disponible :
 ```
 Ce fichier survit aux runs ET aux suppressions de branche/worktree (d'où le hors-arbre) — c'est la source du tableau de bord `status`. Le champ **`anomalies`** trace les endroits où la **boucle elle-même** a buté (vs la feature) : tests vacants, mutations inconclusives, rollbacks, plans rejetés, preuves hallucinées, notes ignorées, échec smoke-live, agent B relancé. C'est l'historique d'échec du *skill*, matière première de `learn` (Étape 7) — remplir les compteurs depuis le journal `.feature-loop.json`, zéros inclus (l'absence d'anomalie est aussi un signal). **`subagent_tokens_total`** : somme des `subagent_tokens` retournés par chaque appel Agent du run (la mère les note au fil de l'eau) — c'est la mesure objective du coût, base de comparaison avant/après toute optimisation du skill ; `status` peut alors montrer la tendance coût/durée par tier. Logger `[runs] run loggé dans feature_loop_runs.jsonl`.
 
-**Lessons cross-projet** : si le run a révélé une leçon sur *comment piloter la boucle* (réutilisable sur un AUTRE projet — ex: "un major a11y sur icon-button est presque toujours réel, ne pas le reclasser en minor", "le skip Sonnet overflow quasi-systématiquement sur les features touchant une migration"), l'append à `~/.claude/skills/feature-loop/lessons.md`. **Test de tri** : spécifique au projet courant → insight projet (5.5) ; vrai sur d'autres projets → lesson cross-projet ici. Logger `[lessons] N meta-leçon(s) cross-projet ajoutée(s)`.
+**Lessons cross-projet** : si le run a révélé une leçon sur *comment piloter la boucle* (réutilisable sur un AUTRE projet — ex: "un major a11y sur icon-button est presque toujours réel, ne pas le reclasser en minor", "le skip Sonnet overflow quasi-systématiquement sur les features touchant une migration"), l'append à `~/.claude/skills/feature-loop/lessons.md`. **Test de tri** : spécifique au projet courant → insight projet (5.5) ; vrai sur d'autres projets → lesson cross-projet ici. **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — la leçon ne nomme JAMAIS un client / projet / vendor / branche / champ métier réels ; généraliser (« un projet réel », « une intégration tierce »). Logger `[lessons] N meta-leçon(s) cross-projet ajoutée(s)`.
 
 ## Étape 6 — Sous-commande `status` (hors boucle, lecture seule)
 
@@ -853,7 +853,7 @@ Tableau de bord des runs passés depuis le runs-log hors arbre (`feature_loop_ru
 
 ## Étape 7 — Sous-commande `learn` (propose-only, hors boucle)
 
-Analyse les runs-logs (+ champ `anomalies` = échecs de la boucle elle-même), complète `lessons.md` (additif uniquement), propose une consolidation de `lessons.md` quand doublons/contradictions/inflation (> ~30 leçons) — diff présenté, appliqué seulement sur validation —, et PROPOSE des évolutions du SKILL.md sans JAMAIS les appliquer seul : sections LOCKED interdites, garde-fou anti-dérive (ne propose jamais d'affaiblir un garde-fou), versioning semver uniquement sur modif validée par l'user. Procédure complète : **lire `reference/subcommands.md` au dispatch**.
+Analyse les runs-logs (+ champ `anomalies` = échecs de la boucle elle-même), complète `lessons.md` (additif uniquement, **leçons anonymisées** — aucun nom client/projet réel, cf. 5.7), propose une consolidation de `lessons.md` quand doublons/contradictions/inflation (> ~30 leçons) — diff présenté, appliqué seulement sur validation —, et PROPOSE des évolutions du SKILL.md sans JAMAIS les appliquer seul : sections LOCKED interdites, garde-fou anti-dérive (ne propose jamais d'affaiblir un garde-fou), versioning semver uniquement sur modif validée par l'user. Procédure complète : **lire `reference/subcommands.md` au dispatch**.
 
 ## Quand interagir avec l'user (récap)
 
@@ -943,4 +943,4 @@ Fondements : `reference/references.md`.
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.14.0**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.14.1**.
