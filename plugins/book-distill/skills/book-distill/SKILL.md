@@ -102,7 +102,7 @@ Gabarit : `templates/fiche.md` (structure par défaut sensée ; adapter si le li
 4. **Vieux → neuf, phrase par phrase** : chaque phrase ouvre sur ce qui est déjà posé et ferme sur l'information neuve (contrat donné-nouveau, Clark & Haviland). Un passage « décousu », c'est presque toujours ça.
 5. **Signaler la structure** : titres porteurs de l'idée, phrases-clés en gras, renvois explicites entre idées (levier texte le mieux chiffré : g ≈ 0.5 en rétention). Un titre est une promesse : la section doit l'encaisser (un titre « X fait moins peur » exige la phrase qui le démontre).
 6. **Une citation vérifiée par grande idée**, avec sa page : valeur lecteur + preuve d'ancrage.
-7. **Tout sigle décodé à sa première apparition ; tout terme technique suivi d'un exemple d'une ligne.**
+7. **Tout sigle décodé à sa première apparition ; tout terme technique suivi d'un exemple d'une ligne.** Règle absolue « **définir avant d'utiliser** » : un terme employé dans une phrase doit avoir été défini dans une phrase ANTÉRIEURE, jamais l'inverse, jamais « on y reviendra ». Pour un livre dense en jargon (patterns, architecture, domaine spécialisé), l'audience par défaut est **le nouveau qui rejoint l'équipe** : quelqu'un d'expérimenté mais étranger à CE vocabulaire, qui doit pouvoir suivre une discussion d'équipe après lecture. Ouvrir chaque concept par le problème qu'il résout avec une analogie du quotidien (relevé bancaire → event sourcing, boutique en ligne → CQRS, ticket de concert → process manager), nommer le concept seulement ensuite.
 8. **Embarquer du rappel** : 2-3 questions de récupération en fin de fiche (réponses repliées) + 1 prompt d'auto-explication dans le corps (« avant de lire la suite : pourquoi X échouerait-il si… ? »). La lecture seule crée une illusion de connaissance ; le rappel est la technique d'apprentissage la plus efficace documentée.
 9. **Couper l'extraneous sans pitié** : zéro digression, zéro redite chapeau↔idée, zéro flourish. On ne « rajoute » pas de la bonne charge cognitive, on libère de la mémoire de travail. Un écho VOULU entre deux endroits emploie les MÊMES mots ; la paraphrase d'une idée déjà posée est une redite, pas un écho.
 10. **Honnêteté de périmètre** : une section finale dit ce que la fiche ne remplace pas (« le chapitre X mérite la lecture intégrale parce que… ») et quelle édition a été lue, combien de pages, comment.
@@ -132,9 +132,20 @@ Gabarit : `templates/fiche.md` (structure par défaut sensée ; adapter si le li
 | Jugement honnête (note contrastée justifiée, contrepoints réels) | /10 | |
 | Forme (longueur tenue, structure signalée, questions de rappel) | /10 | |
 
+### 6b-bis. Radar par idée (la porte pédagogique, au grain de l'idée)
+
+Le score /100 ci-dessus juge la fiche entière ; il peut passer alors qu'UNE idée reste opaque. Avant de l'accepter, noter CHAQUE idée distillée sur quatre axes, /10 :
+
+- **Clarté** : tout terme défini avant son premier usage (la règle 7) ; zéro phrase abstraite sans ancrage.
+- **Exemples** : une analogie du quotidien ou un exemple du livre porte l'idée, pas une illustration plaquée.
+- **Pédagogie** : la compréhension se construit maillon par maillon, rien ne saute (le nouveau qui rejoint l'équipe doit suivre).
+- **Concision** : ni délayé ni télégraphique ; chaque phrase gagne sa place.
+
+**Seuil : 8/10 sur chaque axe.** Un axe sous 8 = réécrire CETTE idée seulement, re-noter, jusqu'à ce que les quatre passent. C'est l'instrument d'auto-jugement pédagogique, distinct de la note /10 du livre et du score /100 de la fiche. Émettre une ligne par idée hors du texte final : `[idée: event sourcing] Clarté:9 Exemples:8 Pédagogie:9 Concision:8 → PASS`.
+
 ### 6c. Correction ciblée
 
-Score < 85 ou gate ouvert → identifier les critères faibles, corriger CES passages seulement, retour en 6a. Itérer jusqu'à ≥ 85 et zéro gate. Typique : 2-3 tours sur un premier livre.
+Score < 85, un gate ouvert, ou une idée sous 8 au radar par idée → identifier les critères faibles, corriger CES passages seulement, retour en 6a. Itérer jusqu'à ≥ 85, zéro gate et toutes les idées ≥ 8. Typique : 2-3 tours sur un premier livre.
 
 **Toujours terminer par** : signaler que la note et l'avis sont des drafts que le demandeur doit relire et signer.
 
