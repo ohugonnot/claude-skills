@@ -7,9 +7,9 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.12.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.13.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
-**Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
+**Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
 **Architecture** (patterns officiels Anthropic, *Building Effective Agents*) :
 - **Orchestrator-workers** : une **mère** (Opus, haute réflexion) estime, décompose, délègue à des sous-agents spécialisés, puis synthétise. Elle reste le cerveau ; les workers sont les bras. (Anthropic : Opus-lead + Sonnet-workers surpasse un Opus seul de ~90 % sur tâches complexes.)
@@ -102,40 +102,7 @@ SMOKE TEST FINAL (offline build/tests) → SMOKE TEST LIVE (run réel + exercer 
 
 Préfixes : `[preflight]`, `[scan]`, `[init]`, `[tier]`, `[iter N/max]`, `[plan]`, `[impl]`, `[tests]`, `[gate]`, `[redcheck]`, `[review]`, `[devil]`, `[escalade]`, `[evidence]`, `[converge]`, `[best]`, `[smoke]`, `[smoke-live]`, `[commit]`, `[conflicts]`, `[report]`, `[insights]`, `[lessons]`, `[runs]`, `[done]`. Sous-commandes : `[status]`, `[learn]`. Pas d'emojis. Style factuel.
 
-Exemple :
-```
-[preflight] git status clean, deps OK, baseline build ✓
-[scan] fullstack détecté (Node + React + Vitest + Playwright)
-[scan] keywords sensibles détectés (auth, token) → --paranoid auto-activé
-[init] 3 conventions extraites, 2 lint plugins dispos (jsx-a11y, security)
-[init] insights projet chargés (3 patterns connus), lessons cross-projet chargées (5 leçons)
-[init] in-place : branche develop protégée → feature-loop/add-csv-export créée+checkout (base 5bcba8236)
-[tier] SENSIBLE (keywords auth/token, risque haut) → review Opus + devil's advocate d'office
-[iter 1/3] plan Sonnet (4 fichiers, confidence 8)
-[iter 1/3] mini-review Haiku : plan validé
-[iter 1/3] impl code (agent A, Sonnet)...
-[iter 1/3] tests (agent B ≠ A, depuis la spec) : 12 tests, 3 marqués critiques
-[iter 1/3] gate: build ✓ lint ✓ typecheck ✓ tests 12/12 ✓
-[iter 1/3] redcheck: 3/3 tests critiques rougissent sur mutation ✓
-[iter 1/3] lint-plugins: a11y 0 errors, security 1 warning
-[iter 1/3] screenshots captés (375/768/1440)
-[iter 1/3] review (agent C, Opus, aveugle)...
-[iter 1/3] devil's advocate : 2 angles morts identifiés
-[iter 1/3] escalade: robustesse borderline (7, conf 0.4) → panel-3 → médiane 7 confirmée
-[iter 1/3] preuves vérifiées (14/14 valides)
-[iter 1/3] scores: lisi=8 robust=7 secu=6 ... — 1 critical, 3 majors → next iter
-[iter 2/3] notes_acknowledged: oui (3/3 pris en compte)
-...
-[converge] tous axes ≥ 8, 0 critical
-[best] meilleure version = iter 3 (radar 8.4) = dernière → pas de restauration
-[smoke] re-run final build+tests : ✓
-[smoke-live] serveur dev relancé (ancien binaire détecté), schéma dev aligné, POST /tracking → 200, logs sans erreur : ✓
-[conflicts] branche mergeable, 0 conflit avec main
-[report] feature-loop-report.md écrit
-[runs] run loggé dans feature_loop_runs.jsonl
-[lessons] 1 meta-leçon cross-projet ajoutée
-[done] SUCCESS en 2 itérations, 14min total
-```
+Exemple complet d'une trace de run de bout en bout : `reference/log-example.md`.
 
 ## Étape 0 — Pre-flight check (baseline projet)
 
@@ -404,17 +371,7 @@ git add -A && git commit --allow-empty -m "feature-loop iter-N pre-impl" --no-ve
 ```
 `--no-verify` est volontaire : un snapshot de mécanisme ne doit pas être bloqué par un pre-commit hook applicatif. Noter le SHA dans `pre_impl_sha`.
 
-**Mode 2 — `no_auto_commit: true`** (règle user « pas d'auto-commit ») : ne pas polluer l'**historique de la branche de l'user**, mais le snapshot doit rester **sûr** (anti perte de données : capturer aussi l'untracked, survivre au `git gc`, marcher même sur arbre propre). On crée donc un commit-objet **sur une ref technique dédiée hors-branche** (jamais sur HEAD, jamais dans `git log` de la branche) :
-```bash
-# Capture COMPLÈTE (tracked + untracked) dans un tree temporaire, sans toucher l'index réel de l'user
-TMP_INDEX=$(mktemp -u)
-GIT_INDEX_FILE="$TMP_INDEX" git add -A
-TREE=$(GIT_INDEX_FILE="$TMP_INDEX" git write-tree)
-rm -f "$TMP_INDEX"
-pre_impl_sha=$(git commit-tree "$TREE" -p HEAD -m "feature-loop iter-N pre-impl")
-git update-ref "refs/feature-loop/snap-iter-N" "$pre_impl_sha"   # ANCRE l'objet → gc-protégé
-```
-Avantages vs `git stash create` (rejeté car non-ancré donc gc-able, n'attrape pas l'untracked, et rend une chaîne vide sur arbre propre) : capture l'untracked (nouveaux fichiers de la feature), survit au gc (ancré à une ref), valide même à l'itération 1 sur arbre propre (le tree == HEAD donne un SHA valide). La branche de l'user n'est PAS modifiée (HEAD, index réel, `git log` intacts).
+**Mode 2 — `no_auto_commit: true`** (règle user « pas d'auto-commit ») : ne pas polluer l'**historique de la branche de l'user**, mais le snapshot doit rester **sûr** (anti perte de données : capturer aussi l'untracked, survivre au `git gc`, marcher même sur arbre propre). On crée donc un commit-objet **sur une ref technique dédiée hors-branche** (jamais sur HEAD, jamais dans `git log` de la branche) — **commandes exactes : `reference/git-recipes.md` §4.2 Mode 2** (capture tracked+untracked via index temporaire → `commit-tree` → `update-ref refs/feature-loop/snap-iter-N`). Préféré à `git stash create` (non-ancré donc gc-able, rate l'untracked, chaîne vide sur arbre propre). La branche de l'user n'est PAS modifiée (HEAD, index réel, `git log` intacts).
 
 Rollback (4.8) et restore best (5.0) sur ce snapshot = restaurer le tree de `pre_impl_sha`/`best_iter_sha` dans le working tree **après sauvegarde de l'état courant** (jamais de `checkout -- .` aveugle, cf. 5.0). Nettoyage en fin de run : `git for-each-ref refs/feature-loop/ | … git update-ref -d` (supprimer les refs techniques). Logger `[iter N/max] snapshot ref-technique (no_auto_commit) <sha-court>`.
 
@@ -727,29 +684,13 @@ Feedback user (cf mémoire) : "essayer en 3 iter, si vraiment besoin de plus on 
 
 Avant le smoke test : comparer le radar de l'itération finale à `best_radar` (4.7b). Si la dernière EST la meilleure (cas normal d'une convergence propre) → rien à faire. Sinon, restaurer `best_iter_sha` — **mais la méthode dépend du contexte, jamais de `reset --hard` aveugle** (risque de détruire du travail de l'user sur sa propre branche) :
 
-**Garde appliquée (prédicat exécutable, pas un commentaire).** Deux invariants : (1) **filet de sécurité d'abord** — sauvegarder l'état courant AVANT toute restauration, jamais de `checkout -- .`/`reset --hard` qui détruit du travail non sauvegardé ; (2) **tester `no_auto_commit` EN PREMIER** (un projet peut avoir la règle globale `no_auto_commit` ET une branche créée par le skill → le snapshot est une ref technique, pas un commit de branche).
+**Garde appliquée (prédicat exécutable, pas un commentaire).** Deux invariants : (1) **filet de sécurité d'abord** — sauvegarder l'état courant AVANT toute restauration (ref technique `refs/feature-loop/safety-pre-restore`), jamais de `checkout -- .`/`reset --hard` qui détruit du travail non sauvegardé ; (2) **tester `no_auto_commit` EN PREMIER** (un projet peut avoir la règle globale `no_auto_commit` ET une branche créée par le skill → le snapshot est une ref technique, pas un commit de branche).
 
-```bash
-# Filet : sauver l'état courant complet (tracked+untracked) dans une ref technique, toujours.
-git update-ref refs/feature-loop/safety-pre-restore \
-    "$(TMP=$(mktemp -u); GIT_INDEX_FILE=$TMP git add -A; T=$(GIT_INDEX_FILE=$TMP git write-tree); rm -f $TMP; git commit-tree $T -p HEAD -m 'safety')"
+Trois cas de restauration, **commandes exactes : `reference/git-recipes.md` §5.0** :
+- **`no_auto_commit: true`** → `git read-tree -u --reset "$best_iter_sha"` (restaure le tree de la ref technique, tracked+untracked, sans toucher l'historique user).
+- **worktree OU branche créée par le skill (`branch_created`)** → `git reset --hard "$best_iter_sha"` (sûr, best = vrai commit sur branche jetable).
+- **in-place sur la branche COURANTE de l'user (mode commit)** → JAMAIS de reset (jetterait un commit user intercalé) : `git branch -f feature-loop/best "$best_iter_sha"` puis AskUserQuestion (merger feature-loop/best / garder la dernière / voir le diff). Pas de restauration destructive d'office.
 
-if [ "$no_auto_commit" = "true" ]; then
-    # snapshot = ref technique (4.2 Mode 2) : restaurer son tree sans toucher l'historique user
-    git read-tree -u --reset "$best_iter_sha"        # met le working tree à l'état best, tracked ET untracked
-elif [ "$work_mode" = "worktree" ] || [ "$branch_created" = "true" ]; then
-    # branche jetable créée par le skill / worktree isolé → reset sûr (best = vrai commit)
-    git reset --hard "$best_iter_sha"
-else
-    # IN-PLACE sur la branche COURANTE de l'user, mode commit : le best est un commit ancêtre.
-    # Restauration = JAMAIS un reset qui jetterait un commit user intercalé. On crée une branche
-    # pointant sur le best et on PRÉSENTE (la garantie "meilleure version" est tenue par une option claire).
-    git branch -f feature-loop/best "$best_iter_sha"
-    # → AskUserQuestion : "Meilleure version = iter K (branche feature-loop/best, radar X) ;
-    #   la dernière (radar Y) est moins bonne. (1) merger feature-loop/best  (2) garder la dernière
-    #   (3) voir le diff". Pas de restauration destructive d'office.
-fi
-```
 Logger `[converge] meilleure = iter K (radar X) > dernière (Y) → <read-tree|reset|branche+demande>`. La ref `refs/feature-loop/safety-pre-restore` permet de revenir en arrière si la restauration ne convient pas. Justification : gains qui plafonnent + régression tardive possible (Self-Refine, Huang 2023) → on livre le meilleur état, **jamais au prix d'une destruction non sauvegardée** (cohérent avec 5.6 et CLAUDE.md « input ambigu = pas d'action destructive »). En mode user-branch-commit, la garantie « meilleure version » est tenue par une **option présentée**, pas par un abandon silencieux.
 
 ### 5.1 Smoke test final offline (si SUCCESS)
@@ -819,15 +760,7 @@ Si `APPLICATIVE_COMMITS == 0` → **NE PAS commit**. À la place :
 
    Une fois committé, la branche est mergeable proprement (vérifié pré-validation au conflicts check ci-dessous).
    ```
-4. **Conflicts check (5.2) peut être lancé quand même** sur l'état "staged" via :
-   ```bash
-   git stash --keep-index --include-untracked  # snapshot des modifs unstaged
-   git add -A  # stage tout pour le merge-tree
-   # ... conflicts check ...
-   git reset  # un-stage
-   git stash pop  # restaurer les modifs unstaged
-   ```
-   Cela donne une estimation honnête de la mergeabilité POST commit user, sans modifier le working tree.
+4. **Conflicts check (5.2) peut être lancé quand même** sur l'état "staged" (stash des unstaged → `git add -A` → merge-tree → `git reset` → `git stash pop`) — **commandes exactes : `reference/git-recipes.md` §5.1bis Mode 2**. Cela donne une estimation honnête de la mergeabilité POST commit user, sans modifier le working tree.
 
 5. Le rapport indique : **"Mergeable proprement (sous réserve du commit à exécuter manuellement)"** ou **"Conflits attendus avec main : <liste>"** selon le résultat.
 
@@ -1000,4 +933,4 @@ Détail : `reference/limitations.md` — **à lire si l'un de ces contextes est 
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.12.0**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.13.0**.
