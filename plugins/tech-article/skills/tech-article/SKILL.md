@@ -33,7 +33,7 @@ A technical article is **a story that contains technique**, not technique that t
 These phrasings scream "an LLM wrote this". Cut them on sight. The tells are per-language, so here are both English and French.
 
 - **English**: "It's important to note", "It's worth mentioning", "Moreover, / Furthermore, / Additionally,", "In today's fast-paced world", "Let's dive in", "In conclusion, here are the key takeaways", "By leveraging", and "robust / seamless / powerful" used as filler.
-- **French**: "Il est important de noter", "Il convient de mentionner", "De plus, / En outre, / Par ailleurs,", "Par conséquent," (use "Du coup,"), "Dans le cadre de", "permettre de" on a loop.
+- **French**: "Il est important de noter", "Il convient de mentionner", "De plus, / En outre, / Par ailleurs,", "Par conséquent," (use "Du coup,"), "Dans le cadre de", "Comme nous l'avons vu précédemment" (just cut), "Il faut noter que" (just say the thing), "En résumé, voici les points clés" (the conclusion is an observation, not a recap), "permettre de" on a loop (vary: aide à, sert à, évite de…).
 - **Bulleting everything.** Keep prose when the text has flow. A list is for three or more genuinely parallel items, not for hiding a sentence.
 - The mechanical "it's not X, it's Y" used on repeat.
 - Generic openers ("Today, with the rise of...") — start in the middle of the action instead.
@@ -52,7 +52,9 @@ The first two are the biggest levers — they are what makes a reader never re-r
 6. Point, don't announce: delete "In this section we'll look at...", just say the thing.
 7. One concept, one word, everywhere. Never rename a technical term for elegance.
 
-## Essential oil
+## Self-contained — non-negotiable
+
+The article must be readable by someone who has read nothing else you wrote. Define every internal term, tool name, or concept before using it. If the article is a sequel, say so explicitly and summarize the prerequisite in one sentence. Never assume the reader knows the context, the previous article, or the project.
 
 Minimum text, maximum value. After the draft, cut half the words without losing meaning. Any sentence you can remove without the paragraph collapsing was filler. No flourish you cannot back with a concrete detail. Do not restate the intro inside the concept, or the concept inside the conclusion.
 
