@@ -1,5 +1,12 @@
 # Changelog — book-distill
 
+## 1.1.0 — 2026-06-16
+
+Renforcement pédagogique « non-résumé », tiré d'une fiche CQRS/Event Sourcing réussie (cf. fiche-livre) :
+
+- **Audience par défaut « le nouveau qui rejoint l'équipe »** pour les livres denses en jargon (patterns, archi, domaine) + règle absolue « définir avant d'utiliser » (un terme employé doit avoir été défini dans une phrase antérieure) ajoutées au point 7 de la Phase 5.
+- **Radar par idée** (Phase 6b-bis) : chaque idée distillée notée sur quatre axes (Clarté / Exemples / Pédagogie / Concision), seuil 8/10, boucle de réécriture par idée. Porte pédagogique au grain de l'idée, distincte de la note /10 du livre et du score /100 de la fiche. La 6c boucle aussi tant qu'une idée reste sous 8.
+
 ## 1.0.0 — 2026-06-11
 
 Extraction portable du moteur de distillation du skill privé `fiche-livre` (web-developpeur.com, ~30 livres traités), recalibrée sur trois recherches dédiées :
