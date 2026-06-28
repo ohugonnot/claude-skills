@@ -1,0 +1,15 @@
+{
+  "//": "Allowlist de permissions, propre à chaque machine. Copie en settings.local.json (gitignored) et adapte.",
+  "permissions": {
+    "allow": [
+      "Bash(jq:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(git:*)",
+      "Bash(gh api:*)",
+      "Bash(gh auth:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}

@@ -2,6 +2,15 @@
 .archive/
 **/.archive/
 
+# Mémoire / réglages PERSO — ne jamais publier (seuls les *.example sont versionnés)
+config/memory/MEMORY.md
+config/memory/user_profile.md
+config/memory/user_env.md
+config/settings.local.json
+
+# Résidu d'extraction (le marketplace vit dans plugins/, pas skills/)
+/skills/
+
 # Bruit OS / éditeur
 .DS_Store
 *.swp

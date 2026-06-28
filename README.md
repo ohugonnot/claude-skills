@@ -64,6 +64,19 @@ done
 
 Les skills s'invoquent ensuite via `/issue-mr`, `/feature-loop`, `/senior-review`, `/branch-wrap-up`, `/vide-contexte`, `/book-distill` — ou se déclenchent automatiquement quand la demande correspond à leur description.
 
+### Bootstrap d'une machine
+
+Au-delà des skills, ce dépôt installe aussi la **config Claude Code** (méthodo, réglages, statusline, templates de mémoire) — un poste opérationnel en deux commandes :
+
+```bash
+git clone https://github.com/ohugonnot/claude-skills.git ~/claude-skills
+bash ~/claude-skills/bootstrap.sh
+```
+
+`bootstrap.sh` symlinke la config et les skills depuis le repo (source de vérité unique, zéro dérive) et copie les templates de mémoire dans `~/.claude/memory/`. Idempotent, il sauvegarde tout fichier réel avant de le remplacer. Détail dans [`config/`](config/).
+
+Restent locaux et jamais publiés : la mémoire perso, l'allowlist de permissions, l'auth (gh, MCP). Les fichiers `*.example` montrent quoi remplir.
+
 ## Garanties communes
 
 - **Propose-only sur git** : aucun skill ne commit, push ou merge sans validation explicite de l'utilisateur.
