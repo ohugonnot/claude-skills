@@ -8,9 +8,9 @@ Regroupe les sources citées en abrégé dans SKILL.md et scoring-rubric.md, ave
 
 ## LLM-as-judge (fondent la séparation des rôles + l'anti-biais du juge)
 - **Zheng et al. 2023 (MT-Bench / Chatbot Arena)** : biais de position, de verbosité, d'auto-complaisance (Claude-v1 se surnote de +25 %) → review en aveugle, anti-verbosity, ordre inversé au 2ᵉ juge.
-- **Panickssery et al. 2024** : les LLM reconnaissent et favorisent leur propre sortie (discrimination ~52 % = quasi-hasard) → writer ≠ tester ≠ reviewer, auto-review interdite.
+- **Panickssery et al. 2024** : les LLM reconnaissent et favorisent leur propre sortie → writer ≠ tester ≠ reviewer, auto-review interdite.
 - **Verga et al. 2024 (PoLL — Panel of LLM judges)** : un panel de juges variés bat un juge unique et coûte 7-8× moins qu'un gros juge — MAIS cette économie vaut pour des *petits* juges ; notre panel mixte (1 fort + 2 Sonnet) vise la réduction du biais de position, pas l'économie (outillage mono-famille Claude : diversité de famille indisponible, la préférer via MCP si dispo).
-- **Liu et al. 2023 (G-Eval)** : raisonner (CoT) AVANT de poser la note améliore l'accord avec l'humain (+13pp avec LLMBar) → « constat + file:line avant chaque note ».
+- **Liu et al. 2023 (G-Eval)** : raisonner (CoT) AVANT de poser la note améliore l'accord avec l'humain → « constat + file:line avant chaque note ».
 
 ## Raffinement itératif (fondent max 3 iters + best-version + gate objectif)
 - **Madaan et al. 2023 (Self-Refine)** : les gains plafonnent après 2-3 itérations ; une itération peut régresser → garder la MEILLEURE version, pas la dernière.

@@ -7,7 +7,7 @@ Chaque règle du SKILL.md s'appuie sur un finding documenté. Ce fichier tient l
 - **Macro-règles de Kintsch & van Dijk (1978, Psychological Review)** : un bon résumé = suppression du trivial + généralisation + **construction** de propositions nouvelles qui subsument plusieurs passages. Une réécriture à un niveau d'abstraction supérieur, pas une compression proportionnelle. [SOLIDE]
 - **Brown & Day (1983, JVLVB)** : les novices font du copy-delete (recopier en raccourcissant), les experts construisent des phrases nouvelles trans-paragraphes. Le marqueur de qualité d'un résumé : la proportion de phrases qui n'existent dans aucune phrase du livre. [SOLIDE]
 - **Le piège du surlignage (Dunlosky et al. 2013, PSPI)** : sélectionner les meilleurs passages sans les relier dégrade les questions d'inférence (Peterson 1992) : marquer des items isolés détruit les connexions entre concepts. D'où la règle « idées reliées, pas best-of ». [SOLIDE]
-- **Dunlosky et al. 2013, verdict sur la summarization** : « low utility » pour l'apprenant moyen, efficace seulement chez qui sait déjà résumer ; la **qualité** du résumé est le médiateur (Bednall & Kehoe 2011 : r = .42-.52 entre définitions correctes incluses et performance). Ce skill encode précisément les gestes du résumeur expert. [SOLIDE]
+- **Dunlosky et al. 2013, verdict sur la summarization** : « low utility » pour l'apprenant moyen, efficace seulement chez qui sait déjà résumer ; la **qualité** du résumé est le médiateur (Bednall & Kehoe 2011 : corrélation positive entre définitions correctes incluses et performance). Ce skill encode précisément les gestes du résumeur expert. [SOLIDE]
 
 ## Écrire pour qu'on apprenne
 
@@ -36,7 +36,7 @@ Chaque règle du SKILL.md s'appuie sur un finding documenté. Ce fichier tient l
 - **Hallucination extrinsèque** (Maynez et al. 2020, ACL) : ajouter une information absente de la source, parfois VRAIE grâce au pré-entraînement mais infidèle au livre. Le piège sournois d'une fiche → consigne « vraie dans le monde ≠ dans le livre ». [SOLIDE]
 - **Claims atomiques** (FActScore, arXiv 2305.14251) : découper la sortie en faits courts indépendants et vérifier chacun contre la source ; <2 % d'erreur vs annotation humaine. C'est le modèle de la Phase 6a et de `check-claim.py`. [SOLIDE]
 - **Chain-of-Verification** (CoVe, arXiv 2309.11495) : vérifier chaque claim indépendamment, SANS accès au raisonnement qui l'a produite : la décorrélation évite la propagation d'erreur. [SOLIDE]
-- **SummHay** (arXiv 2407.01370) : même les meilleurs modèles long-contexte citent mal à grande échelle (<20 % couverture+citation sans retrieval) → ne jamais croire « le modèle a tout lu », d'où le contrôle de couverture TOC ↔ idées. [SOLIDE]
+- **SummHay** (arXiv 2407.01370) : même les meilleurs modèles long-contexte citent mal à grande échelle (couverture+citation faible sans retrieval) → ne jamais croire « le modèle a tout lu », d'où le contrôle de couverture TOC ↔ idées. [SOLIDE]
 - **Citations hallucinées** : 13-21 % mesurés dans des systèmes commerciaux (arXiv 2606.00898) → toute citation entre guillemets se retrouve mécaniquement dans le texte extrait avant publication. [INDICATIF]
 - **Map-reduce vs refine** (OpenAI « Summarizing books with human feedback » ; Google Cloud) : la décomposition récursive par sections est validée à l'échelle du livre et rend chaque étage auditable ; la synthèse finale recoud la cohérence que le map-reduce perd. [SOLIDE]
 

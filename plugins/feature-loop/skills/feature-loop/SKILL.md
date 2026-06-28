@@ -14,7 +14,7 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 **Architecture** (patterns officiels Anthropic, *Building Effective Agents*) :
 - **Orchestrator-workers** : une **mère** (Opus, haute réflexion) estime, décompose, délègue à des sous-agents spécialisés, puis synthétise. Elle reste le cerveau ; les workers sont les bras.
 - **Evaluator-optimizer** : boucle générer → évaluer → raffiner, avec un évaluateur **distinct** du générateur. Valide quand les critères sont clairs et mesurables (notre radar).
-- **Séparation stricte des rôles** : écrivain-code ≠ écrivain-tests ≠ relecteur. Le *self-preference bias* est prouvé (un modèle qui se juge se surnote, discrimination ~52 % = quasi-hasard). La mère orchestre, ne s'auto-juge jamais.
+- **Séparation stricte des rôles** : écrivain-code ≠ écrivain-tests ≠ relecteur. Le *self-preference bias* est prouvé (un modèle qui se juge se surnote). La mère orchestre, ne s'auto-juge jamais.
 - **Effort proportionné à la difficulté** : multi-agents ≈ 15× les tokens d'un chat (Anthropic). On dimensionne modèle + profondeur à l'enjeu → rapide sur le facile, lourd sur le critique.
 
 Sources détaillées (patterns Anthropic, LLM-as-judge, raffinement itératif, tests LLM) : `reference/references.md`.
