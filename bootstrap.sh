@@ -33,6 +33,7 @@ link "$REPO_DIR/config/CLAUDE.md"            "$CLAUDE_HOME/CLAUDE.md"
 link "$REPO_DIR/config/go-best-practices.md" "$CLAUDE_HOME/go-best-practices.md"
 link "$REPO_DIR/config/settings.json"        "$CLAUDE_HOME/settings.json"
 link "$REPO_DIR/config/hooks/statusline.sh"  "$CLAUDE_HOME/hooks/statusline.sh"
+link "$REPO_DIR/config/hooks/guard.sh"       "$CLAUDE_HOME/hooks/guard.sh"
 ok "config liée"
 
 # 2. Skills symlinkés (chaque plugin) ------------------------------------------
