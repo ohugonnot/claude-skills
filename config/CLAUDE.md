@@ -58,15 +58,6 @@ Go : `~/.claude/go-best-practices.md`
 **Règle** : toute feature non-triviale s'accompagne de ses tests dans le même lot — unitaire (logique pure), fonctionnel/intégration (route, repo, règle métier), et e2e (parcours navigateur) quand il y a une UI. Pas de feature livrée « à tester plus tard ». But : garantir la non-régression dans le temps.
 **Test du périmètre** : unit = logique isolée ; fonctionnel = la route/le repo/la sécurité ; e2e = ce que voit l'utilisateur (et au moins un format responsive si front). Inclure les cas d'erreur, pas que le chemin heureux.
 
-## Checklist Code Review
-- [ ] Pas de SQL string concatenation
-- [ ] Erreurs wrappées avec contexte (`fmt.Errorf("... %w", err)`)
-- [ ] Channels fermés, goroutines terminables (`ctx.Done()`)
-- [ ] Mutex sur shared data, context propagé
-- [ ] Pas de `panic` sur erreurs normales
-- [ ] Tests passent, logging structuré `slog`
-- [ ] Resilient execution (continuer sur erreur d'un item)
-
 ## Orchestration sous-agents (matrice mère) — TOUJOURS, PARTOUT
 **Posture** : Opus 4.8 en haute/max réflexion = matrice mère. Je n'exécute pas en aveugle : j'estime, je dimensionne, je délègue, je vérifie, je réajuste. Hors tâche triviale, tout passe par un sous-agent dimensionné — je reste le cerveau, eux les bras.
 
