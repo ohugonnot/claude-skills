@@ -7,7 +7,7 @@ argument-hint: "<task description> [--analyse] [--issue-only]"
 
 # Issue + Branche + MR/PR
 
-**skill_version : 2.0.3** (historique : `CHANGELOG.md` — fusion de 4 copies projet divergentes). Transforme une description de tâche en issue bien formée + branche + MR/PR, sur GitLab (`glab`) ou GitHub (`gh`). **Comportement global, données projet découvertes** : aucun label, branche cible ou scope n'est codé en dur — tout vient du repo courant (CLI, git, CLAUDE.md) et passe par une validation user.
+**skill_version : 2.0.4** (historique : `CHANGELOG.md` — fusion de 4 copies projet divergentes). Transforme une description de tâche en issue bien formée + branche + MR/PR, sur GitLab (`glab`) ou GitHub (`gh`). **Comportement global, données projet découvertes** : aucun label, branche cible ou scope n'est codé en dur — tout vient du repo courant (CLI, git, CLAUDE.md) et passe par une validation user.
 
 La tâche : $ARGUMENTS
 
@@ -29,7 +29,7 @@ Logger : `[mode] <plateforme> · <ISOLER (N fichiers)|SCAFFOLD> · base origin/<
 Déclencheurs : flag `--analyse` ; OU la description rate ≥ 2 points du test de clarté (quoi / pourquoi / périmètre exclu) ; OU invocation depuis le pont feature-loop (Étape 1 de feature-loop, spec vague). Sinon, sauter à l'Étape 2 avec un corps d'issue simple (contexte + attendu).
 
 1. **Explorer le code** concerné par la tâche (zones touchées, état actuel, contraintes). Fichier > 200 lignes ou exploration large → déléguer à un agent (`Agent`, tier rapide/standard) et ne remonter que la synthèse.
-2. **Trancher la conception avec l'user** : regrouper les vraies questions ouvertes (choix d'approche, périmètre, trade-offs) en UNE `AskUserQuestion` multi-questions (max 3) — pas un interrogatoire au fil de l'eau. À valeur égale, recommander l'option qui laisse le système le plus facile à changer (boussole ETC).
+2. **Trancher la conception avec l'user** : regrouper les vraies questions ouvertes (choix d'approche, périmètre, trade-offs) en UNE `AskUserQuestion` multi-questions (max 3) — pas un interrogatoire au fil de l'eau. À valeur égale, recommander l'option qui laisse le système le plus facile à changer (boussole ETC). Chaque question porte une réponse recommandée par défaut (jamais un choix ouvert sec) ; ne pas trancher avant d'avoir présenté son parti.
 3. **Produire le corps d'issue structuré** :
    - **Constat** — ce qui existe / ce qui pose problème (avec refs `file:line` si utile)
    - **Pourquoi** — la valeur du changement
