@@ -23,6 +23,9 @@ Skills personnels pour [Claude Code](https://claude.com/claude-code) — une fam
 | 4 | [`branch-wrap-up`](plugins/branch-wrap-up) | **Clôturer.** Review déléguée à senior-review, proposition de commit conventionnel, suggestion push + MR/PR, capture de connaissances (CLAUDE.md/mémoire). Propose-only : l'utilisateur valide chaque action git. | branche finie → commitée, poussée, documentée |
 | — | [`vide-contexte`](plugins/vide-contexte) | **Mémoriser.** Orthogonal au pipeline : avant un `/clear`, extrait les insights non-déductibles de la conversation et les persiste en fichiers mémoire (dédup contre l'index). | conversation → mémoire persistante |
 | — | [`book-distill`](plugins/book-distill) | **Distiller.** Hors pipeline dev : lit un livre (PDF/EPUB) et produit une fiche de lecture markdown fidèle et pédagogique — cartographie Adler A/B/C, notes verbatim-first, distillation thématique, contrepoints, citations vérifiées mot à mot contre le texte (`check-claim.py`), boucle qualité ≥ 85/100. | livre → fiche de lecture vérifiée |
+| — | [`tech-article`](plugins/tech-article) | **Rédiger.** Hors pipeline dev : écrit un article de blog technique qui sonne humain, pas IA — story-first, tueur d'AI-slop (EN + FR), mécaniques de fluidité (vieux-neuf, mot fort en fin), coupe à l'essentiel, diagramme seulement s'il le mérite. | sujet/brouillon → article qui ne sent pas l'IA |
+| — | [`code-mentor`](plugins/code-mentor) | **Enseigner.** Orthogonal au pipeline : fait monter en compétence pendant qu'on code — ralentit à chaque décision clé, explique le POURQUOI (pas le quoi), garde l'humain actif (predict-before-reveal, teach-back), anti cognitive-offloading. | session de code → compétence + leçon markdown |
+| — | [`skill-builder`](plugins/skill-builder) | **Concevoir.** Méta : les principes + checklist pour écrire un SKILL.md qui se déclenche vraiment et reste focalisé — skill vs CLAUDE.md/hook/MCP, pourquoi une description déclenche, packaging. Complète le Skill Creator d'Anthropic (couche jugement). | idée/SKILL.md → skill qui déclenche, focalisé |
 
 ## Comment ils travaillent ensemble
 
@@ -49,7 +52,7 @@ Ce dépôt est un **marketplace Claude Code**. On l'ajoute une fois, puis on ins
 /reload-plugins
 ```
 
-Chaque skill est un plugin installable séparément (`feature-loop`, `senior-review`, `issue-mr`, `branch-wrap-up`, `book-distill`, `vide-contexte`). On peut tout prendre ou juste ce qu'on veut.
+Chaque skill est un plugin installable séparément (`feature-loop`, `senior-review`, `issue-mr`, `branch-wrap-up`, `book-distill`, `vide-contexte`, `tech-article`, `code-mentor`, `skill-builder`). On peut tout prendre ou juste ce qu'on veut.
 
 ### À la main (sans le marketplace)
 
@@ -57,12 +60,12 @@ En symlink, pour rester synchronisé avec le repo :
 
 ```bash
 git clone https://github.com/ohugonnot/claude-skills.git ~/claude-skills
-for s in issue-mr feature-loop senior-review branch-wrap-up vide-contexte book-distill; do
+for s in issue-mr feature-loop senior-review branch-wrap-up vide-contexte book-distill tech-article code-mentor skill-builder; do
   ln -s ~/claude-skills/plugins/$s/skills/$s ~/.claude/skills/$s
 done
 ```
 
-Les skills s'invoquent ensuite via `/issue-mr`, `/feature-loop`, `/senior-review`, `/branch-wrap-up`, `/vide-contexte`, `/book-distill` — ou se déclenchent automatiquement quand la demande correspond à leur description.
+Les skills s'invoquent ensuite via `/issue-mr`, `/feature-loop`, `/senior-review`, `/branch-wrap-up`, `/vide-contexte`, `/book-distill`, `/tech-article`, `/code-mentor`, `/skill-builder` — ou se déclenchent automatiquement quand la demande correspond à leur description.
 
 ### Bootstrap d'une machine
 
