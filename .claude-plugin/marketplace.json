@@ -201,6 +201,28 @@
         "authoring"
       ],
       "category": "Meta"
+    },
+    {
+      "name": "rediger-cir",
+      "displayName": "Rédiger CIR",
+      "source": "./plugins/rediger-cir",
+      "description": "Writes the technical justification file for the French research tax credit (CIR) of a company's R&D operation: official CIROCO structure, Frascati eligibility, experimental approach with valued failures, an external bibliography-verification protocol (anti-hallucination), and an 8-axis self-scoring radar. Generalist templates, no company data.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/rediger-cir",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "cir",
+        "research-tax-credit",
+        "france",
+        "frascati",
+        "anti-hallucination",
+        "writing"
+      ],
+      "category": "Writing"
     }
   ]
 }
