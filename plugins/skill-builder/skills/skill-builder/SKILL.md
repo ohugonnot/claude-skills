@@ -14,6 +14,13 @@ description: >-
 
 > For interactive scaffolding, evaluation and benchmarking of a skill, use Anthropic's official **Skill Creator** (claude.com/plugins/skill-creator). This skill is the complementary **judgment layer**: the opinionated principles that make a skill trigger reliably and stay focused, plus a review checklist and the packaging path. Use it to design, review, or debug a skill, not to generate boilerplate.
 
+## The root virtue: predictability
+
+A skill exists to pull determinism out of a stochastic system. What you make repeatable is the **process**, not the output — the agent should take the same approach every run, even when the result differs. Design the procedure; don't script the answer. Two tests fall out of this:
+
+- **Completion criteria the agent can check.** The skill must give it a way to tell *done* from *not-done* — otherwise it stops early and calls it finished.
+- **One leading word.** Anchor the skill on a single concept the model already knows well (e.g. *tracer bullet*, *receipt*, *lesson*, *seam*) and repeat it in the name, the description and the body. A word the model thinks with anchors both *triggering* and *execution* — far more than a phrase it has to decode.
+
 ## First: is a skill even the right tool?
 
 Claude Code has five extension primitives. Pick the one that fits before writing anything.
@@ -46,6 +53,8 @@ description: Use when <situations>, e.g. "<real phrase>", "<real phrase>" — be
 ```
 
 Name: lowercase, hyphens, a verb-or-noun that reads as a command (`book-distill`, `senior-review`). Add `argument-hint` if the skill takes arguments.
+
+**Model-invoked vs user-invoked.** By default a skill is model-invoked: its description sits in context and other skills can reach it — right for reusable knowledge that should fire on its own. Set `disable-model-invocation: true` to make it user-invoked (`/skill` only): the description leaves the model's reach, saving context. Reserve it for skills nobody else needs to auto-trigger — heavy, domain-specific, run-on-demand (a tax-dossier writer, a one-off migration).
 
 ## Keep the body skimmable (progressive disclosure)
 
@@ -108,6 +117,8 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 - **Hardcoding one project's specifics** in a skill meant to be reused — keep it stack-agnostic, discover specifics live.
 - **Renaming the concept mid-body** — one term, used consistently (the model anchors on it).
 - **Wrong primitive** — an always-on rule should be CLAUDE.md or a hook, not a skill.
+- **Sediment** — stale instructions left from past versions that no longer match the skill; prune them on every edit instead of layering on top.
+- **No-op line** — a sentence the agent would follow anyway; delete the whole sentence, don't trim its words.
 
 ## Checklist
 
@@ -115,6 +126,7 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 - [ ] `description` has Use-when + real trigger phrases, leans pushy (under-triggering is the bigger risk); NOT-for only if a sibling competes
 - [ ] Name is lowercase-hyphen, reads like a command
 - [ ] Body is skimmable; heavy detail lives in reference/
-- [ ] One concept = one word, imperative, minimal examples
+- [ ] One leading word the model already knows, repeated in name + description + body; imperative, minimal examples
+- [ ] The skill gives the agent a checkable "done" signal (completion criteria)
 - [ ] Triggers on the intended phrases, silent on adjacent cases
 - [ ] If shared: plugin.json + marketplace.json, version pinned, `claude plugin validate` passes

@@ -23,9 +23,10 @@ Go : `~/.claude/go-best-practices.md`
 **Exposer, pas deviner** : énoncer mes hypothèses avant d'implémenter. Si plusieurs interprétations → les présenter, ne pas en choisir une en silence. Si flou → stop, nommer ce qui bloque, demander.
 **Pousser quand justifié** : si une approche plus simple existe, le dire ; ne pas exécuter une demande sous-optimale sans signaler l'alternative.
 **Critère de succès vérifiable** : transformer la tâche en cible testable (« corrige le bug » → « test qui reproduit, puis le faire passer »). Boucler jusqu'à vérif, pas jusqu'à « ça a l'air de marcher ».
+**Rigueur externe** : la seule preuve qui compte est vérifiable du dehors (test, commande, grep, sortie réelle) — jamais l'auto-évaluation du modèle. « Tu es sûr ? » → un LLM dit toujours oui ; exiger un fait, pas une affirmation.
 
 ## Changements chirurgicaux
-**Toucher le strict nécessaire** : chaque ligne modifiée doit tracer vers la demande. Ne pas refactorer ni « améliorer » du code adjacent qui n'est pas cassé. Épouser le style existant même si je ferais autrement.
+**Toucher le strict nécessaire** : chaque ligne modifiée doit tracer vers la demande. Ne pas refactorer ni « améliorer » du code adjacent qui n'est pas cassé. Épouser le style existant même si je ferais autrement. En corrigeant un bug, ne pas dériver le style au passage (guillemets, type hints, docstrings, reformatage) : le diff ne porte que le fix.
 **Nettoyer mes propres orphelins** : retirer imports/vars/fonctions rendus inutiles PAR mon changement. Code mort préexistant → le signaler, pas le supprimer (sauf demande).
 **Exception** : le « coup de propre » sur les commentaires de la zone touchée reste autorisé (cf. section Commentaires) — ça vise les commentaires, pas le code.
 
