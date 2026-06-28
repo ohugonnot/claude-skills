@@ -55,7 +55,7 @@ Go : `~/.claude/go-best-practices.md`
 **En review/édition** : passer un coup de propre sur les commentaires existants (même pré-existants à la MR) dès qu'on touche la zone — pas attendre une consigne explicite.
 
 ## Tests : couverture par défaut sur chaque feature
-**Règle** : toute feature non-triviale s'accompagne de ses tests dans le même lot — unitaire (logique pure), fonctionnel/intégration (route, repo, règle métier), et e2e (parcours navigateur) quand il y a une UI. Pas de feature livrée « à tester plus tard ». But : garantir la non-régression dans le temps.
+**Règle** : toute feature non-triviale s'accompagne de ses tests dans le même lot — unitaire (logique pure), fonctionnel/intégration (route, repo, règle métier), et e2e (parcours navigateur) quand il y a une UI. Pas de feature livrée « à tester plus tard ». **Ordre du test = par valeur** : test-first s'il guide la conception (logique pure, algo subtil), couverture a posteriori sinon ; jamais de cérémonie test-first sur le trivial. But : garantir la non-régression dans le temps.
 **Test du périmètre** : unit = logique isolée ; fonctionnel = la route/le repo/la sécurité ; e2e = ce que voit l'utilisateur (et au moins un format responsive si front). Inclure les cas d'erreur, pas que le chemin heureux.
 
 ## Orchestration sous-agents (matrice mère) — TOUJOURS, PARTOUT
