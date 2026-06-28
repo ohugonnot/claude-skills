@@ -1,5 +1,9 @@
 # Changelog — book-distill
 
+## 1.1.1 — 2026-06-28
+
+- Corrige des citations imprécises / mal attribuées (audit fact-check des références).
+
 ## 1.1.0 — 2026-06-16
 
 Renforcement pédagogique « non-résumé », tiré d'une fiche CQRS/Event Sourcing réussie (cf. fiche-livre) :

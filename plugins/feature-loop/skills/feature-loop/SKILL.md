@@ -7,7 +7,7 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.14.1** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.14.2** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
 **Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
