@@ -284,7 +284,7 @@ Quand le devil's advocate est activé (mode paranoid sur keywords sensibles), il
 
 ## Anti-biais du juge (fondé sur la recherche LLM-as-judge)
 
-Le reviewer est un agent DISTINCT de l'auteur du code et des tests (self-preference bias prouvé : un modèle qui se juge se surnote, discrimination ~52 % = quasi-hasard — Zheng 2023, Panickssery 2024). En plus, respecter :
+Le reviewer est un agent DISTINCT de l'auteur du code et des tests (self-preference bias prouvé : un modèle qui se juge se surnote — Zheng 2023, Panickssery 2024). En plus, respecter :
 
 - **Anti-verbosity** : ne JAMAIS récompenser la longueur. Plus court à valeur égale = meilleur. La sur-ingénierie est un défaut (axe Simplicité/YAGNI), pas une qualité. (Les juges LLM sur-notent les réponses longues — Zheng 2023.)
 - **Anti-leniency / adversarial** : lister D'ABORD tout ce qui cloche, PUIS noter. Chercher le pire cas crédible, pas confirmer que « ça marche » (leniency/sycophancy bias).

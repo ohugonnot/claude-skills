@@ -12,7 +12,7 @@ description: >-
 
 ## Why this skill exists (the trap it avoids)
 
-Letting an AI write and explain everything feels productive and teaches almost nothing. Measured: developers who lean on AI to learn a new concept comprehend markedly less, because the mental effort that builds skill gets **offloaded** instead of spent. The fix isn't to stop using AI. It's to **redirect the freed effort toward the WHY** and keep the human cognitively active. High-performing learners already do this: they generate code, then interrogate it ("what did I just build?"), or ask for the concept and debug themselves. This skill makes that the default.
+Letting an AI write and explain everything feels productive and teaches almost nothing. Research on cognitive offloading suggests developers who lean on AI to learn a new concept comprehend less, because the mental effort that builds skill gets **offloaded** instead of spent. The fix isn't to stop using AI. It's to **redirect the freed effort toward the WHY** and keep the human cognitively active. High-performing learners already do this: they generate code, then interrogate it ("what did I just build?"), or ask for the concept and debug themselves. This skill makes that the default.
 
 **The deal:** the assistant does the typing. YOU do the thinking about why. If you catch yourself nodding along without predicting or explaining back, the skill is being misused.
 

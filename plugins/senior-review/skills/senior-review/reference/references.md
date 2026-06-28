@@ -3,10 +3,10 @@
 Regroupe les sources citées en abrégé dans le SKILL.md, avec ce qu'elles fondent. À lire seulement pour vérifier/approfondir un fondement.
 
 ## LLM-as-judge & biais (fondent reviewer ≠ auteur, blind review, CoT avant verdict)
-- **Panickssery 2024** (arXiv:2404.13076) — self-preference bias ≈ 0.52 : un modèle qui juge sa propre sortie se surnote → reviewers en contexte vierge, jamais le prompt d'implémentation.
+- **Panickssery 2024** (arXiv:2404.13076) — self-preference bias : un modèle qui juge sa propre sortie se surnote → reviewers en contexte vierge, jamais le prompt d'implémentation.
 - **Wataoka 2024** (arXiv:2410.21819) — confirmation du biais d'auto-préférence.
 - **Zheng / MT-Bench 2023** (arXiv:2306.05685) — biais de position, de verbosité, d'auto-complaisance → ordre inversé chez les refuteurs, anti-verbosity.
-- **G-Eval / Liu 2023** (arXiv:2303.16634) — CoT avant la note : +13 pp d'accord avec l'humain (avec LLMBar).
+- **G-Eval / Liu 2023** (arXiv:2303.16634) — raisonner (CoT) avant de poser la note améliore l'accord avec l'humain.
 
 ## Panels / débat (fondent le refute-panel ciblé, pas un débat généralisé)
 - **Verga / PoLL 2024** (arXiv:2404.18796) — panel de juges variés > juge unique.
@@ -22,7 +22,7 @@ Regroupe les sources citées en abrégé dans le SKILL.md, avec ce qu'elles fond
 - **Agentless** (arXiv:2407.01489) — localisation simple + vérification > agents complexes.
 - **« Verify Before You Fix »** (arXiv:2604.10800) — execution-grounding rejette ~60 % des faux positifs.
 - **« Are LLMs Reliable Code Reviewers? »** (arXiv:2603.00539) — overcorrection systématique : les LLMs sur-flaguent.
-- **arXiv:2505.20206** — sans la description du problème (ticket/PR), la revue LLM perd ~22 % de précision → spec-alignment + ticket-aware.
+- **arXiv:2505.20206** — sans la description du problème (ticket/PR), la revue LLM perd sensiblement en précision → spec-alignment + ticket-aware.
 
 ## Mutation / tests (fondent le red-check bidirectionnel de l'Étape 4)
 - **TDD-Bench Verified** (arXiv:2412.02883) — critère fail-to-pass : la plupart des tests LLM ne rougissent pas sur code cassé.
@@ -44,4 +44,4 @@ Regroupe les sources citées en abrégé dans le SKILL.md, avec ce qu'elles fond
 - **Google eng-practices** (looking-for / standard / comments / navigate) — seuil de greenlight : le changement améliore la base, pas « est parfait ».
 - **SmartBear/Cisco** — le taux de détection chute avec la taille du diff (87 % ≤100 LOC vs 28 % >1000 LOC, Propel) → découpage ≤ 300-400 LOC.
 - **Cloudflare / G-Research** — prompt patterns ; « telling an LLM what not to do is where the value is » → what-NOT-to-flag.
-- **WirelessCar 2025, Graphite** — le bruit est la première cause d'abandon des outils de revue IA → signal > recall.
+- **WirelessCar 2025** (étude d'adoption d'outils de revue IA) — le bruit / les faux positifs minent l'adoption → signal > recall.
