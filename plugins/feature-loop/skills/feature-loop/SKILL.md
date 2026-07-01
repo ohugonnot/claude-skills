@@ -7,7 +7,7 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.14.2** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.15.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
 **Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
@@ -347,7 +347,7 @@ Créer `$WORK/.feature-loop/.feature-loop.json` :
 6. Charte du code (bloc ci-dessous, verbatim)
 
 **Charte du code** (les conventions du projet priment en cas de conflit) :
-> - Le nom EST l'explication : si un commentaire décrit le *quoi*, renommer au lieu de commenter.
+> - Le nom EST l'explication : teste-le sur 3 questions (pourquoi il existe / ce qu'il fait / comment l'utiliser) — si un commentaire décrit le *quoi*, renommer au lieu de commenter. Après une fusion/délégation qui fait gagner un nouvel appelant à une fonction existante, re-tester son nom contre TOUS ses appelants (pas seulement le premier) : un nom fidèle à un seul usage devient trompeur une fois partagé.
 > - Fonction profonde : petite surface (un appel), beaucoup de travail caché. Découper sans exposer — le sur-découpage (helpers que l'appelant doit enchaîner, méthodes siamoises) est un défaut au même titre que la fonction-fleuve.
 > - Commentaires, 3 genres seulement : le **pourquoi** (décision non évidente), l'**avertissement** (piège, ordre à ne pas casser), le **contrat** (ce que la fonction promet). Jamais de paraphrase ; 1 ligne par défaut ; dans le doute, ne pas commenter. Un commentaire long et pénible à écrire signale une abstraction ratée : reconcevoir plutôt que documenter.
 > - Erreurs : quand la sémantique le permet, faire disparaître le cas d'erreur (borner, valeur par défaut, null object) au lieu d'imposer des checks à chaque appelant — tirer la complexité vers le bas, dans le module.
@@ -943,4 +943,4 @@ Fondements : `reference/references.md`.
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.14.1**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.15.0**.
