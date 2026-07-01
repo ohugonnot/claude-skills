@@ -9,13 +9,14 @@ Chargé à l'Étape 2bis si HTMX détecté (script htmx.org dans les templates, 
 
 ## 1. Invariants IMPL
 
-- **Attributs souvent hallucinés — n'existent PAS** : `hx-swap="replace|append|prepend"` (c'est `outerHTML`/`beforeend`/`afterbegin`), `hx-trigger="hover"` (c'est `mouseenter`), modifier `.prevent` (utiliser `hx-on:click="event.preventDefault()"`). Valeurs réelles de `hx-swap` : `innerHTML` (défaut), `outerHTML`, `afterbegin`, `beforebegin`, `beforeend`, `afterend`, `delete`, `none` (+ modifiers `swap:`/`settle:`/`scroll:`/`show:`/`focus-scroll:`).
+- **Attributs souvent hallucinés — n'existent PAS** : `hx-swap="replace|append|prepend"` (c'est `outerHTML`/`beforeend`/`afterbegin`), `hx-trigger="hover"` (c'est `mouseenter`), modifier `.prevent` (utiliser `hx-on:click="event.preventDefault()"`). Valeurs réelles de `hx-swap` : `innerHTML` (défaut), `outerHTML`, `afterbegin`, `beforebegin`, `beforeend`, `afterend`, `delete`, `none`, `textContent` (2.x — remplace le contenu sans parser le HTML de la réponse, utile si la réponse n'est pas censée être du HTML) (+ modifiers `swap:`/`settle:`/`scroll:`/`show:`/`focus-scroll:`).
 - **Cycle de vie au swap** : tout listener attaché DIRECTEMENT à un élément swappé est perdu. JS toujours en **délégation sur `document.body`** (ou `htmx.onLoad()` pour initialiser des libs tierces sur le contenu inséré ; `hx-preserve` + id stable pour les widgets stateful). HTML injecté par du JS tiers → `htmx.process(el)`.
 - **GET ne sérialise PAS le form** : seule la valeur de l'élément déclencheur part (contrairement aux non-GET qui embarquent le form parent). D'où `hx-include` — dont les sélecteurs `find`/`closest` s'évaluent depuis l'ÉLÉMENT DÉCLENCHEUR, pas depuis le porteur de l'attribut ; et qui ignore les inputs `disabled` (utiliser `readonly`).
 - **4xx/5xx ne swappent PAS par défaut** (la page reste figée, event `htmx:responseError`). Pour swapper un 422 de validation : `htmx.config.responseHandling` (2.x) ou header `HX-Reswap` côté serveur.
 - **Historique** : `hx-push-url` snapshotte le DOM en localStorage. Réponse fragment vs full-page → servir selon le header `HX-Request` ET poser **`Vary: HX-Request`** (sinon le cache HTTP sert un fragment nu au hard-refresh). Données sensibles → `hx-history="false"`.
-- Headers de réponse utiles (réels) : `HX-Redirect`, `HX-Location`, `HX-Refresh`, `HX-Retarget`, `HX-Reswap`, `HX-Trigger[-After-Swap|-After-Settle]`, `HX-Push-Url`/`HX-Replace-Url`.
-- OOB swaps (`hx-swap-oob`) : matcher par id ; envelopper `<tr>/<td>/<li>` dans `<template>` (sinon le parseur navigateur les corrige).
+- Headers de réponse utiles (réels) : `HX-Redirect`, `HX-Location`, `HX-Refresh`, `HX-Retarget`, `HX-Reswap`, `HX-Reselect` (choisit quelle portion de la réponse swapper, indépendamment de `hx-select` côté client), `HX-Trigger[-After-Swap|-After-Settle]`, `HX-Push-Url`/`HX-Replace-Url`.
+- OOB swaps (`hx-swap-oob`) : matcher par id — **sans `id` sur l'élément cible, le swap est ignoré SILENCIEUSEMENT** (pas d'erreur console) ; envelopper `<tr>/<td>/<li>` dans `<template>` (sinon le parseur navigateur les corrige).
+- Cross-domain légitime malgré `selfRequestsOnly` (2.x, défaut `true`) : hook `htmx:validateUrl` pour autoriser explicitement des domaines de confiance — ne pas désactiver `selfRequestsOnly` globalement pour un besoin ponctuel.
 
 ## 2. Invariants TESTS
 

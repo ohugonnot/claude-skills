@@ -10,10 +10,14 @@ Pack d'**architecture** (indépendant du langage — se COMBINE avec un pack lan
 - Idempotence : dédup par command id (retry réseau = pas de double effet). Distinguer **rejet** (règle métier violée → AUCUN event, erreur métier) d'**échec** (technique → retry possible).
 
 **Events**
-- **Immuables, à jamais** : on ne corrige pas un event, on émet un **compensating event**. Le schéma évolue par tolérance de lecture / versioning / upcasting — jamais par réécriture du store.
+- **Immuables, à jamais** : on ne corrige pas un event, on émet un **compensating event**. Le schéma évolue par une tactique parmi 5, du plus simple au plus lourd — **versioned events** (champ `schemaVersion`) → **weak schema** (parsing tolérant, champs optionnels) → **upcasting** → **in-place transformation** → **copy-and-transform** : commencer simple, ne monter en complexité que si la divergence le justifie. Jamais par réécriture du store lui-même.
 - Nommés au **passé** (`OrderPlaced`) : un event au présent/impératif est une commande déguisée.
 - Capturer l'**intention** (« 2 places réservées par X ») pas le delta d'état (« remaining=42 »). `FirstNameChanged`/`LastNameChanged` séparés = **property sourcing**, anti-pattern nommé.
 - Ordre garanti par numéro de séquence du stream ; l'append porte l'**expected version** (optimistic concurrency) — conflit de version → recharger, ré-évaluer, ré-essayer (et distinguer conflit technique de conflit MÉTIER : deux events intercalés ne conflictent pas forcément).
+- **Publication externe (broker)** : publier hors de la transaction de l'append = dual-write non-atomique (perte ou doublon silencieux au crash). Pattern standard : table **outbox** dans la même transaction DB que l'append, relai polling ou CDC (Debezium) vers le broker.
+
+**Snapshots**
+- Optimisation de **perf uniquement** — ne pas en introduire avant un problème de perf réel constaté (charger quelques dizaines d'events n'en est pas un). S'il existe, il doit rester représentable comme un event dans le flux de reconstruction, jamais une source de vérité parallèle qui peut diverger du stream.
 
 **Rejouabilité — le cœur**
 - `apply`/`when` = **mutation d'état PURE** : zéro I/O, zéro horloge (`time.Now()`), zéro random, zéro envoi. L'agrégat se reconstruit de ses events SEULS.
@@ -44,6 +48,8 @@ Pack d'**architecture** (indépendant du langage — se COMBINE avec un pack lan
 - Event muté/édité, champ retiré d'un event existant, désérialisation stricte qui cassera sur les vieux events ? (compatibilité de relecture)
 - Read model enrichi pour servir le write model (ou l'inverse) = couplage des deux modèles — ils évoluent indépendamment.
 - Nouvelle projection : a-t-elle son checkpoint ? son rebuild ? Un event ajouté : tous les consommateurs le tolèrent-ils (au pire en l'ignorant) ?
+- Publication externe d'un event (broker) : dans la même transaction que son append, ou via un outbox/relai ? Sinon, dual-write non-atomique.
+- Snapshot introduit sans problème de perf mesuré, ou utilisé comme source de vérité au lieu du stream ?
 
 ## 4. Gate objectif
 
