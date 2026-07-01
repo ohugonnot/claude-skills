@@ -14,14 +14,15 @@ Chargé à l'Étape 2bis si du JS front sans framework est touché (scripts inli
 **Unicode / locale (sur tout site francophone)**
 - Comparaison/recherche accent-insensible : **normaliser des DEUX côtés** — `s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()`. « é » composé ≠ « é » décomposé pour `===`, et un lowercase fait côté serveur (PHP `strtolower` non-Unicode) ne matche pas `toLowerCase()` JS.
 - Tri français : `Intl.Collator('fr', {sensitivity:'base'})` (le `.sort()` par défaut trie par octets — accents à la fin). Instancier le Collator UNE fois.
-- `.length` compte les code units, pas les caractères (émojis, décomposés) — `Intl.Segmenter` si ça compte.
+- `.length` compte les code units, pas les caractères (émojis, décomposés) — `Intl.Segmenter` (support large depuis 2024, fiable en prod) si ça compte.
 
 **Types / DOM / état**
 - `===` partout ; seule exception idiomatique : `x == null` (couvre null+undefined). `Number.isNaN()` (pas le global). `parseInt(s, 10)`.
 - `dataset.*` retourne TOUJOURS une string (`el.dataset.active === true` est toujours faux) — convertir explicitement.
+- Grouper un tableau : `Object.groupBy(arr, fn)` (ES2024, support large) plutôt qu'un `reduce` manuel — plus lisible, moins d'erreurs d'accumulateur.
 - `innerHTML` + donnée utilisateur = XSS → `textContent`/`createElement` ; partie dynamique d'un sélecteur → `CSS.escape()`.
 - Listeners : **délégation sur un ancêtre stable** pour tout élément susceptible d'être recréé (re-render, swap HTMX) ; jamais de listener anonyme qu'on devra retirer.
-- `{...obj}` = clone SHALLOW (le nested reste partagé) ; `const` n'immobilise que la liaison ; un module ES = singleton (son état racine est partagé entre tous les importeurs).
+- `{...obj}` = clone SHALLOW (le nested reste partagé) ; clone profond réel → `structuredClone(obj)` (natif, support large depuis 2022) plutôt que `JSON.parse(JSON.stringify(obj))` (perd `Date`/`Map`/`undefined`/fonctions) — échoue en revanche sur fonctions/DOM nodes (`DataCloneError`). `const` n'immobilise que la liaison ; un module ES = singleton (son état racine est partagé entre tous les importeurs).
 - Dates : mois **0-indexés**, overflow silencieux (`new Date(2024, 12, 1)` = janv. 2025), parsing fiable = ISO 8601 uniquement. Flottants : pas d'argent en float (centimes entiers) ; `toFixed` arrondit sur la représentation binaire (`(1.015).toFixed(2)` → "1.01").
 
 ## 2. Invariants TESTS

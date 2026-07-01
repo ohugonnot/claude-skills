@@ -6,6 +6,7 @@ Chargé à l'Étape 2bis si Go détecté (`go.mod`). Go est typé : le compilate
 
 - **Lire la directive `go` de `go.mod`** : la capture de variable de boucle a changé en **Go 1.22** (chaque itération = sa copie). Module `go 1.21` ou moins → ancien comportement partagé → `v := v` requis avant `go func(){}` et `tc := tc` dans les table-tests parallèles. Module 1.22+ → ces lignes sont du bruit. Ne pas deviner : lire.
 - Packages : **~20 % des packages recommandés par les LLM n'existent pas** (USENIX 2025, 16 modèles) — tout nouvel import hors stdlib se vérifie (`go list -m`, pkg.go.dev) avant usage ; risque maximal sur les libs basse fréquence (SDKs, ORMs de niche).
+- **Module 1.24+** : `go vet`/`copylock` détecte maintenant aussi la copie d'un `sync.Mutex`/`WaitGroup` dans une boucle `for` 3-clauses classique (pas seulement `range`).
 
 ## 1. Invariants IMPL
 
@@ -14,6 +15,7 @@ Chargé à l'Étape 2bis si Go détecté (`go.mod`). Go est typé : le compilate
 - `defer cancel()` sur la ligne qui suit TOUT `context.WithTimeout/WithCancel/WithDeadline` (même si le timeout expire seul). `context.Background()` à la racine uniquement — jamais au milieu d'une chaîne (casse la propagation d'annulation). Pas de dépendances/valeurs métier dans `context.WithValue`.
 - `wg.Add(1)` AVANT le `go func()`, jamais dedans. Pas de copie de types `sync` (Mutex, WaitGroup) après usage. `select` + `default` dans une boucle = spin 100 % CPU.
 - `http.DefaultClient` n'a **aucun timeout** — toujours `http.NewRequestWithContext` + timeout, ou un client configuré.
+- Goroutines parallèles avec erreur/annulation groupée : `golang.org/x/sync/errgroup` (pattern standard) plutôt que ré-inventer un `WaitGroup` + canal d'erreurs à la main.
 
 **Slices / maps / nil**
 - `append` sur une sous-slice avec capacité restante **écrase le parent** (backing array partagé) — `s[:n:n]` (3-index) pour couper la capacité. Une sous-slice retient tout le backing array (fuite) → `copy` pour détacher.
@@ -21,7 +23,9 @@ Chargé à l'Étape 2bis si Go détecté (`go.mod`). Go est typé : le compilate
 - **Typed nil** : `var e *MyErr = nil; return e` dans une fonction retournant `error` → l'interface est NON-nil (`err != nil` vrai). Retourner le littéral `nil`.
 
 **Erreurs**
-- `%w` = l'erreur wrappée devient contractuelle (`errors.Is/As` la voient) ; `%v` la masque. Jamais `==` sur des erreurs potentiellement wrappées → `errors.Is`.
+- `%w` = engagement d'API : l'appelant peut désormais `errors.Is`/`errors.As` dessus, potentiellement pour des années ; `%v` = défaut sûr (préserve l'abstraction). Ne wrapper que si l'appelant doit réagir différemment selon cette erreur précise (go.dev/blog/go1.13-errors).
+- **Piège dépendance externe** : ne jamais laisser fuir telle quelle l'erreur d'un package interne (`sql.ErrNoRows`, erreur driver…) — un changement de driver/ORM la fait disparaître silencieusement, le check appelant casse SANS erreur de compilation. Wrapper dans une sentinelle propre à la frontière publique (`var ErrUserNotFound = errors.New(...)`).
+- Frontière publique/privée : wrapper aux limites publiques du package ; les fonctions privées propagent sans contexte ajouté (évite les couches de contexte redondantes en pile). Jamais `==` sur une erreur potentiellement wrappée → `errors.Is`.
 - Shadowing : `if v, err := f(); …` crée un `err` LOCAL — le `err` du scope parent reste intact (bug silencieux classique).
 - `defer` en boucle = ressources accumulées jusqu'au retour de la FONCTION → extraire le corps en fonction. `defer` peut muter les retours nommés (intentionnel pour wrapper, accidentel sinon).
 
@@ -31,7 +35,7 @@ Chargé à l'Étape 2bis si Go détecté (`go.mod`). Go est typé : le compilate
 - **`-race` au gate, avec `-count=1`** (le cache de test ne re-détecte pas les races).
 - **Frontières exactes** : tester la valeur pivot, pas seulement les côtés (un test de pagination « dernière page partielle » ne distingue pas `>` de `>=` — il faut le cas dernière-page-PLEINE). Généralisable à tout seuil.
 - Red-check/mutation : `gremlins` ou mutation manuelle ciblée + relance du paquet seul (`go test ./pkg/...`) — rapide grâce à la compilation incrémentale.
-- Doublures : horloge injectée (pas de `time.Now()` dans la logique testée), pas de `time.Sleep` pour « attendre » une goroutine (synchroniser par canal).
+- Doublures : horloge injectée (pas de `time.Now()` dans la logique testée), pas de `time.Sleep` pour « attendre » une goroutine (synchroniser par canal). Module 1.24+ (stabilisé 1.25) : `testing/synctest` isole des goroutines dans une bulle à horloge fake (`synctest.Run`) — alternative native à l'injection manuelle pour du code concurrent dépendant du temps.
 
 ## 3. Checklist REVIEW
 
@@ -48,7 +52,7 @@ Chargé à l'Étape 2bis si Go détecté (`go.mod`). Go est typé : le compilate
 gofmt -l .                          # sortie vide attendue
 go vet ./...                        # loopclosure, lostcancel, copylocks, printf, httpresponse…
 go test -race -count=1 ./...
-golangci-lint run ./...             # + activer : shadow, nilerr, bodyclose, contextcheck, tparallel
+golangci-lint run ./...             # + activer : nilerr, bodyclose, contextcheck, tparallel ; shadow via govet.settings.enable (analyzer go vet, PAS linters.enable)
 govulncheck ./...                   # CVE des dépendances
 ```
 
