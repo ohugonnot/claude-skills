@@ -123,3 +123,6 @@ Même filtre que `vide-contexte`, déclencheur différent : `vide-contexte` capt
 - Ne mentionne jamais Claude/AI dans commits, MR/PR ou code ; aucun `Co-Authored-By`.
 - Ne déclare jamais « ready to commit » si des artefacts de debug traînent ou si un 🔴 est ouvert.
 - Ne duplique pas dans CLAUDE.md ce qui y est déjà ou ce qui se déduit du code.
+
+## CHANGELOG
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.1.0**.
