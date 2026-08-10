@@ -1,5 +1,10 @@
 # Changelog — vide-contexte
 
+## 1.2.0 — 2026-08-10
+
+- **La description mène par l'action** : le nom annonce « vide » alors que le skill ne vide jamais rien (« Ne lance pas /clear lui-même ») — le mot directeur contredisait le comportement. La description ouvre maintenant sur « Persists… — nothing is cleared by this skill, only saved », et le titre devient « Persister le contexte avant de le vider ». Nom du skill inchangé : il colle aux formulations réelles de l'utilisateur, le casser coûterait plus que le gain.
+- **Désambiguïsation ajoutée** face à `branch-wrap-up`, qui exécute lui aussi une passe de capture de connaissances.
+
 ## 1.1.0 — 2026-06-11
 
 - Format des fichiers mémoire aligné sur le harnais réel : `name` en slug kebab, `metadata.type`, `description` = clé de rappel.

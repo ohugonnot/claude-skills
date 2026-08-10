@@ -7,7 +7,7 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.15.1** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.15.2** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
 **Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
@@ -883,7 +883,7 @@ Règle d'or : mieux vaut 1 question bien posée que 3 itérations dans la mauvai
 ## Tools requis (à charger via ToolSearch)
 
 - `EnterWorktree`, `ExitWorktree` (UNIQUEMENT en mode `--worktree` ; inutiles en in-place où l'on reste dans le repo via `git checkout -b`)
-- `TaskCreate`, `TaskUpdate`
+- `AskUserQuestion` — tous les points d'arbitrage user de la boucle (cadrage, gate, arrêt) passent par lui ; jamais dans un workflow.
 - `mcp__playwright__browser_*` (si front — review visuelle ET smoke test LIVE §5.1b)
 - `Bash` avec `run_in_background: true` — pour le smoke test LIVE (§5.1b) : lancer/relancer le serveur dev et capturer ses logs sans bloquer. Relancer un serveur déjà up = tuer **par PID du listener** (`ss -ltnp | grep :<port>`), jamais `pkill -f <motif>` qui matche la commande courante (auto-kill).
 - `Agent` (natif, supporte `model: haiku|sonnet|opus|fable…` selon les modèles de la génération courante) — **socle de la séparation des rôles** : un appel `Agent` distinct par rôle (impl A, tests B, review C, devil's advocate, juges du panel), chacun en contexte vierge. La mère ne fait jamais le rôle d'un agent qu'elle a déjà joué sur la même itération. Les agents ne peuvent pas eux-mêmes spawner d'agents (la mère reste seule à déléguer).
@@ -943,4 +943,4 @@ Fondements : `reference/references.md`.
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.15.0**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.15.2**.

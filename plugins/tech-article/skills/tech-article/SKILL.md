@@ -1,11 +1,12 @@
 ---
 name: tech-article
 description: >-
-  Use when writing or publishing a technical blog article and you want it to read like a human
+  Use when the user is writing or publishing a technical blog article that should read like a human
   engineer wrote it, not an AI. A story-first method — open on a real problem, keep opinions sharp,
   cut AI-slop phrasing, control sentence rhythm, and add a diagram only when it earns its place.
   Trigger on "write a blog article", "draft a dev post", "turn this into an article", "make this
-  not sound like AI". NOT for documentation, READMEs, or reference pages.
+  not sound like AI", even when the word "article" never appears. NOT for documentation, READMEs,
+  or reference pages.
 ---
 
 # Tech Article — write a post that doesn't read like AI

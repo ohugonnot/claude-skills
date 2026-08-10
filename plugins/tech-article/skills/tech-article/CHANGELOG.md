@@ -1,5 +1,10 @@
 # Changelog — tech-article
 
+## 1.2.0 — 2026-08-10
+
+- **Description à la 3e personne** : « and you want it to read like a human » adressait l'utilisateur — anti-pattern officiel Anthropic. Reformulée en « a technical blog article that should read like a human engineer wrote it ».
+- **Déclencheur élargi** : ajout de « even when the word "article" never appears ».
+
 ## 1.1.0 — 2026-06-16
 
 - **Section "Self-contained — non-negotiable"** : l'article doit être lisible par quelqu'un qui n'a rien lu d'autre de l'auteur — définir tout terme/outil/concept avant de l'utiliser, annoncer explicitement une suite et résumer le prérequis en une phrase.
