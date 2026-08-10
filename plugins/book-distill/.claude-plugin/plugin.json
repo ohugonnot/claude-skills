@@ -1,7 +1,7 @@
 {
   "name": "book-distill",
   "description": "Reads a book (PDF or EPUB) and produces a faithful, pedagogical reading note: Adler-style mapping, targeted reading, citations verified word-for-word, thematic distillation into linked ideas, and a reasoned rating.",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "author": {
     "name": "Odilon Hugonnot",
     "url": "https://www.web-developpeur.com"
