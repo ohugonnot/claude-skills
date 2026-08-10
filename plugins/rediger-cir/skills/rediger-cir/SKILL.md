@@ -2,12 +2,14 @@
 name: rediger-cir
 description: >-
   Rédige le dossier justificatif technique du Crédit d'Impôt Recherche (CIR)
-  d'une entreprise pour une opération de R&D donnée. À utiliser quand
-  l'utilisateur veut produire, compléter ou noter un CIR (ex. « on fait le CIR
-  2025 », « rédige la fiche-opération », « note ce dossier »). Connaît la trame
-  officielle 2025 (CIROCO, 4 sections, Frascati), le style technico-administratif
-  et le fil rouge pluriannuel, génère les figures (SVG) et auto-note le dossier
-  sur un radar 8 axes.
+  d'une entreprise pour une opération de R&D donnée, autour du verrou
+  scientifique ou technique qui doit tenir face à un contrôle fiscal. À utiliser
+  quand l'utilisateur veut produire, compléter ou noter un CIR (ex. « on fait le
+  CIR 2025 », « rédige la fiche-opération », « note ce dossier »). Connaît la
+  trame officielle 2025 (CIROCO, 4 sections, Frascati), le style
+  technico-administratif et le fil rouge pluriannuel, génère les figures (SVG) et
+  auto-note le dossier sur un radar 8 axes.
+disable-model-invocation: true
 ---
 
 # Rédiger un dossier CIR

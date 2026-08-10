@@ -1,7 +1,7 @@
 {
   "name": "tech-article",
   "description": "Writes a technical blog article that reads like a human, not an AI: story-first, an AI-slop killer (EN + FR), research-grounded fluency mechanics, an essential-oil cut, and diagrams only when they earn their place.",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "author": {
     "name": "Odilon Hugonnot",
     "url": "https://www.web-developpeur.com"

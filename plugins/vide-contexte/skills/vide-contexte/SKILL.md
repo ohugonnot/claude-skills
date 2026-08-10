@@ -1,12 +1,14 @@
 ---
 name: vide-contexte
 description: >-
-  Use when the user says "vide le contexte", "clear context", "vide le context",
-  "sauvegarde avant /clear", "save context before clearing" or similar — extract and persist
-  the conversation's non-obvious insights into memory files before the context is cleared or compacted.
+  Persists a conversation's non-obvious insights into memory files before its context is cleared
+  or compacted — nothing is cleared by this skill, only saved. Use when the user says "vide le
+  contexte", "clear context", "vide le context", "sauvegarde avant /clear", "save context before
+  clearing" or similar, even when they only announce the /clear without asking to save. NOT for
+  closing out a branch (use branch-wrap-up, which runs its own knowledge-capture pass).
 ---
 
-# Vide le Contexte
+# Persister le contexte avant de le vider
 
 Workflow en 4 étapes : scanner → dédupliquer → persister → confirmer.
 But : qu'une future session retrouve tout ce que cette conversation a appris de non-déductible, et rien d'autre.
