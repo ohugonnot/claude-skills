@@ -39,6 +39,12 @@ Go : `~/.claude/go-best-practices.md`
 
 **Red flags → STOP** : struct pour grouper fonctions, interface à 1 implémentation, séparation multi-fichiers sans raison, abstraction prématurée, code plus complexe après refactoring.
 
+**Nommer > commenter** : un bon nom répond à pourquoi/quoi/comment sans commentaire. `peutPasserCommande(client)` bat `age>=18 && solde>0 && !suspendu`.
+
+**Faire disparaître l'erreur** : avant de blinder un cas d'erreur chez chaque appelant, vérifier si redéfinir la sémantique l'élimine (slice hors bornes qui se borne, Null Object plutôt que `if x == nil throw` répété). Absorber la complexité dans le module plutôt que la repousser sur mille appelants.
+
+**DRY = un seul savoir, pas un seul code** : du code identique par coïncidence (deux règles qui évolueront séparément pour des raisons sans rapport) ne se fusionne pas — sinon couplage à tort. Le vrai risque de duplication est souvent sans copier-coller : règle métier recopiée client/serveur, structure redécrite à la main, commentaire qui redit le code.
+
 ## Commentaires : audience = dev senior, signal pur
 **Audience par défaut** : un dev expérimenté qui lit le code pour la première fois. Il déduit le QUOI/COMMENT en 5 secondes — ne le lui répète pas. Le commentaire doit apporter ce qu'il NE peut pas déduire : un POURQUOI non-évident, une contrainte invisible, un piège, un invariant.
 
