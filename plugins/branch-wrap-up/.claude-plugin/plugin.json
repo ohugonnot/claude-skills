@@ -1,7 +1,7 @@
 {
   "name": "branch-wrap-up",
   "description": "Wraps up a branch: gathers the changes, delegates the review to senior-review, proposes a conventional commit message in the project's own style, and suggests the push and MR/PR.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Odilon Hugonnot",
     "url": "https://www.web-developpeur.com"
