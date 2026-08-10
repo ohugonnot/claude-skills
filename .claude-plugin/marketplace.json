@@ -14,7 +14,7 @@
       "displayName": "Feature Loop",
       "source": "./plugins/feature-loop",
       "description": "Ships a non-trivial feature in an autonomous, quality-gated loop: separate subagents (code, tests, blind review), an objective gate (build/lint/tests + mutation check) before any LLM review, a mandatory live smoke test, iterating until 8/10.",
-      "version": "1.0.0",
+      "version": "8.15.2",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -36,7 +36,7 @@
       "displayName": "Senior Review",
       "source": "./plugins/senior-review",
       "description": "Senior fresh-eyes review before merge: bugs, security, design, tests, ticket alignment. Blind reviewers (reviewer != author), a verification gate where every critical finding needs a receipt, and an adversarial refute-panel.",
-      "version": "1.0.0",
+      "version": "1.7.0",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -57,7 +57,7 @@
       "displayName": "Issue & MR",
       "source": "./plugins/issue-mr",
       "description": "Turns a task into a well-formed issue + branch + MR/PR (GitLab/GitHub auto-detected): scaffold, isolate uncommitted work, or produce an analysis-spec ready to feed feature-loop. Discovers project conventions live.",
-      "version": "1.0.0",
+      "version": "2.0.4",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -79,7 +79,7 @@
       "displayName": "Branch Wrap-up",
       "source": "./plugins/branch-wrap-up",
       "description": "Wraps up a branch: gathers the changes, delegates the review to senior-review, proposes a conventional commit message in the project's own style, and suggests the push and MR/PR.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -100,7 +100,7 @@
       "displayName": "Book Distill",
       "source": "./plugins/book-distill",
       "description": "Reads a book (PDF or EPUB) and produces a faithful, pedagogical reading note: Adler-style mapping, targeted reading, citations verified word-for-word against the text, thematic distillation into linked ideas, and a reasoned rating.",
-      "version": "1.0.0",
+      "version": "1.1.1",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -122,7 +122,7 @@
       "displayName": "Clear Context",
       "source": "./plugins/vide-contexte",
       "description": "Before a /clear or a compaction, extracts the non-derivable insights of a conversation and persists them to memory files (deduplicated against the index), so a future session keeps everything that was learned.",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -142,7 +142,7 @@
       "displayName": "Tech Article",
       "source": "./plugins/tech-article",
       "description": "Writes a technical blog article that reads like a human wrote it, not an AI: story-first, an AI-slop killer (EN + FR), research-grounded fluency mechanics (old-new, strong word last), an essential-oil cut, and diagrams only when they earn their place.",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -162,8 +162,8 @@
       "name": "code-mentor",
       "displayName": "Code Mentor",
       "source": "./plugins/code-mentor",
-      "description": "Levels you up while you code: slows down at each important decision, explains it from zero (the why, not the what), keeps YOU thinking (predict-before-reveal, teach-back), and saves a course-like markdown lesson. Grounded in learning science, anti cognitive-offloading.",
-      "version": "1.0.0",
+      "description": "Teaches while the code gets written: slows down at each important decision, explains it from zero (the why, not the what), leaves the thinking to the developer (predict-before-reveal, teach-back), and saves a course-like markdown lesson. Grounded in learning science, anti cognitive-offloading.",
+      "version": "1.1.0",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -185,7 +185,7 @@
       "displayName": "Skill Builder",
       "source": "./plugins/skill-builder",
       "description": "The opinionated principles and review checklist for a Claude Code skill that triggers reliably and stays focused: should it be a skill (vs CLAUDE.md / subagent / hook / MCP), why a description triggers, how to keep it skimmable, how to package it. Complements Anthropic's Skill Creator (which scaffolds); this is the judgment layer.",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -207,7 +207,7 @@
       "displayName": "Rédiger CIR",
       "source": "./plugins/rediger-cir",
       "description": "Writes the technical justification file for the French research tax credit (CIR) of a company's R&D operation: official CIROCO structure, Frascati eligibility, experimental approach with valued failures, an external bibliography-verification protocol (anti-hallucination), and an 8-axis self-scoring radar. Generalist templates, no company data.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
