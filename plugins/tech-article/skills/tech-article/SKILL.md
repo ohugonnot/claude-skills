@@ -68,8 +68,7 @@ Add a diagram (SVG or image) when the idea is **spatial, sequential, or abstract
 - One or two precise long-tail queries per article, no more.
 - The keyword appears naturally in the title, the meta description (150-160 chars, answering a real question), the H1, the first paragraph, and at least one H2.
 - Slug: keyword first, lowercase, hyphens, 3-6 words, no date.
-- Internal links with descriptive anchors, never "click here".
-- At least one image with a descriptive alt.
+- At least one image, with an alt that describes what it shows rather than naming it.
 
 ## Workflow
 

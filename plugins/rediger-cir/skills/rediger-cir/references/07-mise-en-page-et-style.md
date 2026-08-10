@@ -2,6 +2,20 @@
 
 Conventions calées sur les **dossiers de référence validés** des années antérieures. À appliquer dès la première rédaction pour éviter les reprises.
 
+## Sommaire
+
+- [1. Production du Word (pipeline pandoc)](#1-production-du-word-pipeline-pandoc)
+- [2. Mise en page (calée sur les dossiers de référence)](#2-mise-en-page-calee-sur-les-dossiers-de-reference)
+- [3. Figures (bloc centré + légende)](#3-figures-bloc-centre-legende)
+- [4. Bibliographie normée + liens](#4-bibliographie-normee-liens)
+- [5. Liens vers le glossaire (Annexe 1)](#5-liens-vers-le-glossaire-annexe-1)
+- [6. Style rédactionnel — anti-pattern IA (obligatoire)](#6-style-redactionnel-anti-pattern-ia-obligatoire)
+- [7. Citations réglementaires — règle de déduplication](#7-citations-reglementaires-regle-de-deduplication)
+- [8. Listes à puces — où et où pas](#8-listes-a-puces-o-et-o-pas)
+- [9. Densité — chaque phrase doit gagner sa place](#9-densite-chaque-phrase-doit-gagner-sa-place)
+- [10. Fluidité — lecture à voix haute](#10-fluidite-lecture-a-voix-haute)
+- [11. Titres de sous-sections « porteurs de conclusion »](#11-titres-de-sous-sections-porteurs-de-conclusion)
+
 ## 1. Production du Word (pipeline pandoc)
 
 On rédige en **Markdown**, on convertit en `.docx` à la demande. Une seule commande :

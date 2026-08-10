@@ -2,6 +2,22 @@
 
 C'est le **point le plus surveillé** d'un CIR : une citation inventée découverte par l'expert MESR décrédibilise tout le dossier. L'état de l'art n'est pas une bibliographie décorative — c'est la démonstration **datée** que les connaissances accessibles au lancement ne résolvaient pas le problème (cf. `02-bonnes-pratiques.md` §2).
 
+## Sommaire
+
+- [Règle cardinale](#regle-cardinale)
+- [Outil : `scripts/verify-biblio.py`](#outil-scriptsverify-bibliopy)
+- [Leçons empiriques (tirées d'une passe biblio réelle, à réappliquer)](#lecons-empiriques-tirees-dune-passe-biblio-reelle-a-reappliquer)
+- [Pipeline de bout en bout](#pipeline-de-bout-en-bout)
+- [Red flags d'hallucination à traquer](#red-flags-dhallucination-a-traquer)
+- [Outils externes (découverte) — verdict](#outils-externes-decouverte-verdict)
+- [Règle d'or (à ne jamais oublier)](#regle-dor-a-ne-jamais-oublier)
+- [Deux filtres distincts : EXISTENCE puis CRÉDIBILITÉ](#deux-filtres-distincts-existence-puis-credibilite)
+- [Troisième filtre : FIDÉLITÉ (ce que la source dit vraiment)](#troisieme-filtre-fidelite-ce-que-la-source-dit-vraiment)
+- [Prompts de contrainte (à se donner à soi-même / à un sous-agent biblio)](#prompts-de-contrainte-a-se-donner-a-soi-meme-a-un-sous-agent-biblio)
+- [Citation propre en un appel](#citation-propre-en-un-appel)
+- [Étapes spécifiques CIR](#etapes-specifiques-cir)
+- [Socle réel réutilisable (réfs propres à VOTRE domaine) — à re-vérifier à chaque réemploi](#socle-reel-reutilisable-refs-propres-a-votre-domaine-a-re-verifier-a-chaque-reemploi)
+
 ## Règle cardinale
 > **Aucun champ de citation (auteurs, titre, revue, année, DOI) n'est rédigé de mémoire.**
 > Chaque champ est **recopié** d'une réponse d'API de métadonnées (Crossref / OpenAlex / arXiv / HAL). Une source qui ne résout sur aucun index est **présumée inventée** → supprimée.

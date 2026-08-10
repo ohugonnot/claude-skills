@@ -1,7 +1,7 @@
 {
   "name": "feature-loop",
   "description": "Ships a non-trivial feature in an autonomous, quality-gated loop: separate subagents (code, tests, blind review), an objective gate (build/lint/tests + mutation check) before any LLM review, a mandatory live smoke test, iterating until 8/10.",
-  "version": "8.15.2",
+  "version": "8.15.3",
   "author": {
     "name": "Odilon Hugonnot",
     "url": "https://www.web-developpeur.com"

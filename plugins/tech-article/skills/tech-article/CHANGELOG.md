@@ -1,5 +1,10 @@
 # Changelog — tech-article
 
+## 1.2.1 — 2026-08-10
+
+- **Puce SEO générique retirée** : « Internal links with descriptive anchors, never "click here" » est une évidence qu'un rédacteur compétent applique sans qu'on l'écrive — ligne no-op au sens de la doctrine maison. La puce image gagne en revanche un critère vérifiable : l'alt décrit ce que montre l'image plutôt que de la nommer.
+- La section SEO est **conservée** : la description couvre « writing or publishing », la publication est donc dans le périmètre déclaré.
+
 ## 1.2.0 — 2026-08-10
 
 - **Description à la 3e personne** : « and you want it to read like a human » adressait l'utilisateur — anti-pattern officiel Anthropic. Reformulée en « a technical blog article that should read like a human engineer wrote it ».

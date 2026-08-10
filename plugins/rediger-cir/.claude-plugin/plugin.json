@@ -1,7 +1,7 @@
 {
   "name": "rediger-cir",
   "description": "Writes the technical justification file for the French research tax credit (CIR) of a company's R&D operation: official CIROCO structure, Frascati eligibility criteria, experimental approach with valued failures, an external bibliography-verification protocol (anti-hallucination), and an 8-axis self-scoring radar. Generalist templates, no company data.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": {
     "name": "Odilon Hugonnot",
     "url": "https://www.web-developpeur.com"

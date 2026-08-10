@@ -14,7 +14,7 @@
       "displayName": "Feature Loop",
       "source": "./plugins/feature-loop",
       "description": "Ships a non-trivial feature in an autonomous, quality-gated loop: separate subagents (code, tests, blind review), an objective gate (build/lint/tests + mutation check) before any LLM review, a mandatory live smoke test, iterating until 8/10.",
-      "version": "8.15.2",
+      "version": "8.15.3",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -142,7 +142,7 @@
       "displayName": "Tech Article",
       "source": "./plugins/tech-article",
       "description": "Writes a technical blog article that reads like a human wrote it, not an AI: story-first, an AI-slop killer (EN + FR), research-grounded fluency mechanics (old-new, strong word last), an essential-oil cut, and diagrams only when they earn their place.",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"
@@ -207,7 +207,7 @@
       "displayName": "Rédiger CIR",
       "source": "./plugins/rediger-cir",
       "description": "Writes the technical justification file for the French research tax credit (CIR) of a company's R&D operation: official CIROCO structure, Frascati eligibility, experimental approach with valued failures, an external bibliography-verification protocol (anti-hallucination), and an 8-axis self-scoring radar. Generalist templates, no company data.",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "Odilon Hugonnot",
         "url": "https://www.web-developpeur.com"

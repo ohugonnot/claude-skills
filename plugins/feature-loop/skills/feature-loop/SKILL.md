@@ -7,7 +7,7 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.15.2** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.15.3** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
 **Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
@@ -878,8 +878,6 @@ Analyse les runs-logs (+ champ `anomalies` = échecs de la boucle elle-même), c
 | Reset destructif de la branche courante de l'user (in-place, "jeter") | 5.6 |
 | Panel partagé sur un point produit/non technique après escalade | 4.6c |
 
-Règle d'or : mieux vaut 1 question bien posée que 3 itérations dans la mauvaise direction.
-
 ## Tools requis (à charger via ToolSearch)
 
 - `EnterWorktree`, `ExitWorktree` (UNIQUEMENT en mode `--worktree` ; inutiles en in-place où l'on reste dans le repo via `git checkout -b`)
@@ -943,4 +941,4 @@ Fondements : `reference/references.md`.
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.15.2**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.15.3**.
