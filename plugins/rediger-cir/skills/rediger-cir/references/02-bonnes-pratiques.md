@@ -2,6 +2,16 @@
 
 Synthèse de la doctrine MESR/BOFiP et des cabinets spécialisés (Ayming, Sogedev, Leyton, F.Initiatives, Myriad). Convergence forte sur les fondamentaux ; les tournures et proportions sont des pratiques de cabinet (à adapter).
 
+## Sommaire
+
+- [1. Démontrer l'incertitude scientifique (le nerf de la guerre)](#1-demontrer-lincertitude-scientifique-le-nerf-de-la-guerre)
+- [2. État de l'art : méthode](#2-etat-de-lart-methode)
+- [3. Démarche expérimentale et prototypes](#3-demarche-experimentale-et-prototypes)
+- [4. R&D logicielle (l'administration est stricte)](#4-rd-logicielle-ladministration-est-stricte)
+- [5. Do's & Don'ts](#5-dos-donts)
+- [6. Feuilles de temps](#6-feuilles-de-temps)
+- [7. Fidélité au système réel décrit (zéro hallucination de mécanisme)](#7-fidelite-au-systeme-reel-decrit-zero-hallucination-de-mecanisme)
+
 ## 1. Démontrer l'incertitude scientifique (le nerf de la guerre)
 
 Sans verrou démontré → requalification en ingénierie classique ou en CII → hors CIR.

@@ -6,6 +6,16 @@
 
 ---
 
+## Sommaire
+
+- [1. Méthodes de revue de littérature assistée par IA (SLR, PRISMA, snowballing, RAG)](#1-methodes-de-revue-de-litterature-assistee-par-ia-slr-prisma-snowballing-rag)
+- [2. Outils spécialisés — comparatif fiabilité des citations](#2-outils-specialises-comparatif-fiabilite-des-citations)
+- [3. Taux d'hallucination de citations par les LLM (études chiffrées)](#3-taux-dhallucination-de-citations-par-les-llm-etudes-chiffrees)
+- [4. APIs de vérification gratuites — endpoints concrets (testés en direct)](#4-apis-de-verification-gratuites-endpoints-concrets-testes-en-direct)
+- [5. Protocole bout-en-bout exécutable par un agent IA](#5-protocole-bout-en-bout-executable-par-un-agent-ia)
+- [6. Prompts et garde-fous anti-invention](#6-prompts-et-garde-fous-anti-invention)
+- [Sources principales (toutes vérifiées par résolution DOI/arXiv)](#sources-principales-toutes-verifiees-par-resolution-doiarxiv)
+
 ## 1. Méthodes de revue de littérature assistée par IA (SLR, PRISMA, snowballing, RAG)
 
 ### Le constat partagé par toute la littérature 2023-2025

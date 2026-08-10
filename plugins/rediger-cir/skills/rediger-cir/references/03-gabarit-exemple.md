@@ -2,6 +2,16 @@
 
 Issu de la dissection de dossiers **validés** par l'administration. À réutiliser comme matrice de style et de structure — **jamais en copier-coller intégral** (motif de rejet). Réinstancier le fond chaque année.
 
+## Sommaire
+
+- [Structure stable du dossier](#structure-stable-du-dossier)
+- [Le fil rouge pluriannuel (réutilisable)](#le-fil-rouge-pluriannuel-reutilisable)
+- [Boilerplate réutilisable (à réinstancier, pas à copier tel quel)](#boilerplate-reutilisable-a-reinstancier-pas-a-copier-tel-quel)
+- [Tableau Frascati (structure fixe — voir `templates/table-frascati.md`)](#tableau-frascati-structure-fixe-voir-templatestable-frascatimd)
+- [Équipe R&D (gabarit — recouper avec le xlsx de l'année)](#equipe-rd-gabarit-recouper-avec-le-xlsx-de-lannee)
+- [Style maison](#style-maison)
+- [Figures par année (à reproduire/actualiser — voir `figures/GUIDE-figures.md`)](#figures-par-annee-a-reproduireactualiser-voir-figuresguide-figuresmd)
+
 ## Structure stable du dossier
 
 ```
