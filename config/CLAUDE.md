@@ -1,13 +1,4 @@
-# Global Claude Code Instructions
-
-## Mise à jour CLAUDE.md & mémoire
-**Quoi ajouter** : ce qui n'est pas déductible du code — gotchas, contraintes métier invisibles, conventions déviantes, décisions d'archi non-évidentes.
-**Quoi ne pas ajouter** : ce que Claude redécouvre en lisant le code.
-**Format** : 1 règle = 1 ligne. Cible : < 80 lignes par fichier.
-**Segmentation** : `CLAUDE.{domaine}.md` pour les sections rarement utiles ; référencer en texte brut.
-**`.claudeignore`** : exclure vendor/, node_modules/, assets/, tmp/, fichiers générés et binaires.
-**MAJ auto CLAUDE.md** : en fin de tâche, signaler ce qui mérite d'être ajouté. Filtre : (1) non-déductible du code, (2) se reproduira en future session, (3) pas spécifique au contexte immédiat.
-**MAJ auto mémoire** : même déclencheur. Test : *"Si je supprime et relis le code, manquera-t-il quelque chose ?"* Types : user, feedback (Règle → Why → How to apply), project, reference. Ne pas sauvegarder : état temporaire, ce qui est déjà dans CLAUDE.md.
+# Instructions globales
 
 ## Références
 Go : `~/.claude/go-best-practices.md`
@@ -15,73 +6,51 @@ Go : `~/.claude/go-best-practices.md`
 ## Restrictions
 - **INTERDIT** lire `.env`/`.env.*` — exception `.env.example`, `.env.local.example`
 - **INTERDIT** `git add` sans permission explicite — l'utilisateur contrôle le staging
-- **INTERDIT** `git commit` sans permission explicite — l'utilisateur valide et commit lui-même après review
+- **INTERDIT** `git commit` sans permission explicite — il valide et commit lui-même après review
 - **INTERDIT** mentionner Claude/AI dans commits, PR, branches, commentaires code
 - **AUCUN** `Co-Authored-By: Claude ...`
 
 ## Avant de coder
-**Exposer, pas deviner** : énoncer mes hypothèses avant d'implémenter. Si plusieurs interprétations → les présenter, ne pas en choisir une en silence. Si flou → stop, nommer ce qui bloque, demander.
+**Exposer, pas deviner** : énoncer mes hypothèses avant d'implémenter. Plusieurs interprétations → les présenter, ne pas en choisir une en silence. Flou → stop, nommer ce qui bloque, demander.
 **Pousser quand justifié** : si une approche plus simple existe, le dire ; ne pas exécuter une demande sous-optimale sans signaler l'alternative.
 **Critère de succès vérifiable** : transformer la tâche en cible testable (« corrige le bug » → « test qui reproduit, puis le faire passer »). Boucler jusqu'à vérif, pas jusqu'à « ça a l'air de marcher ».
-**Rigueur externe** : la seule preuve qui compte est vérifiable du dehors (test, commande, grep, sortie réelle) — jamais l'auto-évaluation du modèle. « Tu es sûr ? » → un LLM dit toujours oui ; exiger un fait, pas une affirmation.
+**Rigueur externe** : la seule preuve qui compte est vérifiable du dehors (test, commande, grep, sortie réelle) — jamais l'auto-évaluation du modèle. « Tu es sûr ? » → un LLM dit toujours oui ; exiger un fait.
+**Ne pas décrire un ticket sans lire le code qu'il touche** : un ticket décrit une intention datée, pas l'état du dépôt.
 
 ## Changements chirurgicaux
-**Toucher le strict nécessaire** : chaque ligne modifiée doit tracer vers la demande. Ne pas refactorer ni « améliorer » du code adjacent qui n'est pas cassé. Épouser le style existant même si je ferais autrement. En corrigeant un bug, ne pas dériver le style au passage (guillemets, type hints, docstrings, reformatage) : le diff ne porte que le fix.
-**Nettoyer mes propres orphelins** : retirer imports/vars/fonctions rendus inutiles PAR mon changement. Code mort préexistant → le signaler, pas le supprimer (sauf demande).
-**Exception** : le « coup de propre » sur les commentaires de la zone touchée reste autorisé (cf. section Commentaires) — ça vise les commentaires, pas le code.
+**Toucher le strict nécessaire** : chaque ligne modifiée doit tracer vers la demande. Ne pas refactorer du code adjacent qui n'est pas cassé. Épouser le style existant même si je ferais autrement. En corrigeant un bug, ne pas dériver le style au passage : le diff ne porte que le fix.
+**Nettoyer mes propres orphelins** : retirer imports/vars/fonctions rendus inutiles PAR mon changement. Code mort préexistant → le signaler, pas le supprimer.
+**Exception** : le coup de propre sur les commentaires de la zone touchée reste autorisé.
 
-## Principes Conception
-**Règle d'or** : toujours la solution la plus simple qui fonctionne. Équilibre : Simplicité > Testabilité > Robustesse (sauf composants critiques).
-
-**4 Questions AVANT refactoring** : (1) Simplifie vraiment ? (2) Testabilité vaut la complexité ? (3) Même résultat plus simplement ? (4) Sur-ingénierie "au cas où" ? → Si oui, stop.
-
-**YAGNI** : abstraire seulement si 3+ implémentations existent, logique complexe (50+ lignes), ou mock apporte vraie valeur.
-
-**Red flags → STOP** : struct pour grouper fonctions, interface à 1 implémentation, séparation multi-fichiers sans raison, abstraction prématurée, code plus complexe après refactoring.
-
-**Nommer > commenter** : un bon nom répond à pourquoi/quoi/comment sans commentaire. `peutPasserCommande(client)` bat `age>=18 && solde>0 && !suspendu`.
-
-**Faire disparaître l'erreur** : avant de blinder un cas d'erreur chez chaque appelant, vérifier si redéfinir la sémantique l'élimine (slice hors bornes qui se borne, Null Object plutôt que `if x == nil throw` répété). Absorber la complexité dans le module plutôt que la repousser sur mille appelants.
-
-**DRY = un seul savoir, pas un seul code** : du code identique par coïncidence (deux règles qui évolueront séparément pour des raisons sans rapport) ne se fusionne pas — sinon couplage à tort. Le vrai risque de duplication est souvent sans copier-coller : règle métier recopiée client/serveur, structure redécrite à la main, commentaire qui redit le code.
+## Conception
+**Règle d'or** : la solution la plus simple qui fonctionne. Simplicité > Testabilité > Robustesse (sauf composants critiques).
+**Avant un refactoring** : (1) simplifie vraiment ? (2) la testabilité vaut la complexité ? (3) même résultat plus simplement ? (4) sur-ingénierie « au cas où » ? → si oui, stop.
+**Red flags** : struct pour grouper des fonctions, interface à 1 implémentation, abstraction prématurée, code plus complexe après refactoring.
+**Faire disparaître l'erreur** : avant de blinder un cas d'erreur chez chaque appelant, vérifier si redéfinir la sémantique l'élimine (slice qui se borne, Null Object plutôt que `if x == nil` répété). Absorber la complexité dans le module plutôt que la repousser sur mille appelants.
+**DRY = un seul savoir, pas un seul code** : du code identique par coïncidence, qui évoluera séparément, ne se fusionne pas. Le vrai risque est souvent sans copier-coller : règle métier recopiée client/serveur, structure redécrite à la main, commentaire qui redit le code.
 
 ## Commentaires : audience = dev senior, signal pur
-**Audience par défaut** : un dev expérimenté qui lit le code pour la première fois. Il déduit le QUOI/COMMENT en 5 secondes — ne le lui répète pas. Le commentaire doit apporter ce qu'il NE peut pas déduire : un POURQUOI non-évident, une contrainte invisible, un piège, un invariant.
-
-**Règle** : test avant d'écrire OU de laisser — *"si je supprime, un dev senior perd quoi ?"* Réponse "rien / repère visuel / reformule la ligne / c'est dans le nom de la fonction" → supprimer.
-
-**Concision** : 1 ligne par défaut, 2 max. 3+ lignes seulement si chaque ligne porte un fait distinct non-déductible. Pas de docblock multi-lignes par défaut.
-
-**Langue** : anglais simple. Pas de jargon ni vocabulaire savant ni idiome obscur. Mot court > mot long. "Bridges X to Y" > "obviates the previous map-based DumpCert silently overwriting...". Si un non-natif doit chercher au dico, reformuler.
-
-**Supprimer** : paraphrase du code, résumé de la ligne/fonction suivante, TOC (`<!-- Header -->`, `// ===== Section =====`), étiquettes (`// Q24`), en-têtes de fichier (FICHIER/CHEMIN/AUTEURS — git porte ça), docblocks qui redisent la signature, rappel de ce qui est dans le nom de test/fonction, "this is the narrow X interface", "used by tests to inject gomocks".
-
-**Garder** : workaround (avec lien ticket), invariant non-évident, décision contre-intuitive, gotcha stdlib/framework, comportement non-idempotent à documenter, sentinelle "à supprimer après migration prod", regression-anchor sur un test (le pourquoi du test, pas son comportement).
-
-**En review/édition** : passer un coup de propre sur les commentaires existants (même pré-existants à la MR) dès qu'on touche la zone — pas attendre une consigne explicite.
+Un dev expérimenté déduit le QUOI/COMMENT en 5 secondes — ne pas le lui répéter. Le commentaire apporte ce qu'il NE peut PAS déduire : un POURQUOI non-évident, une contrainte invisible, un piège, un invariant.
+**Test** : *« si je supprime, un dev senior perd quoi ? »* Réponse « rien / repère visuel / reformule la ligne / c'est dans le nom » → supprimer.
+**Concision** : 1 ligne par défaut, 2 max. 3+ seulement si chaque ligne porte un fait distinct non-déductible.
+**Langue** : anglais simple, mot court > mot long. Si un non-natif doit chercher au dico, reformuler.
+**Supprimer** : paraphrase du code, TOC (`// ===== Section =====`), étiquettes (`// Q24`), en-têtes de fichier (git porte ça), docblocks qui redisent la signature, numéros de ticket.
+**Garder** : workaround (avec lien ticket), invariant non-évident, décision contre-intuitive, gotcha stdlib/framework, sentinelle « à supprimer après migration prod », le pourquoi d'un test de non-régression.
+**En review** : passer un coup de propre sur les commentaires existants de la zone touchée, sans attendre de consigne.
 
 ## Tests : couverture par défaut sur chaque feature
-**Règle** : toute feature non-triviale s'accompagne de ses tests dans le même lot — unitaire (logique pure), fonctionnel/intégration (route, repo, règle métier), et e2e (parcours navigateur) quand il y a une UI. Pas de feature livrée « à tester plus tard ». **Ordre du test = par valeur** : test-first s'il guide la conception (logique pure, algo subtil), couverture a posteriori sinon ; jamais de cérémonie test-first sur le trivial. But : garantir la non-régression dans le temps.
-**Test du périmètre** : unit = logique isolée ; fonctionnel = la route/le repo/la sécurité ; e2e = ce que voit l'utilisateur (et au moins un format responsive si front). Inclure les cas d'erreur, pas que le chemin heureux.
+Toute feature non-triviale s'accompagne de ses tests dans le même lot — unitaire (logique pure), fonctionnel (route, repo, règle métier), e2e (parcours navigateur) quand il y a une UI. Pas de « à tester plus tard ».
+**Ordre = par valeur** : test-first s'il guide la conception (algo subtil), couverture a posteriori sinon ; jamais de cérémonie test-first sur le trivial. Inclure les cas d'erreur, pas que le chemin heureux.
 
-## Orchestration sous-agents (matrice mère) — TOUJOURS, PARTOUT
-**Posture** : Opus 4.8 en haute/max réflexion = matrice mère. Je n'exécute pas en aveugle : j'estime, je dimensionne, je délègue, je vérifie, je réajuste. Hors tâche triviale, tout passe par un sous-agent dimensionné — je reste le cerveau, eux les bras.
+## Sous-agents : délégation autorisée en permanence
+Ces instructions valent **demande explicite et permanente** de déléguer — ne pas hésiter au motif qu'un sous-agent ne se lancerait que sur demande de l'utilisateur : la demande est ici.
+**Déléguer** : l'exploration, la lecture de volume (jamais charger un fichier > 200 lignes dans mon contexte), la production parallélisable. **Garder pour moi** : les décisions d'archi, les arbitrages, la revue finale, la synthèse.
+**Dimensionner** : haiku = mécanique (grep, extraction, renommage) ; sonnet = exécution standard (code, tests, recherche) ; opus = raisonnement lourd (design, debug subtil, arbitrage). Tâches indépendantes → plusieurs agents dans un seul message.
+**Brief complet** : contexte, objectif, contraintes, format de sortie, critères de succès. Agent sous-briefé = relance gâchée.
+**Vérifier avant de croire** : un rapport de sous-agent est un candidat, pas un fait. Recouper ce qui est actionnable.
 
-**1. Estimer avant d'agir** : jauger (a) complexité de raisonnement, (b) volume/contexte, (c) risque si erreur, (d) parallélisable. Cette estimation fixe agent + modèle + profondeur de réflexion.
-
-**2. Dimensionner l'agent** :
-- `haiku` : mécanique pur (grep/glob, lecture ciblée, extraction, renommage). Réflexion basse.
-- `sonnet` : exécution standard (code, refacto, tests, recherche large, rédaction). Réflexion moyenne ; exiger un raisonnement explicite si la tâche a des pièges.
-- `opus` : raisonnement lourd (analyse critique, design, review archi, debug subtil, arbitrage). Réflexion haute/max ; exiger plan + justification.
-- Profondeur pilotée par le prompt : « réfléchis étape par étape / explore N pistes / vérifie tes hypothèses » proportionné à l'enjeu.
-
-**3. Prompt = brief complet** : contexte, objectif, contraintes, format de sortie, critères de succès. Agent sous-briefé = relance gâchée.
-
-**4. Boucle adaptative** : lire le résultat de façon critique. Insuffisant (superficiel, faux, incomplet) → relancer avec modèle supérieur, plus de réflexion, ou brief affiné. Sur-dimensionné → ajuster au prochain tour. Je peux changer d'avis en cours de route.
-
-**5. Parallélisme** : tâches indépendantes → plusieurs agents en un seul message. Dépendantes → séquencer.
-
-**6. Je garde pour moi** : décisions d'archi, arbitrages, review finale, synthèse présentée à l'utilisateur, réponses conversationnelles. Je délègue la production et l'exploration, jamais la décision. Ne pas charger de fichiers > 200 lignes dans mon contexte — déléguer la lecture.
-# graphify
-- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
-When the user types `/graphify`, invoke the Skill tool with `skill: "graphify"` before doing anything else.
+## Mise à jour CLAUDE.md & mémoire
+**Quoi ajouter** : ce qui n'est PAS déductible du code — gotchas, contraintes métier invisibles, conventions déviantes, décisions d'archi non-évidentes.
+**Quoi ne pas ajouter** : ce que je redécouvre en lisant le code, et l'état daté d'une MR ou d'un ticket (ça pourrit). Écrire le mécanisme, pas l'instantané.
+**Format** : 1 règle = 1 ligne. Cible < 80 lignes par fichier. `CLAUDE.{domaine}.md` pour les sections rarement utiles.
+**En fin de tâche** : signaler ce qui mérite d'être ajouté. Filtre : (1) non-déductible, (2) se reproduira, (3) pas spécifique au contexte immédiat.
