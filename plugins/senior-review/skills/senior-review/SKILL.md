@@ -7,7 +7,7 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.7.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.8.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers du skill (progressive disclosure)** : `lessons.md` (meta-leçons cross-projet, chargées à l'Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique).
 
@@ -28,7 +28,7 @@ La recherche converge sur **un seul vrai critère de qualité : le rapport signa
 - **Spec-alignment est une dimension de premier rang.** Première question : *le diff implémente-t-il ce que le ticket demande* (couverture complète + pas de scope creep) — pas seulement « est-ce correct ». Sans la description du problème, la revue LLM perd sensiblement en précision (arXiv:2505.20206).
 - **La sécurité est une lentille DISTINCTE** (mindset attaquant, modèle de menace), pas fondue dans la revue de correction : objectifs opposés (la sécu optimise le rappel/paranoïa, la correction la précision). Toujours son propre agent.
 - **Effort proportionné.** Pas de panel multi-agents sur un diff de 10 lignes. Paliers `--quick` / standard / `--deep`.
-- **Discipline tokens/latence.** À qualité égale, le run le moins cher gagne : (a) le **context pack** (Étape 1) est écrit UNE fois, stable, réutilisé verbatim par tous les reviewers (cache-friendly Anthropic) — jamais reconstruit ni re-collé par dimension ; (b) les **receipts** de l'Étape 4 sont vérifiés par **l'orchestrateur lui-même** (grep/exec/Read direct), jamais délégués à un agent dédié — un aller-retour agent coûterait un tour complet pour reproduire ce qu'une commande fait en un appel ; (c) le **refute-panel** (Étape 5) ne tourne QUE sur le critique/incertain, jamais en aveugle sur l'ensemble des findings ; (d) les sorties d'outils (Étape 2 : lint/tests/SAST) entrent **résumées** dans le context pack (échecs + comptes, pas le log brut complet) ; (e) une **re-revue immédiate du même diff dans la même session** (ex. l'utilisateur redemande une revue après avoir appliqué les fixes suggérés) continue les reviewers déjà lancés via `SendMessage` plutôt que d'en relancer 5 aveugles frais sur l'intégralité — l'aveuglement protège le PREMIER jugement, pas la vérification d'un correctif ; repasser en aveugle frais dès que le diff contient du code substantiellement nouveau hors du delta déjà couvert (pattern evaluator-optimizer, transposé de feature-loop 8.11.0).
+- **Discipline tokens/latence.** À qualité égale, le run le moins cher gagne : (a) le **context pack** (Étape 1) est écrit UNE fois, stable, réutilisé verbatim par tous les reviewers (cache-friendly Anthropic) — jamais reconstruit ni re-collé par dimension ; (b) les **receipts** de l'Étape 4 sont vérifiés par **l'orchestrateur lui-même** (grep/exec/Read direct), jamais délégués à un agent dédié — un aller-retour agent coûterait un tour complet pour reproduire ce qu'une commande fait en un appel ; (c) le **refute-panel** (Étape 5) ne tourne QUE sur le critique/incertain, jamais en aveugle sur l'ensemble des findings ; (d) les sorties d'outils (Étape 2 : lint/tests/SAST) entrent **résumées** dans le context pack (échecs + comptes, pas le log brut complet) ; (e) une **re-revue immédiate du même diff dans la même session** (ex. l'utilisateur redemande une revue après avoir appliqué les fixes suggérés) continue les reviewers déjà lancés via `SendMessage` plutôt que d'en relancer 5 aveugles frais sur l'intégralité — l'aveuglement protège le PREMIER jugement, pas la vérification d'un correctif ; repasser en aveugle frais dès que le diff contient du code substantiellement nouveau hors du delta déjà couvert (pattern evaluator-optimizer, transposé de feature-loop 8.11.0) ; au-delà de la session — après un `/clear`, ou une revue reprise des jours plus tard sur la même branche — c'est le **ledger d'arbitrages** (Étapes 1.9 et 7) qui porte la continuité, jamais un re-collage des findings précédents.
 - **Review-only par défaut.** On propose des fixes ; on n'édite/poste rien sans `--fix`/`--comment` explicite, et on confirme avant toute action sortante (commentaire PR, push).
 - **Mode spécialiste selon l'architecture détectée.** Un généraliste rate les invariants propres à une stack. La revue **reconnaît l'archi** (Étape 1) — ex. « Shopify + CQRS/ES en Go », « Next/tRPC », « Spring/DDD » — et bascule en **expert senior de cette stack** : on le **propose/confirme à l'utilisateur** quand l'angle n'est pas déjà donné, et chaque reviewer reçoit la persona experte + les invariants/pièges connus de l'archi à vérifier en priorité. Le mode spécialiste n'élargit pas le bruit : il **affine** ce qu'on cherche, pas le nombre de findings.
 - **Recherche externe autorisée en cas de doute (avec discipline).** Quand un doute porte sur un comportement *version/API/framework-spécifique* (sémantique d'un flag, API tierce, CVE, idiome récent, plafond/pagination d'une API), un reviewer PEUT consulter le web (`WebSearch`/`WebFetch`) plutôt que deviner ou sur-flaguer. Discipline : source **primaire/officielle** d'abord, **citer la source + sa date**, et **re-vérifier contre le code et la version réelle du repo** — une réponse web *informe* mais n'est jamais le receipt (le receipt reste grep/exec/test). En cas d'indispo réseau, le dire et baisser la confiance.
@@ -105,6 +105,8 @@ Construire un **context pack** (placé en tête de chaque prompt reviewer = zone
 **Reconnaissance d'architecture → mode spécialiste.** À partir de la stack + archi détectées, **nommer la combinaison** (ex. « Shopify + CQRS/ES en Go »). Quand cette combinaison porte des invariants et pièges propres qui changent matériellement la revue :
 - **Proposer/confirmer le mode** : si l'utilisateur n'a pas déjà donné l'angle, lui demander via `AskUserQuestion` (« je revois en expert senior <stack> ? ») — en non-interactif, assumer le mode détecté **en le signalant**.
 - **Persona experte par reviewer** : chaque agent de dimension devient un **senior 10+ ans de cette stack précise** (pas un généraliste) et reçoit la **liste d'invariants/pièges connus** de l'archi à vérifier en priorité. Exemples : *CQRS/ES* → idempotence des commandes, immutabilité/rejouabilité des events, cohérence projection↔agrégat, sagas/effets de bord rétroactifs ; *Shopify* → pagination/éviction, normalisation E.164, scopes/permissions, throttling, champs version-dépendants de l'Admin API ; *front* → hydratation, a11y, états de chargement.
+
+9. **Ledger d'arbitrages (revues précédentes de CETTE branche)** : lire `~/.claude/projects/<encoded-cwd>/memory/arbitrages-<branche|PR>.md` s'il existe. Il ne porte que trois catégories — **`tranché`** (arbitrage acté par un humain + le pourquoi), **`prouvé`** (receipt déjà payé + la commande qui l'a payé), **`hors périmètre`** (réel mais routé ailleurs + le ticket). Il ne porte **jamais** les findings, sévérités ou verdicts des tours précédents : les relire ancrerait le jugement et tuerait l'aveuglement — c'est le seul garde-fou qui compte ici. **L'orchestrateur** lit les trois catégories ; **les reviewers** ne reçoivent que `tranché` aplati en « ne flague pas ça » et `prouvé` en « ne le refais pas », jamais le récit. Une entrée `tranché` reste **réouvrable au prix d'un receipt exécuté** : gratuit de passer, coûteux mais possible de rouvrir — c'est cette asymétrie qui empêche le ledger de figer une erreur. Logger `[context] ledger: N tranchés, M prouvés (tour K)`.
 
 Logger `[context] ticket=<#id|absent>, N conventions, M call-sites tracés, stack=<...>, mode spécialiste=<stack | généraliste> (confirmé|détecté)`.
 
@@ -195,10 +197,23 @@ Verdict `approve` ET un skill `branch-wrap-up` disponible ET la cible est du tra
 
 **`--comment`** : après confirmation, poster via `gh pr comment`/`gh pr review` (GitHub) ou `glab mr note` (GitLab), inline avec liens `file#Lx-Ly` (SHA complet pour GitHub). **`--fix`** : appliquer SEULEMENT les fixes high-confidence, dans le working tree, après confirmation — jamais de commit/push auto.
 
-## Étape 7 — Learnings (mémoire par repo + lessons cross-projet)
+## Étape 7 — Learnings (ledger de branche + mémoire par repo + lessons cross-projet)
 
 - **Faux positif confirmé** par l'user (« ça c'est voulu ») ou par la vérif → l'écrire dans `~/.claude/projects/<encoded-cwd>/memory/senior_review_learnings.md` (`codebase_fact` vs `team_preference`) pour ne pas le répéter. Ne pas polluer avec des learnings trop génériques/vieux.
-- **Leçon sur *comment reviewer*** réutilisable ailleurs → `~/.claude/skills/senior-review/lessons.md` (additive ; format : `- **<titre>** : <règle actionnable> — *vu sur N runs*`). **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — jamais de nom client / projet / vendor / branche réels ; généraliser (« un projet réel »). Ces leçons sont rechargées à l'Étape 1.8 de chaque run — c'est ce qui ferme la boucle d'apprentissage. Logger `[learn] N learnings repo, M lessons cross-projet`.
+- **Leçon sur *comment reviewer*** réutilisable ailleurs → `~/.claude/skills/senior-review/lessons.md` (additive ; format : `- **<titre>** : <règle actionnable> — *vu sur N runs*`). **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — jamais de nom client / projet / vendor / branche réels ; généraliser (« un projet réel »). Ces leçons sont rechargées à l'Étape 1.8 de chaque run — c'est ce qui ferme la boucle d'apprentissage.
+- **Ledger d'arbitrages de la branche** → `~/.claude/projects/<encoded-cwd>/memory/arbitrages-<branche|PR>.md`. **Rien au tour 1** : une revue one-shot ne paie pas cet overhead ; le ledger n'apparaît qu'à partir du tour 2 (déclencheur : un ledger existe déjà, ou la branche a déjà été revue). Y entrent uniquement ce que l'utilisateur a **tranché** pendant la revue, les **receipts payés** (commande + résultat), et ce qui a été **routé** vers un autre ticket. N'y entrent jamais les findings ni le verdict. **Le ledger meurt à la fusion** : promouvoir alors les `codebase_fact` durables vers `senior_review_learnings.md`, puis supprimer le fichier — un ledger qui survit à sa branche pourrit. Format :
+
+```markdown
+# Arbitrages — <branche> (tour N)
+## tranché
+- <sujet> — <décision> · pourquoi : <raison> · <date>
+## prouvé
+- <ce qui est établi> — `<commande exécutée>` → <résultat>
+## hors périmètre
+- <constat réel> — routé vers <ticket>
+```
+
+Logger `[learn] ledger: +N arbitrages · N learnings repo, M lessons cross-projet`.
 
 ## Rubrique des dimensions (ancres — ce qu'un senior regarde, par priorité)
 
@@ -252,6 +267,7 @@ Non-bloquant (nit/suggestion) :
 - **Paliers d'effort** quick/standard/deep — proportionné à l'enjeu.
 - **Review-only par défaut** ; actions sortantes sur flag + confirmation.
 - **Mémoire de learnings par repo** — ne répète pas les FP, s'adapte aux conventions.
+- **Ledger d'arbitrages par branche** — les tours suivants ne re-litigent pas ce qui est tranché ni ne re-paient les receipts, sans jamais voir les findings précédents : l'aveuglement reste intact.
 
 ## Sources (traçabilité)
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
