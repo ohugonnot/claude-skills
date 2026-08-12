@@ -273,4 +273,4 @@ Non-bloquant (nit/suggestion) :
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.7.0**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.8.0**.
