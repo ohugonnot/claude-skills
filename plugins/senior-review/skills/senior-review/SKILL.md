@@ -7,7 +7,7 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.8.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.9.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers du skill (progressive disclosure)** : `lessons.md` (meta-leçons cross-projet, chargées à l'Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique).
 
@@ -100,7 +100,7 @@ Construire un **context pack** (placé en tête de chaque prompt reviewer = zone
 5. **Historique git** : `git blame`/`git log -p` ciblé sur les lignes/fichiers touchés → *pourquoi* ce code existe, changements récents liés, anti-régression.
 6. **Stack / architecture / versions** : langage, framework, **archi dominante** (CQRS/ES, hexagonal, event-driven, microservices, monolithe modulaire…), deps majeures + versions (les patterns sécu/perf **et les idiomes** sont version- ET archi-dépendants). En cas d'archi/dep peu familière, une recherche web ciblée est permise (cf. principe « recherche externe »).
 7. **Learnings repo** (mémoire de feedback) : lire `~/.claude/projects/<encoded-cwd>/memory/senior_review_learnings.md` s'il existe → FP déjà confirmés à ne pas répéter + conventions d'équipe découvertes. Logger `[context] N learnings repo chargés`.
-8. **Lessons cross-projet (mémoire du skill)** : lire `~/.claude/skills/senior-review/lessons.md` (écrites à l'Étape 7 des runs passés) → leçons sur *comment reviewer* (discriminance des tests, routage par clé, hygiène de mutation…). Les injecter dans le context pack en **routant chaque leçon vers la dimension concernée** (une leçon "tests" nourrit le reviewer tests, une leçon "hygiène mutation" nourrit l'Étape 4). Logger `[context] M lessons cross-projet chargées`.
+8. **Lessons cross-projet (mémoire du skill)** : `~/.claude/skills/senior-review/lessons.md` (écrites à l'Étape 7 des runs passés) → leçons sur *comment reviewer*. Chaque leçon porte une étiquette de dimension en tête de ligne : `[spec] [correctness] [security] [design] [tests] [perf] [harness]`. Les injecter dans le context pack en **routant chaque leçon vers la dimension concernée** ; `[harness]` (hygiène d'orchestration, mutation, worktree) va à l'orchestrateur et à l'Étape 4. **En tier `--quick`, ne charger que `[harness]` et `[correctness]`** — `grep -E '^- \[(harness|correctness)\]' lessons.md` — les autres dimensions n'y sont pas reviewées. Logger `[context] M lessons cross-projet chargées`.
 
 **Reconnaissance d'architecture → mode spécialiste.** À partir de la stack + archi détectées, **nommer la combinaison** (ex. « Shopify + CQRS/ES en Go »). Quand cette combinaison porte des invariants et pièges propres qui changent matériellement la revue :
 - **Proposer/confirmer le mode** : si l'utilisateur n'a pas déjà donné l'angle, lui demander via `AskUserQuestion` (« je revois en expert senior <stack> ? ») — en non-interactif, assumer le mode détecté **en le signalant**.
@@ -200,7 +200,7 @@ Verdict `approve` ET un skill `branch-wrap-up` disponible ET la cible est du tra
 ## Étape 7 — Learnings (ledger de branche + mémoire par repo + lessons cross-projet)
 
 - **Faux positif confirmé** par l'user (« ça c'est voulu ») ou par la vérif → l'écrire dans `~/.claude/projects/<encoded-cwd>/memory/senior_review_learnings.md` (`codebase_fact` vs `team_preference`) pour ne pas le répéter. Ne pas polluer avec des learnings trop génériques/vieux.
-- **Leçon sur *comment reviewer*** réutilisable ailleurs → `~/.claude/skills/senior-review/lessons.md` (additive ; format : `- **<titre>** : <règle actionnable> — *vu sur N runs*`). **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — jamais de nom client / projet / vendor / branche réels ; généraliser (« un projet réel »). Ces leçons sont rechargées à l'Étape 1.8 de chaque run — c'est ce qui ferme la boucle d'apprentissage.
+- **Leçon sur *comment reviewer*** réutilisable ailleurs → `~/.claude/skills/senior-review/lessons.md`. Format : `- [<dimension>] **<titre>** : <règle actionnable> — *vu sur N runs*`, étiquette obligatoire parmi `spec correctness security design tests perf harness`. **Chercher d'abord une leçon existante sur le même mécanisme et l'enrichir (incrémenter *vu sur N runs*) plutôt que d'en empiler une variante** : le fichier est rechargé intégralement à chaque revue, sa croissance est un coût récurrent — il n'est additif que faute de mieux. **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — jamais de nom client / projet / vendor / branche réels ; généraliser (« un projet réel »). Ces leçons sont rechargées à l'Étape 1.8 de chaque run — c'est ce qui ferme la boucle d'apprentissage.
 - **Ledger d'arbitrages de la branche** → `~/.claude/projects/<encoded-cwd>/memory/arbitrages-<branche|PR>.md`. **Rien au tour 1** : une revue one-shot ne paie pas cet overhead ; le ledger n'apparaît qu'à partir du tour 2 (déclencheur : un ledger existe déjà, ou la branche a déjà été revue). Y entrent uniquement ce que l'utilisateur a **tranché** pendant la revue, les **receipts payés** (commande + résultat), et ce qui a été **routé** vers un autre ticket. N'y entrent jamais les findings ni le verdict. **Le ledger meurt à la fusion** : promouvoir alors les `codebase_fact` durables vers `senior_review_learnings.md`, puis supprimer le fichier — un ledger qui survit à sa branche pourrit. Format :
 
 ```markdown
@@ -273,4 +273,4 @@ Non-bloquant (nit/suggestion) :
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.8.0**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.9.0**.
