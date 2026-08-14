@@ -7,9 +7,9 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.11.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.11.1** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
-**Fichiers du skill (progressive disclosure)** : `lessons.md` (seed vide — la mémoire réelle est hors dépôt, cf. Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique). Trois mémoires cross-projet vivent **hors dépôt** dans `~/.claude/skill-memory/` : `senior-review-lessons.md` (ce qui a marché) et `senior-review-misses.md` (ce qui a raté), toutes deux chargées à l'Étape 1.8 ; `senior-review-runs.jsonl` (une ligne par revue), **jamais chargé** — il sert à analyser les runs entre eux, pas à en informer un.
+**Fichiers du skill (progressive disclosure)** : `lessons.md` (instantané publié, promu à la main — la mémoire de travail est hors dépôt, cf. Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique). Trois mémoires cross-projet vivent **hors dépôt** dans `~/.claude/skill-memory/` : `senior-review-lessons.md` (ce qui a marché) et `senior-review-misses.md` (ce qui a raté), toutes deux chargées à l'Étape 1.8 ; `senior-review-runs.jsonl` (une ligne par revue), **jamais chargé** — il sert à analyser les runs entre eux, pas à en informer un.
 
 ## Posture (ce qui distingue une revue excellente d'une revue bruyante)
 
@@ -276,4 +276,4 @@ Non-bloquant (nit/suggestion) :
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.11.0**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.11.1**.
