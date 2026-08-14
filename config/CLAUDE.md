@@ -42,9 +42,10 @@ Un dev expérimenté déduit le QUOI/COMMENT en 5 secondes — ne pas le lui ré
 Toute feature non-triviale s'accompagne de ses tests dans le même lot — unitaire (logique pure), fonctionnel (route, repo, règle métier), e2e (parcours navigateur) quand il y a une UI. Pas de « à tester plus tard ».
 **Ordre = par valeur** : test-first s'il guide la conception (algo subtil), couverture a posteriori sinon ; jamais de cérémonie test-first sur le trivial. Inclure les cas d'erreur, pas que le chemin heureux.
 
-## Sous-agents : délégation autorisée en permanence
+## Sous-agents : délégation autorisée, mais elle se paie
 Ces instructions valent **demande explicite et permanente** de déléguer — ne pas hésiter au motif qu'un sous-agent ne se lancerait que sur demande de l'utilisateur : la demande est ici.
-**Déléguer** : l'exploration, la lecture de volume (jamais charger un fichier > 200 lignes dans mon contexte), la production parallélisable. **Garder pour moi** : les décisions d'archi, les arbitrages, la revue finale, la synthèse.
+**Ce que ça coûte** : un sous-agent recharge CLAUDE.md, skills et system prompt — une équipe d'agents consomme ~7× le total en tokens, un multi-agents ~15×. Déléguer préserve MON contexte, pas la facture : arbitrer sur le volume réel, pas par réflexe.
+**Déléguer** : l'exploration large, la lecture de gros volumes, la production parallélisable. **Faire directement** : un grep, un Read ciblé, une vérification ponctuelle — moins cher qu'un aller-retour d'agent. **Garder pour moi** : les décisions d'archi, les arbitrages, la revue finale, la synthèse.
 **Dimensionner** : haiku = mécanique (grep, extraction, renommage) ; sonnet = exécution standard (code, tests, recherche) ; opus = raisonnement lourd (design, debug subtil, arbitrage). Tâches indépendantes → plusieurs agents dans un seul message.
 **Brief complet** : contexte, objectif, contraintes, format de sortie, critères de succès. Agent sous-briefé = relance gâchée.
 **Vérifier avant de croire** : un rapport de sous-agent est un candidat, pas un fait. Recouper ce qui est actionnable.
