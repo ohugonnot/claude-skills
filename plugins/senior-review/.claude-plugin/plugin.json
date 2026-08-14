@@ -1,7 +1,7 @@
 {
   "name": "senior-review",
   "description": "Senior fresh-eyes review before merge: bugs, security, design, tests, ticket alignment. Blind reviewers (reviewer != author), a verification gate where every critical finding needs a receipt, and an adversarial refute-panel.",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "author": {
     "name": "Odilon Hugonnot",
     "url": "https://www.web-developpeur.com"

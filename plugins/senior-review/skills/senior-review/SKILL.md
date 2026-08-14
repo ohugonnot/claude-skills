@@ -7,9 +7,9 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.9.1** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.10.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
-**Fichiers du skill (progressive disclosure)** : `lessons.md` (seed vide — la mémoire réelle est hors dépôt, cf. Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique).
+**Fichiers du skill (progressive disclosure)** : `lessons.md` (seed vide — la mémoire réelle est hors dépôt, cf. Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique). Deux mémoires cross-projet vivent **hors dépôt** dans `~/.claude/skill-memory/` : `senior-review-lessons.md` (ce qui a marché) et `senior-review-misses.md` (ce qui a raté).
 
 ## Posture (ce qui distingue une revue excellente d'une revue bruyante)
 
@@ -61,7 +61,7 @@ La recherche converge sur **un seul vrai critère de qualité : le rapport signa
 6. VERDICT + RAPPORT (signal/bruit discipliné)  → spec-coverage verdict + go/no-go ; silence si rien
    [option --comment → poste PR ;  --fix → applique les fixes high-confidence, après confirmation]
    ↓
-7. LEARNINGS (mémoire par repo : FP confirmés, conventions découvertes) + lessons cross-projet
+7. LEARNINGS (mémoire par repo : FP confirmés, conventions découvertes) + lessons et misses cross-projet
 ```
 
 ## Logs (préfixes, style factuel, pas d'emojis hors rapport final)
@@ -101,6 +101,7 @@ Construire un **context pack** (placé en tête de chaque prompt reviewer = zone
 6. **Stack / architecture / versions** : langage, framework, **archi dominante** (CQRS/ES, hexagonal, event-driven, microservices, monolithe modulaire…), deps majeures + versions (les patterns sécu/perf **et les idiomes** sont version- ET archi-dépendants). En cas d'archi/dep peu familière, une recherche web ciblée est permise (cf. principe « recherche externe »).
 7. **Learnings repo** (mémoire de feedback) : lire `~/.claude/projects/<encoded-cwd>/memory/senior_review_learnings.md` s'il existe → FP déjà confirmés à ne pas répéter + conventions d'équipe découvertes. Logger `[context] N learnings repo chargés`.
 8. **Lessons cross-projet (mémoire du skill)** : `~/.claude/skill-memory/senior-review-lessons.md` — **hors dépôt**, écrit à l'Étape 7 des runs passés ; absent au premier run, continuer sans → leçons sur *comment reviewer*. Chaque leçon porte une étiquette de dimension en tête de ligne : `[spec] [correctness] [security] [design] [tests] [perf] [harness]`. Les injecter dans le context pack en **routant chaque leçon vers la dimension concernée** ; `[harness]` (hygiène d'orchestration, mutation, worktree) va à l'orchestrateur et à l'Étape 4. **En tier `--quick`, ne charger que `[harness]` et `[correctness]`** — `grep -E '^- \[(harness|correctness)\]' lessons.md` — les autres dimensions n'y sont pas reviewées. Logger `[context] M lessons cross-projet chargées`.
+   **Misses cross-projet** : `~/.claude/skill-memory/senior-review-misses.md` — **hors dépôt**, même régime d'absence. Ce sont les **échecs** de la revue : `[bruit]` remonté à tort, `[manqué]` trouvé après coup, `[coût]` tours de trop. Les injecter **uniquement dans « ce qu'on NE flague PAS »** (Étape 3) et jamais dans le brief de recherche d'un reviewer — un miss est un filtre, pas une piste. Logger `[context] K misses chargés`.
 
 **Reconnaissance d'architecture → mode spécialiste.** À partir de la stack + archi détectées, **nommer la combinaison** (ex. « Shopify + CQRS/ES en Go »). Quand cette combinaison porte des invariants et pièges propres qui changent matériellement la revue :
 - **Proposer/confirmer le mode** : si l'utilisateur n'a pas déjà donné l'angle, lui demander via `AskUserQuestion` (« je revois en expert senior <stack> ? ») — en non-interactif, assumer le mode détecté **en le signalant**.
@@ -201,6 +202,7 @@ Verdict `approve` ET un skill `branch-wrap-up` disponible ET la cible est du tra
 
 - **Faux positif confirmé** par l'user (« ça c'est voulu ») ou par la vérif → l'écrire dans `~/.claude/projects/<encoded-cwd>/memory/senior_review_learnings.md` (`codebase_fact` vs `team_preference`) pour ne pas le répéter. Ne pas polluer avec des learnings trop génériques/vieux.
 - **Leçon sur *comment reviewer*** réutilisable ailleurs → `~/.claude/skill-memory/senior-review-lessons.md` (hors dépôt ; créer si absent). Format : `- [<dimension>] **<titre>** : <règle actionnable> — *vu sur N runs*`, étiquette obligatoire parmi `spec correctness security design tests perf harness`. **Chercher d'abord une leçon existante sur le même mécanisme et l'enrichir (incrémenter *vu sur N runs*) plutôt que d'en empiler une variante** : le fichier est rechargé intégralement à chaque revue, sa croissance est un coût récurrent — il n'est additif que faute de mieux. **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — jamais de nom client / projet / vendor / branche réels ; généraliser (« un projet réel »). Ces leçons sont rechargées à l'Étape 1.8 de chaque run — c'est ce qui ferme la boucle d'apprentissage.
+- **Miss de la revue** — un échec **constaté du dehors**, jamais auto-évalué (principe « signal externe ») → `~/.claude/skill-memory/senior-review-misses.md` (hors dépôt ; créer si absent). Trois sources, ce sont les seules : (a) une entrée passée en `tranché` ou `hors périmètre` au ledger ce tour → `[bruit]` ; (b) un défaut trouvé APRÈS la revue (par l'user, la CI, la prod) → `[manqué]` ; (c) tour ≥ 3 sur la même branche → `[coût]`, avec ce qui a forcé le tour de plus. Format : `- [bruit|manqué|coût] <règle actionnable> — *vu sur N branches, source: <ce qui l'a démenti>* · <AAAA-MM-JJ>`. **Incrémenter N sur une entrée existante plutôt qu'en créer une variante** — c'est N, pas l'ancienneté, qui dit ce qui mérite d'être chargé. **Départage avec `senior_review_learnings.md`** : si la règle reste vraie sur un AUTRE projet → misses ; si elle décrit ce code-ci → learnings. **Plafond 40 entrées** : au-delà, élaguer les `N=1` les plus anciennes d'abord — une règle vue une seule fois est non prouvée, pas fausse, mais elle ne vaut pas la place d'une récurrente. **Fait quand** : chaque entrée ajoutée au ledger ce tour a produit soit une ligne ici, soit une ligne dans learnings.
 - **Ledger d'arbitrages de la branche** → `~/.claude/projects/<encoded-cwd>/memory/arbitrages-<branche|PR>.md`. **Rien au tour 1** : une revue one-shot ne paie pas cet overhead ; le ledger n'apparaît qu'à partir du tour 2 (déclencheur : un ledger existe déjà, ou la branche a déjà été revue). Y entrent uniquement ce que l'utilisateur a **tranché** pendant la revue, les **receipts payés** (commande + résultat), et ce qui a été **routé** vers un autre ticket. N'y entrent jamais les findings ni le verdict. **Le ledger meurt à la fusion** : promouvoir alors les `codebase_fact` durables vers `senior_review_learnings.md`, puis supprimer le fichier — un ledger qui survit à sa branche pourrit. Format :
 
 ```markdown
@@ -273,4 +275,4 @@ Non-bloquant (nit/suggestion) :
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.9.1**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.10.0**.
