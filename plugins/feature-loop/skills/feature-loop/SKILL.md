@@ -7,9 +7,9 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.15.3** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.15.4** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
-**Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (chargé par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
+**Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (seed vide — la mémoire réelle est hors dépôt dans `~/.claude/skill-memory/feature-loop-lessons.md`, chargée par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
 **Architecture** (patterns officiels Anthropic, *Building Effective Agents*) :
 - **Orchestrator-workers** : une **mère** (Opus, haute réflexion) estime, décompose, délègue à des sous-agents spécialisés, puis synthétise. Elle reste le cerveau ; les workers sont les bras.
@@ -279,7 +279,7 @@ Si un agent Sonnet rend un travail superficiel/faux, ou si une review est incert
 
 Si existe : Read, parser, passer comme contexte aux prompts impl/review. Logger `[init] insights projet chargés (N patterns)`.
 
-**Meta-leçons cross-projet** : lire `~/.claude/skills/feature-loop/lessons.md` (créer avec un header minimal s'il n'existe pas). Ces leçons portent sur *comment piloter la boucle* (indépendant du projet) — les passer en tête des prompts impl/review (zone stable, cache-friendly). Logger `[init] lessons cross-projet chargées (N leçons)`.
+**Meta-leçons cross-projet** : lire `~/.claude/skill-memory/feature-loop-lessons.md` (hors dépôt) (créer avec un header minimal s'il n'existe pas). Ces leçons portent sur *comment piloter la boucle* (indépendant du projet) — les passer en tête des prompts impl/review (zone stable, cache-friendly). Logger `[init] lessons cross-projet chargées (N leçons)`.
 
 ### Espace de travail : in-place (défaut) ou worktree (`--worktree`)
 
@@ -845,7 +845,7 @@ Si l'user choisit merger/garder ET qu'un skill `branch-wrap-up` est disponible :
 ```
 Ce fichier survit aux runs ET aux suppressions de branche/worktree (d'où le hors-arbre) — c'est la source du tableau de bord `status`. Le champ **`anomalies`** trace les endroits où la **boucle elle-même** a buté (vs la feature) : tests vacants, mutations inconclusives, rollbacks, plans rejetés, preuves hallucinées, notes ignorées, échec smoke-live, agent B relancé. C'est l'historique d'échec du *skill*, matière première de `learn` (Étape 7) — remplir les compteurs depuis le journal `.feature-loop.json`, zéros inclus (l'absence d'anomalie est aussi un signal). **`subagent_tokens_total`** : somme des `subagent_tokens` retournés par chaque appel Agent du run (la mère les note au fil de l'eau) — c'est la mesure objective du coût, base de comparaison avant/après toute optimisation du skill ; `status` peut alors montrer la tendance coût/durée par tier. Logger `[runs] run loggé dans feature_loop_runs.jsonl`.
 
-**Lessons cross-projet** : si le run a révélé une leçon sur *comment piloter la boucle* (réutilisable sur un AUTRE projet — ex: "un major a11y sur icon-button est presque toujours réel, ne pas le reclasser en minor", "le skip Sonnet overflow quasi-systématiquement sur les features touchant une migration"), l'append à `~/.claude/skills/feature-loop/lessons.md`. **Test de tri** : spécifique au projet courant → insight projet (5.5) ; vrai sur d'autres projets → lesson cross-projet ici. **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — la leçon ne nomme JAMAIS un client / projet / vendor / branche / champ métier réels ; généraliser (« un projet réel », « une intégration tierce »). Logger `[lessons] N meta-leçon(s) cross-projet ajoutée(s)`.
+**Lessons cross-projet** : si le run a révélé une leçon sur *comment piloter la boucle* (réutilisable sur un AUTRE projet — ex: "un major a11y sur icon-button est presque toujours réel, ne pas le reclasser en minor", "le skip Sonnet overflow quasi-systématiquement sur les features touchant une migration"), l'append à `~/.claude/skill-memory/feature-loop-lessons.md` (hors dépôt). **Test de tri** : spécifique au projet courant → insight projet (5.5) ; vrai sur d'autres projets → lesson cross-projet ici. **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — la leçon ne nomme JAMAIS un client / projet / vendor / branche / champ métier réels ; généraliser (« un projet réel », « une intégration tierce »). Logger `[lessons] N meta-leçon(s) cross-projet ajoutée(s)`.
 
 ## Étape 6 — Sous-commande `status` (hors boucle, lecture seule)
 
@@ -941,4 +941,4 @@ Fondements : `reference/references.md`.
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.15.3**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.15.4**.
