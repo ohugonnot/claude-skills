@@ -7,7 +7,7 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.12.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.13.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers du skill (progressive disclosure)** : `lessons.md` et `misses.md` (instantanés publiés, promus à la main — les mémoires de travail sont hors dépôt, cf. Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique). Trois mémoires cross-projet vivent **hors dépôt** dans `~/.claude/skill-memory/` : `senior-review-lessons.md` (ce qui a marché) et `senior-review-misses.md` (ce qui a raté), toutes deux chargées à l'Étape 1.8 ; `senior-review-runs.jsonl` (une ligne par revue), **jamais chargé** — il sert à analyser les runs entre eux, pas à en informer un.
 
@@ -81,6 +81,8 @@ La recherche converge sur **un seul vrai critère de qualité : le rapport signa
 - **confirmation** (auto-détecté, jamais demandé) : la branche a déjà un ledger ET son diff n'a pas bougé depuis le dernier tour (même sommet, ou seul un merge de la base sans conflit de contenu) → gate outils rejouée sur le sommet courant + ledger relu + notes de MR, **zéro reviewer**. C'est la réponse à « je peux merger ? » ; un aveugle de plus n'y trouve rien et coûte autant qu'un delta neuf. Dès que le diff porte du code nouveau, retour au tier demandé.
 - *(défaut)* **standard** : revue décomposée par dimension (∥), gate de vérification, dédup, panel **seulement** sur critical/incertain.
 - `--deep` : tout — toutes dimensions + sécu threat-model + refute-panel sur tous les majors + red-check mutation sur les tests + execution-grounding live. Pré-release / scope sensible.
+
+**Mode boucle** — `--loop`, ou toute formulation de l'utilisateur qui demande une boucle (« en boucle », « jusqu'au vert », « recommence jusqu'à ce qu'il n'y ait plus rien ») : ce n'est pas une intensité, c'est un **contrat de terminaison**. Voir Étape 6.5. En une phrase : on ne s'arrête pas sur un tour propre, on s'arrête sur un tour qui **n'a rien changé**.
 
 **Autres** : `--ticket <id>` (force le rattachement spec), `--security` (force la passe sécu profonde même en quick/standard), `--fix` (applique les fixes high-confidence après confirmation), `--comment` (poste le rapport/inline sur la PR après confirmation), `--no-tools` (si lint/tests indisponibles).
 
@@ -200,6 +202,25 @@ Verdict `approve` ET un skill `branch-wrap-up` disponible ET la cible est du tra
 
 **`--comment`** : après confirmation, poster via `gh pr comment`/`gh pr review` (GitHub) ou `glab mr note` (GitLab), inline avec liens `file#Lx-Ly` (SHA complet pour GitHub). **`--fix`** : appliquer SEULEMENT les fixes high-confidence, dans le working tree, après confirmation — jamais de commit/push auto.
 
+## Étape 6.5 — Boucle (mode `--loop` uniquement)
+
+Le mode boucle a **un seul critère d'arrêt, et il porte sur le delta, pas sur le rapport** :
+
+> On boucle tant qu'un tour a **modifié du code**. On s'arrête au premier tour qui ne remonte **aucun bloquant** ET **ne produit aucune modification**.
+
+Ce qui est interdit de conclure : « ce tour n'a plus de bloquant, donc c'est fini ». Un tour qui corrige **crée du code que personne n'a jugé**, et son auteur est l'orchestrateur — le juge le plus mal placé pour l'évaluer (principe reviewer ≠ auteur). Tant qu'une ligne a bougé, il reste un delta non relu : c'est ce delta qui décide s'il faut un tour de plus, pas la sévérité du tour écoulé.
+
+Le tour N+1 en pratique :
+1. **Cible = le delta**, pas la branche entière : le diff des correctifs du tour N (contre un instantané pris avant eux — pas contre `HEAD` si l'arbre porte du travail non commité).
+2. **Reviewers frais et aveugles**, jamais les mêmes agents relancés : une continuation coûte autant qu'une passe neuve et arrive avec l'ancrage du tour précédent. Deux dimensions suffisent en général (correctness+sécurité du delta ; tests du delta) — proportionner au volume du delta, pas à celui de la branche.
+3. **Le brief inverse la question** : non pas « ce correctif corrige-t-il ? » (déjà prouvé par mutation) mais « **que casse-t-il, qu'oublie-t-il, que surcorrige-t-il ?** ». Lister explicitement les correctifs et ce dont chacun est soupçonné.
+4. **Chaque correctif se prouve par mutation inverse** : annuler le correctif doit faire rougir un test. Un correctif sans test qui meurt à son annulation n'est pas fini — c'est le seul signal externe qui distingue « corrigé » de « corrigé en apparence ».
+5. Les décisions **tranchées** par l'utilisateur et les **receipts déjà payés** passent au ledger (Étape 7) et ne se re-litigent pas.
+
+Terminaison et honnêteté du décompte : le rapport final d'une boucle dit **le nombre de tours**, ce que chaque tour a trouvé, et **ce que le dernier tour n'a pas changé**. Une boucle annoncée close avec un delta non relu est un rapport faux, quelle que soit la couleur du gate. À partir du **tour 3**, ajouter une ligne de coût cumulé (agents, tokens) au rapport — la boucle reste due, l'utilisateur reste informé de ce qu'elle coûte.
+
+Garde-fous : un bloquant qui survit à deux tours sans converger, ou deux tours qui se renvoient le même arbitrage, **remonte à l'utilisateur** au lieu d'un troisième correctif (déjà la règle pour un bloquant incertain). Une modification qui n'est **que** du commentaire ou du renommage sans effet sémantique ne relance pas un tour complet : elle se vérifie par gate outils + relecture directe, et le rapport le dit.
+
 ## Étape 7 — Learnings (ledger de branche + mémoire par repo + lessons cross-projet)
 
 - **Faux positif confirmé** par l'user (« ça c'est voulu ») ou par la vérif → l'écrire dans `~/.claude/projects/<encoded-cwd>/memory/senior_review_learnings.md` (`codebase_fact` vs `team_preference`) pour ne pas le répéter. Ne pas polluer avec des learnings trop génériques/vieux.
@@ -258,6 +279,7 @@ Non-bloquant (nit/suggestion) :
 - N'invente pas de finding : pas de `file:line` valide + vérifié → pas de finding.
 - Ne note pas le code legacy non modifié ; ne re-flague pas ce qu'un outil attrape.
 - Ne tranche pas seul un bloquant incertain → escalade user.
+- En mode boucle, ne déclare jamais la boucle finie tant qu'un tour a modifié du code : le delta de ce tour n'a pas été relu, et son auteur ne peut pas s'en porter juge.
 - Ne reste pas silencieux > 3 min (logs continus).
 
 ## Garanties
@@ -270,6 +292,7 @@ Non-bloquant (nit/suggestion) :
 - **Panel adversarial ciblé** (réfutation) sur le critique/incertain — moins de biais qu'un juge unique, coût maîtrisé.
 - **Signal/bruit discipliné** : cap nits, silence assumé, what-NOT-to-flag, sévérité calibrée.
 - **Paliers d'effort** quick/standard/deep — proportionné à l'enjeu.
+- **Mode boucle : terminaison sur le delta, pas sur le rapport** — tant qu'un tour modifie du code, un tour de plus le relit en aveugle ; on s'arrête au premier tour sans bloquant ET sans modification.
 - **Review-only par défaut** ; actions sortantes sur flag + confirmation.
 - **Mémoire de learnings par repo** — ne répète pas les FP, s'adapte aux conventions.
 - **Ledger d'arbitrages par branche** — les tours suivants ne re-litigent pas ce qui est tranché ni ne re-paient les receipts, sans jamais voir les findings précédents : l'aveuglement reste intact.
