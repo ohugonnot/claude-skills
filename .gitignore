@@ -17,3 +17,7 @@ config/settings.local.json
 .idea/
 .vscode/
 __pycache__/
+
+# Config Claude vivante : lien depuis ~/.claude/settings.json, contient le contexte
+# du poste (orga, domaines, chemins). Le template public est settings.example.json.
+config/settings.json
