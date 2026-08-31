@@ -7,7 +7,7 @@ argument-hint: "[path | --pr N | --base ref | --staged] [--quick|--deep] [--tick
 
 # Senior Review
 
-**skill_version : 1.13.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.14.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers du skill (progressive disclosure)** : `lessons.md` et `misses.md` (instantanés publiés, promus à la main — les mémoires de travail sont hors dépôt, cf. Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique). Trois mémoires cross-projet vivent **hors dépôt** dans `~/.claude/skill-memory/` : `senior-review-lessons.md` (ce qui a marché) et `senior-review-misses.md` (ce qui a raté), toutes deux chargées à l'Étape 1.8 ; `senior-review-runs.jsonl` (une ligne par revue), **jamais chargé** — il sert à analyser les runs entre eux, pas à en informer un.
 
@@ -119,6 +119,8 @@ Logger `[context] ticket=<#id|absent>, N conventions, M call-sites tracés, stac
 Lancer les outils dispos sur le périmètre (paralléliser) — ils sont l'oracle externe et **désamorcent les FP** :
 - **lint** (golangci-lint/eslint/ruff…), **typecheck**, **tests** du périmètre, **SAST** (gosec/semgrep/bandit).
 Passer leurs sorties **résumées** (échecs, comptes, lignes clés — pas le log brut complet) au context pack : les reviewers **ne re-flaguent pas** ce qu'un outil attrape (anti-bruit) et **s'appuient** dessus comme findings ancrés. Si un outil manque → `--no-tools`/skip gracieux, le noter (la robustesse de la revue baisse, le dire).
+
+**Cible non-code (document, ticket, spec) : le gate ne disparaît pas, il change de nature.** Sans lint ni tests, la tentation est de passer droit au jugement du modèle — c'est exactement là qu'on perd l'ancrage externe qui fait la valeur de cette étape. L'oracle mécanique équivalent : chaque référence citée **résout** (ticket, MR, fichier, ancre), chaque renvoi croisé pointe **où il prétend**, la numérotation d'une liste est **contiguë**, chaque compte annoncé se **recalcule depuis sa source**, et tout tableau concorde avec les objets qu'il indexe. Une passe de commandes, avant tout reviewer : elle attrape les liens morts, les renvois qui sur-promettent et les tables désynchronisées pour un coût dérisoire, et elle achète aux reviewers le droit de ne parler que du fond. Son résultat entre dans le context pack comme n'importe quel gate.
 
 **Attribution baseline (échec préexistant ≠ introduit par le diff)** : un outil qui échoue n'incrimine le diff que si l'échec n'existe pas déjà sur la base. En cas d'échec (tests/lint/typecheck), vérifier l'attribution : pour `--base`/`--pr`, rejouer l'outil dans un worktree temporaire jetable sur le ref de base (`git worktree add` puis cleanup) ; pour le working tree, comparer vs HEAD quand c'est faisable à coût raisonnable, sinon marquer « attribution non vérifiée ». Un échec **préexistant** est exclu du verdict (scope = le diff) mais signalé en une ligne ; un échec **introduit** est un finding ancré. L'attribution entre dans le context pack — flaguer le diff sur un échec préexistant est exactement le faux positif qu'on combat.
 
@@ -301,4 +303,4 @@ Non-bloquant (nit/suggestion) :
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.12.0**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.14.0**.
