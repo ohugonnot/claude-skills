@@ -29,6 +29,16 @@ Go : `~/.claude/go-best-practices.md`
 **Faire disparaître l'erreur** : avant de blinder un cas d'erreur chez chaque appelant, vérifier si redéfinir la sémantique l'élimine (slice qui se borne, Null Object plutôt que `if x == nil` répété). Absorber la complexité dans le module plutôt que la repousser sur mille appelants.
 **DRY = un seul savoir, pas un seul code** : du code identique par coïncidence, qui évoluera séparément, ne se fusionne pas. Le vrai risque est souvent sans copier-coller : règle métier recopiée client/serveur, structure redécrite à la main, commentaire qui redit le code.
 
+## Nommage : le code se lit comme un récit
+**Un nom dit la CHOSE, pas sa mécanique** : `results`, `res`, `data`, `tmp`, `val`, `list`, `obj` ne nomment rien. Nommer ce que la variable contient dans le domaine (`sourceCart`, `itemsToCopy`, `row`). Test : lire la fonction à voix haute doit raconter ce qu'elle fait, sans aller voir les déclarations.
+**Deux variables de même type dans une portée** se distinguent par leur rôle métier (`newXUUID` / `sourceXUUID`), jamais par un suffixe numérique ni par l'ordre des paramètres. Si l'inversion est plausible, typer l'un des deux pour que le compilateur la refuse.
+**Le nom porte l'intention, le commentaire porte le pourquoi** : si un commentaire explique ce que CONTIENT une variable, c'est le nom qui manque.
+
+## Écriture pour des humains : UI, commits, MR, docs, réponses
+**Jamais de tiret cadratin (—)** : c'est la signature visuelle d'un texte généré. Couper la phrase, ou employer deux-points, parenthèses, virgules.
+**Fluide et humain** : des phrases qui s'enchaînent, pas d'incises décoratives ni de formules de plaquette. Test : lire à voix haute, et réécrire si ça ne sonne pas comme quelqu'un qui parle.
+**Un texte d'interface se conjugue au bon temps** : une popup de confirmation annonce ce qui *va* se passer, pas ce qui est déjà fait.
+
 ## Commentaires : audience = dev senior, signal pur
 Un dev expérimenté déduit le QUOI/COMMENT en 5 secondes — ne pas le lui répéter. Le commentaire apporte ce qu'il NE peut PAS déduire : un POURQUOI non-évident, une contrainte invisible, un piège, un invariant.
 **Test** : *« si je supprime, un dev senior perd quoi ? »* Réponse « rien / repère visuel / reformule la ligne / c'est dans le nom » → supprimer.
