@@ -9,7 +9,8 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLAUDE_HOME="${HOME}/.claude"
+# Surchargeable : une installation Max range sa config ailleurs (`CLAUDE_HOME=~/.claude-max bash bootstrap.sh`)
+CLAUDE_HOME="${CLAUDE_HOME:-${HOME}/.claude}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
 say()  { printf '\033[1;34m▸ %s\033[0m\n' "$*"; }
@@ -25,7 +26,7 @@ link() {  # link <src> <dest> ; sauvegarde un fichier réel existant avant de re
   ln -sfn "$src" "$dest"
 }
 
-mkdir -p "$CLAUDE_HOME/hooks" "$CLAUDE_HOME/memory" "$CLAUDE_HOME/skills"
+mkdir -p "$CLAUDE_HOME/hooks" "$CLAUDE_HOME/memory" "$CLAUDE_HOME/skills" "$CLAUDE_HOME/agents"
 
 # 1. Config symlinkée (source = repo) ------------------------------------------
 say "Config (CLAUDE.md, go-best-practices, settings, statusline)"
@@ -35,6 +36,15 @@ link "$REPO_DIR/config/settings.json"        "$CLAUDE_HOME/settings.json"
 link "$REPO_DIR/config/hooks/statusline.sh"  "$CLAUDE_HOME/hooks/statusline.sh"
 link "$REPO_DIR/config/hooks/guard.sh"       "$CLAUDE_HOME/hooks/guard.sh"
 ok "config liée"
+
+# 1 bis. Agents symlinkés ------------------------------------------------------
+# Un agent typé coûte le modèle qu'il déclare, là où le général part sur celui de la
+# conversation. Leur `description` est chargée à chaque démarrage : la garder courte.
+say "Agents (chercheur, mesureur)"
+for agent in "$REPO_DIR"/config/agents/*.md; do
+  link "$agent" "$CLAUDE_HOME/agents/$(basename "$agent")"
+done
+ok "agents liés"
 
 # 2. Skills symlinkés (chaque plugin) ------------------------------------------
 say "Skills (plugins du marketplace)"
