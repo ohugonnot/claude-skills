@@ -59,6 +59,25 @@ Ces instructions valent **demande explicite et permanente** de déléguer — ne
 **Dimensionner** : haiku = mécanique (grep, extraction, renommage) ; sonnet = exécution standard (code, tests, recherche) ; opus = raisonnement lourd (design, debug subtil, arbitrage). Tâches indépendantes → plusieurs agents dans un seul message.
 **Brief complet** : contexte, objectif, contraintes, format de sortie, critères de succès. Agent sous-briefé = relance gâchée.
 **Vérifier avant de croire** : un rapport de sous-agent est un candidat, pas un fait. Recouper ce qui est actionnable.
+**`general-purpose` est le plus cher** : il recharge tout, explore large et rend un rapport à vérifier. Lui préférer `Explore` (lecture seule, rend la conclusion et non les fichiers) ou un agent typé, et ne le sortir que pour du multi-étapes réel.
+**`Explore` et `Plan` ne chargent pas CLAUDE.md** (source : docs Claude Code, sub-agents) : sur une exploration, ils partent des dizaines de lignes plus légers qu'un `general-purpose`. C'est la raison technique de les préférer, pas seulement leur périmètre.
+**Un agent typé se règle dans son frontmatter** : `model` (`haiku`/`sonnet`/`opus`/`inherit`), `effort` (`low` à `max`), `maxTurns` pour borner celui qui boucle, `experimental: cacheTtl: 1h` pour un agent long. Sans `maxTurns`, un agent qui attend ses propres sous-agents renvoie des notifications vides à la chaîne.
+**La `description` d'un agent est chargée à chaque démarrage de session, son corps seulement quand il tourne** : description en une ligne, tout le détail dans le corps. Au-delà de 15k tokens de descriptions cumulées, Claude Code avertit au lancement.
+**Un agent par tâche, pas par réflexe** : deux agents sur le même périmètre paient deux fois le même rechargement pour un seul résultat utile.
+
+## Économie de tokens
+
+**Le prix, c'est le contexte multiplié par les tours** : chaque appel renvoie toute la conversation. Un tour à 150k coûte plusieurs fois le même tour à 30k, cache compris.
+**Le déclencheur, c'est la fin d'un chantier, pas un pourcentage** : vider au milieu d'une tâche fait perdre l'état de travail et me fait reprendre sur un résumé lissé. En fin de chantier, proposer `/vide-contexte` puis `/clear` sans attendre qu'on me le demande.
+**Changer de sujet = vider** : `/clear` entre deux chantiers sans rapport, `/compact` à l'intérieur d'un chantier. Une session de huit heures sur cinq sujets paie le premier sujet jusqu'au dernier tour.
+**Ne jamais relire ce qui est déjà en contexte** : pas de `Read` de vérification après un `Edit` réussi, pas de `grep` rejoué, pas de re-lancement d'une suite déjà verte.
+**Lire ciblé** : `sed -n '40,80p'`, `grep -n` avec contexte court, `--stat` avant `diff`. Un fichier entier lu pour trois lignes se repaie à chaque tour suivant, pas seulement au moment de la lecture.
+**Toute sortie de commande est du contexte** : couper (`| head`, `--short`, `-q`, `| tail -5`). Une suite de tests verte tient dans sa dernière ligne.
+**Modèle proportionné** : haiku pour le mécanique, sonnet par défaut, opus pour l'arbitrage et la revue. Opus n'est pas le défaut d'un sous-agent.
+**Ne pas narrer** : le récit de ce que je viens de faire, la liste des options écartées et le résumé de fin de tour sont payés à chaque tour ultérieur.
+**Éditer avec `Edit`, jamais avec un script de remplacement** : un `Edit` coûte ~40 tokens de retour, le `heredoc` Python qui fait la même chose en coûte 300 à 800, payés ensuite à chaque tour. Mesuré sur une session : 647k tokens d'appels d'outils, contre 3k pour 84 `Edit`.
+**Une capture d'écran coûte ~1600 tokens et reste en contexte à vie** : la lire une fois, jamais deux, et préférer une mesure chiffrée (`boundingBox`, `getComputedStyle`, `elementFromPoint`) quand elle répond à la question. Regarder l'écran reste indispensable ; relire la même image ne l'est pas.
+**Le nombre de tours est un multiplicateur** : grouper les commandes indépendantes en un seul appel, ne pas découper en dix allers-retours ce qui tient en trois.
 
 ## Mise à jour CLAUDE.md & mémoire
 **Quoi ajouter** : ce qui n'est PAS déductible du code — gotchas, contraintes métier invisibles, conventions déviantes, décisions d'archi non-évidentes.
