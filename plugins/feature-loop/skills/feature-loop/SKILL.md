@@ -7,9 +7,9 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.15.5** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.16.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
-**Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `lessons.md` (instantané publié, promu à la main — la mémoire de travail est hors dépôt dans `~/.claude/skill-memory/feature-loop-lessons.md`, chargée par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
+**Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `scripts/log_run.py` (runs-log, cf. 5.7), `lessons.md` (instantané publié, promu à la main — la mémoire de travail est hors dépôt dans `~/.claude/skill-memory/feature-loop-lessons.md`, chargée par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
 **Architecture** (patterns officiels Anthropic, *Building Effective Agents*) :
 - **Orchestrator-workers** : une **mère** (Opus, haute réflexion) estime, décompose, délègue à des sous-agents spécialisés, puis synthétise. Elle reste le cerveau ; les workers sont les bras.
@@ -839,10 +839,9 @@ Si l'user choisit merger/garder ET qu'un skill `branch-wrap-up` est disponible :
 
 ### 5.7 Runs-log persistant + lessons cross-projet
 
-**Runs-log** : append une ligne JSON au fichier HORS arbre `~/.claude/projects/<encoded-cwd>/memory/feature_loop_runs.jsonl` (créer s'il n'existe pas). Une ligne = un run terminé :
-```json
-{"slug":"add-csv-export","date":"<ISO>","status":"SUCCESS","iterations":2,"radar_avg":8.4,"axes_below":[],"criticals_left":0,"duration_min":14,"subagent_tokens_total":110000,"mode":"in_place","branch":"feature-loop/add-csv-export","paranoid":false,"tier":"standard","escalations":0,"skill_version":"8.6.0","anomalies":{"vacuous_tests":0,"redcheck_inconclusive":0,"rollbacks":0,"plan_revisions":0,"evidence_invalid_pct":0,"notes_ignored":false,"live_smoke_fail":false,"agent_b_retries":0}}
-```
+**Runs-log** : une ligne par run terminé, **quel que soit le statut** (`SUCCESS`, `MAX_ITERATIONS`, `ABORTED` : un journal à 100 % de SUCCESS ne mesure que ce qu'on a bien voulu écrire), **écrite par le script et jamais à la main** :
+`python3 <skill>/scripts/log_run.py log --slug <slug> --status <SUCCESS|MAX_ITERATIONS|ABORTED> --tier <trivial|standard|complexe|sensible> --mode <in_place|worktree> --iterations N --radar-avg X --criticals-left N --escalations N [--axes-below UX,a11y] [--duration-min N] [--tokens N] [--paranoid] [--vacuous-tests N] [--redcheck-inconclusive N] [--rollbacks N] [--plan-revisions N] [--evidence-invalid-pct N] [--agent-b-retries N] [--notes-ignored] [--live-smoke-fail] [--note "..."]`
+Il écrit dans `~/.claude/projects/<encoded-cwd>/memory/feature_loop_runs.jsonl` et dérive date, branche et `skill_version`. **Exit ≠ 0 = ligne refusée** : corriger les arguments et relancer. Une anomalie hors de la liste va dans `--note`, jamais dans une clé inventée : une clé vue une fois ne s'agrège pas. `--tokens` s'omet plutôt que s'estimer.
 Ce fichier survit aux runs ET aux suppressions de branche/worktree (d'où le hors-arbre) — c'est la source du tableau de bord `status`. Le champ **`anomalies`** trace les endroits où la **boucle elle-même** a buté (vs la feature) : tests vacants, mutations inconclusives, rollbacks, plans rejetés, preuves hallucinées, notes ignorées, échec smoke-live, agent B relancé. C'est l'historique d'échec du *skill*, matière première de `learn` (Étape 7) — remplir les compteurs depuis le journal `.feature-loop.json`, zéros inclus (l'absence d'anomalie est aussi un signal). **`subagent_tokens_total`** : somme des `subagent_tokens` retournés par chaque appel Agent du run (la mère les note au fil de l'eau) — c'est la mesure objective du coût, base de comparaison avant/après toute optimisation du skill ; `status` peut alors montrer la tendance coût/durée par tier. Logger `[runs] run loggé dans feature_loop_runs.jsonl`.
 
 **Lessons cross-projet** : si le run a révélé une leçon sur *comment piloter la boucle* (réutilisable sur un AUTRE projet — ex: "un major a11y sur icon-button est presque toujours réel, ne pas le reclasser en minor", "le skip Sonnet overflow quasi-systématiquement sur les features touchant une migration"), l'append à `~/.claude/skill-memory/feature-loop-lessons.md` (hors dépôt). **Test de tri** : spécifique au projet courant → insight projet (5.5) ; vrai sur d'autres projets → lesson cross-projet ici. **Anonymisation obligatoire** : ce fichier peut être publié (repo public) — la leçon ne nomme JAMAIS un client / projet / vendor / branche / champ métier réels ; généraliser (« un projet réel », « une intégration tierce »). Logger `[lessons] N meta-leçon(s) cross-projet ajoutée(s)`.
@@ -941,4 +940,4 @@ Fondements : `reference/references.md`.
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.15.5**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.16.0**.
