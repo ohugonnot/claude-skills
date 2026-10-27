@@ -2,12 +2,13 @@
 name: feature-loop
 description: >
   Use when the user wants a non-trivial feature implemented with autonomous, iterative, quality-gated delivery — best when quality matters more than raw speed. A mother agent sizes the difficulty tier and delegates to SEPARATE subagents (code writer ≠ test-writer ≠ blind reviewer; tests written from the spec). Objective gate (build/lint/typecheck/tests + test-must-go-red mutation check) BEFORE any LLM review; runnable features get a mandatory LIVE smoke test before any "tested" SUCCESS. Loops until all quality axes ≥ 8/10 with zero criticals (max 3 iters), keeps the BEST version, emits a markdown report. Subcommands: status (runs dashboard), learn (propose-only self-improvement). Flags: --fast, --paranoid, --worktree, --max-iter=N, --threshold=N, --judge, --issue=N (GitLab/GitHub issue as spec). NOT for quick edits (do them directly) nor review-only (use senior-review).
+disable-model-invocation: true
 argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--no-paranoid] [--worktree] [--max-iter=N] [--threshold=N] [--judge=sonnet|opus] [--no-redcheck]"
 ---
 
 # Feature Loop
 
-**skill_version : 8.16.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.17.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
 **Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `scripts/log_run.py` (runs-log, cf. 5.7), `lessons.md` (instantané publié, promu à la main — la mémoire de travail est hors dépôt dans `~/.claude/skill-memory/feature-loop-lessons.md`, chargée par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
@@ -940,4 +941,4 @@ Fondements : `reference/references.md`.
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.16.0**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.17.0**.
