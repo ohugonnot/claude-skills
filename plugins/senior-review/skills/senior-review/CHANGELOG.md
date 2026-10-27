@@ -1,6 +1,6 @@
 # CHANGELOG — senior-review
 
-- **1.24.0** (2026-10-27) : **« Review-only » était une consigne, les relecteurs avaient tous les droits.** Ils partaient en appels `Agent` sans type, donc avec Edit et Write. Seule une définition d'agent restreint vraiment des outils ; une phrase dans un prompt ne restreint rien.
+- **1.24.0** (2026-10-27) : **« Review-only » était une consigne, les relecteurs avaient tous les droits.** Ils partaient en appels `Agent` sans type, donc avec Edit et Write. Seule une définition d'agent restreint vraiment des outils ; une phrase dans un prompt ne restreint rien. La boucle ne se clôt pas non plus avec un 🟡 important resté ouvert.
 
   Le plugin livre `agents/blind-reviewer.md` (Read, Grep, Glob, Bash, WebSearch, WebFetch), utilisé pour tout relecteur : dimensions, refuteurs, passe finale, tours de boucle. Vérifié en session headless avec le plugin chargé : l'agent répond sous `senior-review:blind-reviewer` et n'a ni Edit ni Write. Un skill installé seul, par lien sur son dossier, ne voit pas les agents du plugin : il propose alors de lier le fichier dans `~/.claude/agents/` et relit en `general-purpose` en attendant.
 
