@@ -10,6 +10,7 @@ Lire en entier `senior-review-lessons.md` et `senior-review-lessons-candidates.m
 - **Promouvoir** : deux candidates du même mécanisme, ou une candidate qui recroise une leçon, fusionnent en une leçon `vu sur N`.
 - **Absorber** : une leçon que le SKILL.md énonce déjà sort de la mémoire. Le « vu sur N » n'a plus d'usage une fois la règle codifiée.
 - **Élaguer** ce que le script signale : candidates expirées (90 j) ou non datées, misses vues une fois depuis plus de 60 j, entrées trop longues à condenser (garder l'impératif, couper le récit).
+- **Learnings du dépôt courant** (`senior_review_learnings.md`, plafond 15 Ko) : lancer `learn` depuis le dépôt concerné. Au-delà du plafond, retirer les sections « Run <date> » et « Promu de ledgers » en ne gardant que les faits qui tiennent encore, fusionner les doublons de sujet, couper dates, MR et tours. Un fait que le code dit déjà sort.
 Présenter le lot en un seul `AskUserQuestion` (avant → après par fichier), n'écrire qu'après validation. Pas de bump de version : c'est de la mémoire, pas du contrat.
 
 ## 3. Proposer sur le SKILL.md

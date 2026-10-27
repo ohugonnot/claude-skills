@@ -1,5 +1,25 @@
 # CHANGELOG — senior-review
 
+- **1.24.0** (2026-10-27) : **« Review-only » était une consigne, les relecteurs avaient tous les droits.** Ils partaient en appels `Agent` sans type, donc avec Edit et Write. Seule une définition d'agent restreint vraiment des outils ; une phrase dans un prompt ne restreint rien.
+
+  Le plugin livre `agents/blind-reviewer.md` (Read, Grep, Glob, Bash, WebSearch, WebFetch), utilisé pour tout relecteur : dimensions, refuteurs, passe finale, tours de boucle. Vérifié en session headless avec le plugin chargé : l'agent répond sous `senior-review:blind-reviewer` et n'a ni Edit ni Write. Un skill installé seul, par lien sur son dossier, ne voit pas les agents du plugin : il propose alors de lier le fichier dans `~/.claude/agents/` et relit en `general-purpose` en attendant.
+
+  Bash reste ouvert, il faut pouvoir reproduire, et Bash écrit où il veut. D'où `scripts/tree_guard.py`, avec ses tests : instantané de HEAD, de l'index, du statut et de l'empreinte des fichiers modifiés ou non suivis avant chaque fan-out, comparaison au retour, et tout écart arrête la revue et remonte à l'utilisateur. Le hors-dépôt et les fichiers gitignorés lui échappent, une mutation restaurée avant le retour ne laisse pas de trace : l'hygiène du re-run live tient.
+
+  Mode boucle : **plafond de 5 tours**, compté en tours et en agents (la dépense en tokens n'est pas lisible en cours de run) ; au-delà, arrêt et remontée de l'état, du total d'agents et de ce qui ne converge pas. Et **pas de tour suivant tant qu'un important du tour précédent reste ouvert** : le tour suivant ne relit que le delta, l'important n'y serait revu par personne.
+
+  `--model <haiku|sonnet|opus|fable>`, ou le mot seul dans la phrase de lancement, fixe le modèle des relecteurs de dimension ; l'orchestrateur reste sur celui de la session, refuteurs et passe finale sur un autre. **Rien de LOCKED n'est touché.** Bump minor (option, agent, script).
+
+- **1.23.0** (2026-10-22) : **Premier passage de `learn`, cent revues après sa création, et ce qu'il a trouvé n'était pas dans les leçons mais dans la plomberie.** Trois défauts, chacun mesuré.
+
+  `log_run.py` hachait un diff vide. Relire une branche déjà commitée sans `--base` donne `git diff HEAD` vide, donc deux commits différents avaient la même identité (`e3b0c442…`) et passaient pour un diff inchangé : 11 lignes du journal, dont deux tours de 900 et 1700 LOC marqués `same_diff`. Un diff vide n'identifie plus rien (`null`), avec son test. Les 11 lignes ont été remises à `null`.
+
+  `senior_review_learnings.md`, la mémoire par dépôt chargée à chaque revue, n'avait aucun plafond alors que lessons et misses en ont un depuis 1.19.0 : 66 Ko et 183 entrées sur un dépôt, dont des sections entières de récit de run. Plafond 15 Ko, mesuré par `learn.py` pour le dépôt courant, condensé par `learn`.
+
+  Le balayage des ledgers morts interrogeait git. Un squash-merge n'inscrit pas la branche dans l'historique de la branche par défaut, et la branche distante survit à la fusion : trois ledgers de MR fusionnées étaient encore en place. L'état se demande désormais à la forge (`glab mr view` / `gh pr view`).
+
+  Mémoires consolidées : 6 leçons promues, 2 incrémentées, 3 doublons absorbés, 4 misses fusionnées ; en-têtes des fichiers réalignés sur 1.19.0 et 1.21.0 (« pas de plafond », « promue à l'Étape 7 » et « élaguer les plus petits N » y survivaient). **Rien de LOCKED n'est touché**, aucun garde-fou affaibli. Bump minor (métrique et étape de balayage).
+
 - **1.22.0** (2026-10-05) : **Une revue de prose n'avait pas de rubrique, et un test retiré sur avis a laissé un trou.** Tirées d'une boucle de revue sur un livre technique bilingue. (1) **Dimension `contenu / prose`** et son routage : un relecteur de texte a trouvé une définition fausse d'un ratio normalisé (« 4,5 fois plus lumineux » au lieu d'un rapport de luminances) parce qu'il a vérifié contre la source ; la rubrique rend ce réflexe systématique (source citée, parité des langues, définition lisible hors contexte). Elle complète le gate non-code de 1.14.0, qui vérifie les références et pas le fond. (2) **Étape 6.5, règle 4b** : un test retiré sur l'avis d'un tour a laissé un trou que le tour suivant a trouvé ; retirer ou affaiblir un test se prouve par `mutate.py` avant d'être fait, et deux tours contradictoires se tranchent par mutation. Rien de LOCKED touché. Bump minor.
 
 - **1.21.0** (2026-09-25) : **Le skill écrivait un journal que personne ne lisait, et l'écrivait mal.** Après 124 revues, seules 46 lignes respectaient le schéma : `tier` connaissait 12 graphies, `verdict` 11, `project` 12, et 42 lignes cassaient l'invariant `raised = confirmed + dropped_gate + refuted_panel`. `round` était tapé à la main et faux (une branche a enchaîné 1,2,1,1,3,3,2,9,2), si bien que la question « les revues convergent-elles ? » n'avait pas de réponse. Une hausse apparente des faux positifs (3 % à 25 %) s'est révélée un artefact de comptage : le taux est plat autour de 28 % depuis le premier jour.

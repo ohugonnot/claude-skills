@@ -54,12 +54,18 @@ class LearnTest(unittest.TestCase):
         self.assertIn("| 1 | 1 | 2.0 | 30k |", self.report())
 
     def test_findings_on_unchanged_diff_are_flagged_as_variance(self):
-        self.write_journal([run("standard", 3, 3, 0, round=2, same_diff=True, new_loc=0)])
+        self.write_journal([run("standard", 3, 3, 0, round=2, same_diff=True, new_loc=0,
+                                diff_sha="abc")])
         self.assertIn("reviewer variance", self.report())
 
     def test_legacy_round_never_feeds_convergence(self):
         self.write_journal([run("standard", 3, 3, 0, round=9, same_diff=True, legacy=True)])
         self.assertNotIn("reviewer variance", self.report())
+
+    def test_run_without_diff_identity_is_not_measured(self):
+        self.write_journal([run("standard", 1, 1, 0, diff_sha=None, same_diff=None),
+                            run("standard", 1, 1, 0, diff_sha="abc", same_diff=False)])
+        self.assertIn("Convergence: 1 runs carry a diff identity", self.report())
 
     def test_memory_caps_long_entries_and_bad_tags(self):
         self.write_journal([])
@@ -71,6 +77,17 @@ class LearnTest(unittest.TestCase):
         self.assertIn("unknown tag in `- [manque]", report)
         self.assertIn("condense", report)
         self.assertIn("misses: seen once, since 2026-09-01", report)
+
+    def test_repo_learnings_over_cap_is_flagged(self):
+        self.write_journal([])
+        repo_learnings = os.path.join(self.dir, "senior_review_learnings.md")
+        with open(repo_learnings, "w") as fh:
+            fh.write("- **codebase_fact** : " + "x" * 16000 + "\n")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            learn.main(["--journal", self.journal, "--memory-dir", self.dir,
+                        "--repo-learnings", repo_learnings, "--today", "2026-12-31"])
+        self.assertIn("repo learnings is 15.6 Ko, cap 15 Ko", out.getvalue())
 
     def test_candidates_expire_or_need_a_date(self):
         self.write_journal([])

@@ -99,6 +99,14 @@ class LogRunTest(unittest.TestCase):
         _, out, _ = self.run_cmd("last")
         self.assertFalse(json.loads(out)["same_diff"])
 
+    def test_committed_work_without_base_is_not_same_diff(self):
+        # Reviewing committed work without --base hashes an empty diff: two
+        # different commits must not look like an unchanged diff.
+        self.run_cmd("log", *COUNTS)
+        self.commit("b.txt", "x\n")
+        _, out, _ = self.run_cmd("last")
+        self.assertIsNone(json.loads(out)["same_diff"])
+
     def test_rewritten_previous_head_gives_null_new_loc(self):
         self.run_cmd("log", *COUNTS, "--base", "main")
         rows = self.rows()
