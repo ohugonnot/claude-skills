@@ -1,5 +1,7 @@
 # CHANGELOG — senior-review
 
+- **1.25.0** (2026-10-27) : **Un relecteur tombé en route laissait un trou de couverture que le rapport ne montrait pas.** Étape 3 : un relecteur qui plante ou rend un retour vide est relancé une fois, neuf, avec le même context pack ; au second échec sa dimension est « non couverte » dans le rapport et le verdict ne peut pas être `approve` dessus. Idée tirée d'un livre sur les architectures d'agents (superviseur qui relance un enfant en échec, un nombre borné de fois), adaptée ici à N=1 faute de mesure du bon seuil.
+
 - **1.24.0** (2026-10-27) : **« Review-only » était une consigne, les relecteurs avaient tous les droits.** Ils partaient en appels `Agent` sans type, donc avec Edit et Write. Seule une définition d'agent restreint vraiment des outils ; une phrase dans un prompt ne restreint rien. La boucle ne se clôt pas non plus avec un 🟡 important resté ouvert.
 
   Le plugin livre `agents/blind-reviewer.md` (Read, Grep, Glob, Bash, WebSearch, WebFetch), utilisé pour tout relecteur : dimensions, refuteurs, passe finale, tours de boucle. Vérifié en session headless avec le plugin chargé : l'agent répond sous `senior-review:blind-reviewer` et n'a ni Edit ni Write. Un skill installé seul, par lien sur son dossier, ne voit pas les agents du plugin : il propose alors de lier le fichier dans `~/.claude/agents/` et relit en `general-purpose` en attendant.

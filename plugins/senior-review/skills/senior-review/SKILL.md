@@ -7,7 +7,7 @@ argument-hint: "[learn | path | --pr N | --base ref | --staged] [--quick|--deep]
 
 # Senior Review
 
-**skill_version : 1.24.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.25.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers du skill (progressive disclosure)** : `scripts/mutate.py` (harnais de mutation, cf. Étape 4), `scripts/log_run.py` (journal des runs, cf. Étapes 0 et 7), `scripts/tree_guard.py` (garde de l'arbre de travail, cf. Étape 3), `../../agents/blind-reviewer.md` (l'agent relecteur sans outil d'écriture, cf. Étape 3), `lessons.md` et `misses.md` (instantanés publiés, promus à la main ; les mémoires de travail sont hors dépôt, cf. Étape 1.8), `reference/references.md` (sources détaillées, à la demande), `CHANGELOG.md` (historique).
 
@@ -178,6 +178,8 @@ Logger `[review:<dim>] N findings (x bloquants, y importants)`.
 *Exécution* : un appel `Agent` par dimension, lancés en parallèle dans un même message, avec `subagent_type` = **`blind-reviewer`**, l'agent livré par le plugin (`senior-review:blind-reviewer` plugin installé, `blind-reviewer` s'il est lié dans `~/.claude/agents/`). Sa définition ne lui donne ni Edit ni Write : c'est elle qui l'impose, pas le prompt. Absent des types du tool `Agent` (skill installé seul, par lien sur son dossier) : proposer une fois à l'utilisateur `ln -s <skill>/../../agents/blind-reviewer.md ~/.claude/agents/`, relire avec `general-purpose` en attendant et le dire au rapport. Même agent pour les refuteurs (Étape 5), la passe finale (Étape 6) et les tours de boucle (Étape 6.5).
 
 **Garde de l'arbre autour de chaque fan-out de relecteurs** : `python3 <skill>/scripts/tree_guard.py snap` juste avant de les lancer, `check` dès qu'ils rendent, avant toute commande de l'orchestrateur. Elle ferme ce que l'agent laisse ouvert : Bash reste nécessaire pour reproduire, et Bash écrit où il veut. Elle compare HEAD, l'index, `git status` et l'empreinte de chaque fichier modifié ou non suivi. Le hors-dépôt et les fichiers gitignorés lui échappent, et une mutation restaurée avant le retour ne laisse pas de trace (hygiène du re-run live, Étape 4). Les correctifs de l'orchestrateur (`--fix`, boucle) tombent entre un `check` et le `snap` suivant. **Exit 1 = écart non annoncé : arrêter la revue, boucle comprise, et montrer l'écart à l'utilisateur sans rien restaurer soi-même**, car lui seul sait ce qui dans l'arbre est son travail. Exit 2 (pas un dépôt git) : le dire au rapport.
+
+**Un relecteur qui plante ou rend un retour vide est relancé UNE fois**, neuf et avec le même context pack. Au second échec, sa dimension est déclarée « non couverte » dans le rapport, avec la raison. Le verdict ne devient jamais `approve` sur une dimension silencieuse : l'absence de finding n'est pas une revue propre.
 
 Si le tool `Workflow` est disponible, le fan-out PEUT passer par un script Workflow (un `agent()` par dimension avec `schema` JSON imposé sur le format finding) — sorties validées structurellement, retries de parsing éliminés. L'interactif (AskUserQuestion) reste en conversation principale, jamais dans un workflow.
 
@@ -352,4 +354,4 @@ Non-bloquant (nit/suggestion) :
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.24.0**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.25.0**.
