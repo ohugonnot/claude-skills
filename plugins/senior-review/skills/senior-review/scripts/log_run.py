@@ -80,7 +80,8 @@ def diff_sha(repo, base, staged):
                 except OSError:
                     parts.append(path)
             diff = "\n".join(parts)
-    if diff is None:
+    # An empty diff (committed work reviewed without --base) identifies nothing.
+    if not diff:
         return None
     return hashlib.sha256(diff.encode()).hexdigest()[:16]
 

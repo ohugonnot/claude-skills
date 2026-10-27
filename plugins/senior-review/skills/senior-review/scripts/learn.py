@@ -34,6 +34,8 @@ MEMORY_RULES = {
     "misses": ("senior-review-misses.md", 8192, 40, 300),
     "candidates": ("senior-review-lessons-candidates.md", 16384, None, 600),
 }
+# Loaded at step 1.7 of every review of that repo, so it needs a cap too.
+REPO_LEARNINGS_CAP = 15360
 CANDIDATE_TTL_DAYS = 90
 MISS_N1_TTL_DAYS = 60
 PRECISION_FLOOR = 0.65
@@ -118,7 +120,7 @@ def journal_report(rows):
     out.append(f"Out of scope: {out_of_scope} ledger entries for {raised} raised findings "
                f"({ratio(out_of_scope, raised)}).")
 
-    measured = [r for r in rows if not r.get("legacy") and "same_diff" in r]
+    measured = [r for r in rows if not r.get("legacy") and r.get("diff_sha")]
     variance = [r for r in measured if r.get("same_diff") and r["confirmed"] > 0]
     out.append(f"Convergence: {len(measured)} runs carry a diff identity.")
     for row in variance:
@@ -189,16 +191,41 @@ def memory_report(memory_dir, today):
     return out, flags
 
 
+def default_repo_learnings():
+    """The repo memory Claude Code keys on the launch directory (git top level)."""
+    top = log_run.git(os.getcwd(), "rev-parse", "--show-toplevel") or os.getcwd()
+    project = re.sub(r"[^A-Za-z0-9]", "-", top)
+    return os.path.expanduser(f"~/.claude/projects/{project}/memory/senior_review_learnings.md")
+
+
+def repo_learnings_report(path):
+    if not os.path.exists(path):
+        return [], []
+    size = os.path.getsize(path)
+    with open(path, encoding="utf-8") as fh:
+        long_entries = [line for line in fh if line.startswith("- ") and len(line) > 400]
+    out = [f"- repo learnings: {size / 1024:.1f}/{REPO_LEARNINGS_CAP // 1024} Ko, "
+           f"{len(long_entries)} over 400 chars ({path})"]
+    flags = []
+    if size > REPO_LEARNINGS_CAP:
+        flags.append(f"repo learnings is {size / 1024:.1f} Ko, cap {REPO_LEARNINGS_CAP // 1024} Ko")
+    return out, flags
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--journal", default=log_run.JOURNAL)
     parser.add_argument("--memory-dir", default=os.path.dirname(log_run.JOURNAL))
     parser.add_argument("--today", type=datetime.date.fromisoformat, default=datetime.date.today())
+    parser.add_argument("--repo-learnings", default=None)
     args = parser.parse_args(argv)
 
     rows = [row for _, row in log_run.read_journal(args.journal) if row]
     lines, flags = journal_report(rows)
     memory_lines, memory_flags = memory_report(args.memory_dir, args.today)
+    repo_lines, repo_flags = repo_learnings_report(args.repo_learnings or default_repo_learnings())
+    memory_lines += repo_lines
+    memory_flags += repo_flags
     print("\n".join(lines + [""] + memory_lines))
     print("\n## To decide\n")
     for flag in flags + memory_flags:
