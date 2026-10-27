@@ -18,7 +18,7 @@ A technical article is **a story that contains technique**, not technique that t
 ## Structure
 
 - **Hook (no heading)** — in medias res. A vivid, real moment. "The program had been running for three days. Memory was creeping up." Never "In this article we'll see...".
-- **Body — 4 to 6 H2 sections**, each 1-4 short paragraphs and, when it earns it, one code block. H2s are fragments, not questions: "The four leaks that always bite", "Why the stdlib was enough". The pattern that works: bad code (✗) then fixed code (✓), back to back.
+- **Body — 4 to 6 H2 sections**, each 1-4 short paragraphs and, when it earns it, one code block. H2s are fragments, not questions: "The four leaks that always bite", "Why the stdlib was enough". A heading is a short claim that hits ("No verification, no victory"), not a label; it names its object when that object is jargon the reader may not know yet, and it never repeats the quote or the sentence right under it. The pattern that works: bad code (✗) then fixed code (✓), back to back.
 - **Conclusion (H2)** — short. NOT a recap. A meta-observation or the surprising lesson. "The value wasn't in writing the code. It was in the third security review."
 
 ## Voice
@@ -52,6 +52,10 @@ The first two are the biggest levers — they are what makes a reader never re-r
 5. Show before you name: the example or the minimal code before the formal definition.
 6. Point, don't announce: delete "In this section we'll look at...", just say the thing.
 7. One concept, one word, everywhere. Never rename a technical term for elegance.
+8. **One idea per sentence, the cause spelled out.** Tell the chain in the order it happens: the action, what follows, why, the fix. Say "so", "because", "yet" instead of burying the cause in a subordinate clause. A sentence over 25 words, or with two relative clauses (FR: two qui/que/dont), gets split.
+9. **Name, don't point.** At the start of a paragraph or section, repeat the noun ("The config file has a limit"), never "this file", "it", "the latter": the reader lost the antecedent. A back-reference names what it refers to ("the two questions above" → "the assumptions question"), or goes.
+10. **Definitions stand alone.** A definition longer than about eight words does not sit inside a sentence that reasons; give it its own sentence just before. Two new terms per paragraph, at most.
+11. **A quoted formula is restated plainly.** Quote it, then say it again in everyday words in the next sentence. A literal translation that means nothing in the target language is the typical case.
 
 ## Self-contained — non-negotiable
 
@@ -75,6 +79,7 @@ Add a diagram (SVG or image) when the idea is **spatial, sequential, or abstract
 1. Write the article directly. No intermediate brainstorm or outline dump: the structure above IS the outline.
 2. Run the AI-slop pass and the essential-oil cut on the draft.
 3. Read it aloud once, for rhythm.
+   A writing rule found while revising applies to the whole draft, not just to the passage that revealed it: rerun it everywhere (the sentence-length rule can be counted mechanically). Anything added during review goes through the cut pass again: an idea lives in one place only.
 4. Adapt the output to your platform (Markdown, MDX, a CMS, a static-site generator, a hand-rolled template). This skill writes the article; you wire it into your stack.
 5. For a bilingual blog, rewrite the other language idiomatically. Never translate word for word.
 
@@ -84,6 +89,7 @@ Add a diagram (SVG or image) when the idea is **spatial, sequential, or abstract
 - [ ] 4-6 H2 sections; the conclusion is a meta-observation, not a recap
 - [ ] Zero AI-slop phrasings (ran the list above)
 - [ ] Sentence rhythm varies; reads aloud without stumbling
+- [ ] No sentence over 25 words or with two relative clauses; no paragraph opening on a bare pronoun
 - [ ] Cut half the filler (essential oil)
 - [ ] Every claim and number is real, nothing invented
 - [ ] A diagram only where it earns its place
