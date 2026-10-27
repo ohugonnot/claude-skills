@@ -1,7 +1,7 @@
 {
   "name": "skill-builder",
   "description": "The opinionated principles and review checklist for a Claude Code skill that triggers reliably and stays focused: should it be a skill (vs CLAUDE.md / subagent / hook / MCP), why a description triggers, how to keep it skimmable, how to package it. Complements Anthropic's Skill Creator (which scaffolds); this is the judgment layer.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "author": {
     "name": "Odilon Hugonnot",
     "url": "https://www.web-developpeur.com"

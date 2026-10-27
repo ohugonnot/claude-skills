@@ -120,6 +120,8 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 - **Wrong primitive** — an always-on rule should be CLAUDE.md or a hook, not a skill.
 - **Sediment** — stale instructions left from past versions that no longer match the skill; prune them on every edit instead of layering on top.
 - **No-op line** — a sentence the agent would follow anyway; delete the whole sentence, don't trim its words.
+- **Unquoted colon in the description** — `description: Use when … : …` is invalid YAML (`mapping values are not allowed here`). Nothing warns you: the frontmatter silently loads empty and the skill never triggers. Use a folded block (`description: >-`, text indented on the next lines) or quote the string. Seen on three skills of one repo in a single day, all with French text (« … : … »).
+- **Rules duplicated across skills** — the same cost or style section pasted into several skills drifts apart. Put it once in a versioned file every machine sees (the repo's CLAUDE.md, a shared reference), point to it, and keep in each skill only the line specific to it. A pointer to an unversioned file (a global `~/.claude/CLAUDE.md`) breaks on every other machine.
 
 ## Checklist
 
@@ -130,4 +132,5 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 - [ ] One leading word the model already knows, repeated in name + description + body; imperative, minimal examples
 - [ ] The skill gives the agent a checkable "done" signal (completion criteria)
 - [ ] Triggers on the intended phrases, silent on adjacent cases
+- [ ] Frontmatter parses: `python3 -c "import sys,yaml; [yaml.safe_load(open(f).read().split('---')[1]) for f in sys.argv[1:]]" */SKILL.md` exits 0 (catches the unquoted-colon trap)
 - [ ] If shared: plugin.json + marketplace.json, version pinned, `claude plugin validate` passes
