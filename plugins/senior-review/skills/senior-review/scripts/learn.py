@@ -40,6 +40,39 @@ CANDIDATE_TTL_DAYS = 90
 MISS_N1_TTL_DAYS = 60
 PRECISION_FLOOR = 0.65
 GATE_CEILING = 0.30
+ACCEPTANCE_FLOOR = 0.70
+ACCEPTANCE_MIN_JUDGED = 20
+OUTCOME_TTL_DAYS = 14
+MODEL_MIN_RUNS = 10
+# Version of the cap "at most 5 agents per round, reviewers included".
+FANOUT_CAP = 5
+FANOUT_CAP_SINCE = (1, 16, 0)
+
+
+def version_tuple(text):
+    try:
+        return tuple(int(part) for part in text.split("."))
+    except (AttributeError, ValueError):
+        return None
+
+
+def outcome_known(row):
+    """Legacy lines typed `fixed` or `deferred` by hand with their own meaning.
+    A half-known outcome would skew the ratio, so fixed and rejected go together."""
+    return not row.get("legacy") and all(isinstance(row.get(k), int) for k in ("fixed", "rejected"))
+
+
+def outcome_sums(rows):
+    """Totals over the rows whose outcome is known; the others carry no signal."""
+    known = [r for r in rows if outcome_known(r)]
+    sums = {key: sum(r.get(key) or 0 for r in known) for key in log_run.OUTCOMES}
+    sums.update(runs=len(known), confirmed=sum(r["confirmed"] for r in known))
+    return sums
+
+
+def acceptance(sums):
+    """What the user kept out of what they judged; routed findings are not a judgement."""
+    return ratio(sums["fixed"], sums["fixed"] + sums["rejected"])
 
 
 def counters_ok(row):
@@ -63,7 +96,7 @@ def ratio(part, whole):
     return f"{part / whole:.0%}" if whole else "-"
 
 
-def journal_report(rows):
+def journal_report(rows, today):
     out = ["## Journal", ""]
     usable = [r for r in rows if counters_ok(r)]
     legacy = sum(1 for r in rows if r.get("legacy"))
@@ -100,7 +133,51 @@ def journal_report(rows):
             flags.append(f"the panel refuted nothing on {len(tier_rows)} `{tier}` runs: dead weight?")
     out.append("")
 
-    out += ["| agents | runs | confirmed/run | tokens/finding |", "|---|---|---|---|"]
+    out += ["| tier | runs renseignés | confirmed | fixed | rejected | deferred | acceptance |",
+            "|---|---|---|---|---|---|---|"]
+    for tier in list(log_run.TIERS) + ["?"]:
+        sums = outcome_sums(by_tier.get(tier, []))
+        if not sums["runs"]:
+            continue
+        out.append(f"| {tier} | {sums['runs']} | {sums['confirmed']} | {sums['fixed']} "
+                   f"| {sums['rejected']} | {sums['deferred']} | {acceptance(sums)} |")
+        judged = sums["fixed"] + sums["rejected"]
+        if judged >= ACCEPTANCE_MIN_JUDGED and sums["fixed"] / judged < ACCEPTANCE_FLOOR:
+            flags.append(f"acceptance of `{tier}` is {acceptance(sums)} on {judged} judged "
+                         "findings: the user rejects what the gate lets through, tighten "
+                         "\"ce qu'on ne flague pas\"")
+    sums = outcome_sums(usable)
+    out.append("")
+    out.append(f"Outcome known for {sums['runs']} of {len(usable)} runs.")
+    stale = [r for r in rows if (r.get("pending") or 0) > 0 and r.get("date")
+             and (today - datetime.date.fromisoformat(r["date"])).days > OUTCOME_TTL_DAYS]
+    if stale:
+        flags.append(f"{len(stale)} runs without outcome for over {OUTCOME_TTL_DAYS} days: "
+                     "answer step 0 at the next review or run `log_run.py outcome`")
+    over_cap = [r for r in rows if not r.get("legacy") and isinstance(r.get("agents"), int)
+                and r["agents"] > FANOUT_CAP
+                and (version_tuple(r.get("skill_version")) or ()) >= FANOUT_CAP_SINCE]
+    if over_cap:
+        flags.append(f"{len(over_cap)} runs above {FANOUT_CAP} agents since "
+                     f"{'.'.join(map(str, FANOUT_CAP_SINCE))}: the cap is not held")
+    out.append("")
+
+    model_rows = collections.defaultdict(list)
+    for row in usable:
+        if isinstance(row.get("model"), str):
+            model_rows[row["model"]].append(row)
+    kept = {model: rs for model, rs in model_rows.items() if len(rs) >= MODEL_MIN_RUNS}
+    out += ["| model | runs | precision | acceptance |", "|---|---|---|---|"]
+    for model, model_rs in sorted(kept.items()):
+        out.append(f"| {model} | {len(model_rs)} "
+                   f"| {ratio(sum(r['confirmed'] for r in model_rs), sum(r['raised'] for r in model_rs))} "
+                   f"| {acceptance(outcome_sums(model_rs))} |")
+    out.append(f"{sum(len(rs) for rs in model_rows.values())} runs carry a model, "
+               f"{len(kept)} with at least {MODEL_MIN_RUNS}.")
+    out.append("")
+
+    out += ["| agents | runs | confirmed/run | tokens/finding | confirmed/100 LOC |",
+            "|---|---|---|---|---|"]
     by_agents = collections.defaultdict(list)
     for row in usable:
         if isinstance(row.get("agents"), int) and row.get("tokens"):
@@ -111,8 +188,11 @@ def journal_report(rows):
             continue
         confirmed = sum(r["confirmed"] for r in bucket_rows)
         tokens = sum(r["tokens"] for r in bucket_rows)
+        sized = [r for r in bucket_rows if isinstance(r.get("loc"), int) and r["loc"] > 0]
+        density = (f"{100 * sum(r['confirmed'] for r in sized) / sum(r['loc'] for r in sized):.1f}"
+                   if sized else "-")
         out.append(f"| {bucket} | {len(bucket_rows)} | {confirmed / len(bucket_rows):.1f} "
-                   f"| {tokens // max(1, confirmed) // 1000}k |")
+                   f"| {tokens // max(1, confirmed) // 1000}k | {density} |")
     out.append("")
 
     raised = sum(r["raised"] for r in usable)
@@ -221,7 +301,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     rows = [row for _, row in log_run.read_journal(args.journal) if row]
-    lines, flags = journal_report(rows)
+    lines, flags = journal_report(rows, args.today)
     memory_lines, memory_flags = memory_report(args.memory_dir, args.today)
     repo_lines, repo_flags = repo_learnings_report(args.repo_learnings or default_repo_learnings())
     memory_lines += repo_lines

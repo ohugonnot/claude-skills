@@ -3,7 +3,7 @@
 Déclenchée par `learn` en premier argument. C'est le seul moment où le journal et les candidates sont lus : jamais pendant une revue.
 
 ## 1. Mesurer
-`python3 <skill>/scripts/learn.py` imprime les tables du journal et l'état des mémoires, puis une liste **À décider**. Ne recalculer aucun chiffre à la main : si une métrique manque, elle s'ajoute au script, avec son test.
+`python3 <skill>/scripts/learn.py` imprime les tables du journal et l'état des mémoires, puis une liste **À décider**. La table d'acceptation donne, par tier, ce que l'utilisateur a gardé des findings confirmés (corrigés sur corrigés + rejetés, les routés hors périmètre étant exclus ; seules comptent les lignes où corrigés et rejetés sont tous deux renseignés) : la précision mesure ce que passe le gate, l'acceptation ce que l'utilisateur retient. Deux flags s'y ajoutent : une acceptation sous 0,70 sur au moins 20 findings jugés (corrigés + rejetés), et les runs restés sans sort depuis plus de 14 jours. Une table par modèle de relecteur (au moins 10 runs) et un flag de plafond de fan-out (plus de 5 agents depuis la 1.16.0) complètent le tout. Ne recalculer aucun chiffre à la main : si une métrique manque, elle s'ajoute au script, avec son test.
 
 ## 2. Consolider les mémoires
 Lire en entier `senior-review-lessons.md` et `senior-review-lessons-candidates.md` (environ 10k tokens, payés une fois par session `learn`, jamais par revue). Le script ne détecte pas les jumelles : deux entrées qui décrivent le même mécanisme ne partagent presque aucun mot (Jaccard mesuré ≤ 0,14).
