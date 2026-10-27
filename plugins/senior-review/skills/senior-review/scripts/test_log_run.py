@@ -1,10 +1,13 @@
 import contextlib
+import fcntl
 import io
 import json
 import os
 import subprocess
 import tempfile
+import threading
 import unittest
+from unittest import mock
 
 import log_run
 
@@ -46,9 +49,12 @@ class LogRunTest(unittest.TestCase):
                                 if argv[0] != "check" else ["--journal", self.journal, *argv])
         return code, out.getvalue(), err.getvalue()
 
-    def rows(self):
+    def lines(self):
         with open(self.journal) as fh:
-            return [json.loads(line) for line in fh]
+            return fh.read().splitlines()
+
+    def rows(self):
+        return [json.loads(line) for line in self.lines()]
 
     def test_valid_line_is_appended_with_derived_fields(self):
         code, _, _ = self.run_cmd("log", *COUNTS)
@@ -115,6 +121,162 @@ class LogRunTest(unittest.TestCase):
             fh.write(json.dumps(rows[0]) + "\n")
         _, out, _ = self.run_cmd("last", "--base", "main")
         self.assertIsNone(json.loads(out)["new_loc"])
+
+    def test_log_without_outcome_stores_null(self):
+        self.assertEqual(self.run_cmd("log", *COUNTS)[0], 0)
+        row = self.rows()[0]
+        for key in ("fixed", "rejected", "deferred", "model"):
+            self.assertIsNone(row[key])
+        self.assertEqual(row["pending"], 2)
+
+    def test_outcome_patches_only_the_matching_round(self):
+        self.run_cmd("log", *COUNTS)
+        self.run_cmd("log", *COUNTS)
+        with open(self.journal, "a") as fh:
+            fh.write("not json\n")
+        before = self.lines()
+        code, _, _ = self.run_cmd("outcome", "--fixed", "1", "--rejected", "1", "--round", "1")
+        self.assertEqual(code, 0)
+        after = self.lines()
+        self.assertEqual(after[1:], before[1:])
+        first = json.loads(after[0])
+        self.assertEqual((first["fixed"], first["rejected"], first["deferred"], first["pending"]),
+                         (1, 1, 0, 0))
+        self.assertEqual(json.loads(after[0])["raised"], json.loads(before[0])["raised"])
+        # Without --round, the last round of the branch is patched.
+        self.run_cmd("outcome", "--fixed", "2", "--rejected", "0")
+        self.assertEqual(json.loads(self.lines()[1])["fixed"], 2)
+
+    def test_outcome_over_confirmed_is_refused(self):
+        self.run_cmd("log", *COUNTS)
+        before = self.lines()
+        code, _, err = self.run_cmd("outcome", "--fixed", "2", "--rejected", "1")
+        self.assertEqual(code, 2)
+        self.assertIn("exceeds confirmed", err)
+        self.assertEqual(self.lines(), before)
+        os.remove(self.journal)
+        code, _, _ = self.run_cmd("log", *COUNTS, "--fixed", "3")
+        self.assertEqual(code, 2)
+        self.assertFalse(os.path.exists(self.journal))
+
+    def test_last_reports_pending_outcome(self):
+        self.run_cmd("log", *COUNTS)
+        self.assertEqual(json.loads(self.run_cmd("last")[1])["pending_outcome"], 2)
+        self.run_cmd("outcome", "--fixed", "2", "--rejected", "0")
+        self.assertNotIn("pending_outcome", json.loads(self.run_cmd("last")[1]))
+
+    def write_rows(self, rows):
+        with open(self.journal, "w") as fh:
+            fh.write("".join(json.dumps(row) + "\n" for row in rows))
+
+    def test_outcome_refuses_a_legacy_line(self):
+        self.run_cmd("log", *COUNTS)
+        self.write_rows([dict(self.rows()[0], legacy=True)])
+        before = self.lines()
+        for extra in ([], ["--round", "1"]):
+            code, _, err = self.run_cmd("outcome", "--fixed", "1", "--rejected", "1", *extra)
+            self.assertEqual(code, 2)
+            self.assertIn("legacy", err)
+            self.assertEqual(self.lines(), before)
+
+    def test_outcome_without_round_skips_a_legacy_last_line(self):
+        self.run_cmd("log", *COUNTS)
+        self.run_cmd("log", *COUNTS)
+        self.write_rows([self.rows()[0], dict(self.rows()[1], legacy=True)])
+        self.assertEqual(self.run_cmd("outcome", "--fixed", "2", "--rejected", "0")[0], 0)
+        self.assertEqual(self.rows()[0]["fixed"], 2)
+        self.assertIsNone(self.rows()[1]["fixed"])
+
+    def test_outcome_refuses_an_ambiguous_round(self):
+        self.run_cmd("log", *COUNTS)
+        self.run_cmd("log", *COUNTS)
+        self.write_rows([self.rows()[0], dict(self.rows()[1], round=1)])
+        before = self.lines()
+        code, _, err = self.run_cmd("outcome", "--fixed", "1", "--rejected", "1", "--round", "1")
+        self.assertEqual(code, 2)
+        self.assertIn("ambiguous", err)
+        self.assertEqual(self.lines(), before)
+
+    def test_outcome_does_not_patch_another_branch(self):
+        self.run_cmd("log", *COUNTS)
+        self.run_cmd("log", *COUNTS, "--branch", "other")
+        self.run_cmd("outcome", "--fixed", "2", "--rejected", "0")
+        self.assertEqual([row["fixed"] for row in self.rows()], [2, None])
+        code, _, _ = self.run_cmd("outcome", "--fixed", "1", "--rejected", "0", "--branch", "ghost")
+        self.assertEqual(code, 2)
+
+    def test_negative_counts_are_refused(self):
+        self.run_cmd("log", *COUNTS)
+        before = self.lines()
+        code, _, err = self.run_cmd("outcome", "--fixed", "-1", "--rejected", "2")
+        self.assertEqual(code, 2)
+        self.assertIn("must be an integer >= 0", err)
+        self.assertEqual(self.lines(), before)
+        code, _, _ = self.run_cmd("log", *COUNTS, "--fixed", "-1", "--rejected", "2")
+        self.assertEqual(code, 2)
+        self.assertEqual(self.lines(), before)
+
+    def test_model_must_be_a_string(self):
+        self.run_cmd("log", *COUNTS)
+        for bad in (5, ["opus"]):
+            problems = log_run.validate(dict(self.rows()[0], model=bad))
+            self.assertIn("model must be a string or null", problems)
+
+    def test_outcome_keeps_mode_and_symlink(self):
+        self.run_cmd("log", *COUNTS)
+        os.chmod(self.journal, 0o640)
+        link = os.path.join(self.tmp.name, "link.jsonl")
+        os.symlink(self.journal, link)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = log_run.main(["--journal", link, "outcome", "--fixed", "1", "--rejected", "1",
+                                 "--repo", self.repo])
+        self.assertEqual(code, 0)
+        self.assertTrue(os.path.islink(link))
+        self.assertEqual(os.stat(self.journal).st_mode & 0o777, 0o640)
+        self.assertEqual(self.rows()[0]["fixed"], 1)
+
+    def test_log_appended_during_outcome_is_not_lost(self):
+        self.run_cmd("log", *COUNTS)
+        real_replace = os.replace
+        workers = []
+
+        def racing_replace(source, target):
+            worker = threading.Thread(target=log_run.main, args=(
+                ["--journal", self.journal, "log", *COUNTS, "--repo", self.repo],))
+            worker.start()
+            workers.append(worker)
+            worker.join(0.5)
+            real_replace(source, target)
+
+        with mock.patch.object(log_run.os, "replace", racing_replace):
+            code, _, _ = self.run_cmd("outcome", "--fixed", "1", "--rejected", "1")
+        workers[0].join(10)
+        self.assertEqual(code, 0)
+        self.assertEqual(len(self.rows()), 2)
+        self.assertEqual(self.rows()[0]["fixed"], 1)
+
+    def test_log_reads_the_journal_under_the_lock(self):
+        held = []
+        real_compare = log_run.compare_with_previous
+
+        def spy(args, ident):
+            with open(self.journal + ".lock", "w") as fh:
+                try:
+                    fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    held.append(False)
+                except BlockingIOError:
+                    held.append(True)
+            return real_compare(args, ident)
+
+        with mock.patch.object(log_run, "compare_with_previous", spy):
+            self.run_cmd("log", *COUNTS)
+        self.assertEqual(held, [True])
+
+    def test_model_is_free_text_or_null(self):
+        self.run_cmd("log", *COUNTS, "--model", " Opus ")
+        self.run_cmd("log", *COUNTS)
+        self.assertEqual([row["model"] for row in self.rows()], ["opus", None])
 
     def test_check_reports_bad_lines_and_skips_legacy(self):
         os.makedirs(os.path.dirname(self.journal))

@@ -14,30 +14,44 @@ Subcommands:
     log    validate and append one line; exit 2 and write nothing if invalid
     last   print what the previous review of this branch looked like, and
            whether the diff under review changed since (confirmation tier)
+    outcome patch in place what became of the confirmed findings of a review
+           (fixed / rejected by the user / routed out of scope); one line
+           stays one review
     check  list journal lines that do not match the schema
+
+The outcome counts come from the user or from the loop, never from the model's
+own judgement. Left out, they are stored as null (unknown), never as 0.
 
 Usage:
     python3 log_run.py last [--base origin/main]
     python3 log_run.py log --tier standard --loc 227 --raised 18 --confirmed 14 \\
         --dropped-gate 4 --refuted-panel 0 --agents 4 --tokens 544918 \\
-        --verdict request-changes [--base origin/main] [--loop]
+        --verdict request-changes [--base origin/main] [--loop] \\
+        [--fixed 9 --rejected 3 --deferred 1] [--model opus]
+    python3 log_run.py outcome --fixed 9 --rejected 3 [--deferred 1] [--round 2]
     python3 log_run.py check
 """
 
 import argparse
+import contextlib
 import datetime
+import fcntl
 import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
+import tempfile
 
 JOURNAL = os.path.expanduser("~/.claude/skill-memory/senior-review-runs.jsonl")
 TIERS = ("quick", "standard", "deep", "confirmation")
 VERDICTS = ("approve", "approve-after-fixes", "request-changes", "needs-discussion")
 COUNTERS = ("loc", "raised", "confirmed", "dropped_gate", "refuted_panel",
             "settled", "out_of_scope", "agents")
+# What became of the confirmed findings; each is null while unknown.
+OUTCOMES = ("fixed", "rejected", "deferred")
 # Byte caps come from SKILL.md step 7; candidates has none, its size is shown anyway.
 MEMORIES = (("senior-review-lessons.md", 10240),
             ("senior-review-misses.md", 8192),
@@ -139,6 +153,28 @@ def skill_version():
     return match.group(1) if match else None
 
 
+def pending_findings(row):
+    """Confirmed findings with no known fate. An unknown outcome counts as pending."""
+    return row["confirmed"] - sum(row.get(key) or 0 for key in OUTCOMES)
+
+
+def outcome_problems(row):
+    """Checks only the keys that are present: lines older than 1.26.0 have none."""
+    problems = []
+    for key in OUTCOMES:
+        value = row.get(key)
+        if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value < 0):
+            problems.append(f"{key} must be an integer >= 0 or null")
+    if row.get("model") is not None and not isinstance(row.get("model"), str):
+        problems.append("model must be a string or null")
+    if problems or not isinstance(row.get("confirmed"), int):
+        return problems
+    if any(row.get(key) is not None for key in OUTCOMES) and pending_findings(row) < 0:
+        known = " + ".join(f"{key} {row[key]}" for key in OUTCOMES if row.get(key) is not None)
+        problems.append(f"{known} exceeds confirmed ({row['confirmed']}): recount")
+    return problems
+
+
 def validate(row):
     """Return the list of problems; empty means the line is usable."""
     problems = []
@@ -159,6 +195,8 @@ def validate(row):
     if not problems and row["raised"] != row["confirmed"] + row["dropped_gate"] + row["refuted_panel"]:
         problems.append(f"raised ({row['raised']}) != confirmed + dropped_gate + refuted_panel "
                         f"({row['confirmed']} + {row['dropped_gate']} + {row['refuted_panel']}): recount")
+    if not problems:
+        problems += outcome_problems(row)
     return problems
 
 
@@ -179,7 +217,23 @@ def memory_sizes(journal):
     return ", ".join(parts)
 
 
+@contextlib.contextmanager
+def journal_lock(journal):
+    """Serialise the read-then-write sections: `outcome` rewrites the whole file,
+    so a `log` appended in between would be lost."""
+    path = os.path.realpath(journal)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path + ".lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        yield
+
+
 def cmd_log(args):
+    with journal_lock(args.journal):
+        return append_run(args)
+
+
+def append_run(args):
     ident = identity(args)
     known = compare_with_previous(args, ident)
     row = {
@@ -192,9 +246,13 @@ def cmd_log(args):
         "dropped_gate": args.dropped_gate, "refuted_panel": args.refuted_panel,
         "settled": args.settled, "out_of_scope": args.out_of_scope,
         "agents": args.agents, "tokens": args.tokens, "verdict": args.verdict,
+        "fixed": args.fixed, "rejected": args.rejected, "deferred": args.deferred,
+        "model": args.model or None,
         "skill_version": skill_version(),
     }
     problems = validate(row)
+    if not problems:
+        row["pending"] = pending_findings(row)
     if problems:
         for problem in problems:
             print(f"[learn] run NOT logged: {problem}", file=sys.stderr)
@@ -210,13 +268,80 @@ def cmd_log(args):
     return 0
 
 
+def refuse_outcome(*problems):
+    for problem in problems:
+        print(f"[learn] outcome NOT recorded: {problem}", file=sys.stderr)
+    return 2
+
+
+def cmd_outcome(args):
+    if not os.path.exists(args.journal):
+        return refuse_outcome("no journal yet")
+    with journal_lock(args.journal):
+        return patch_outcome(args)
+
+
+def patch_outcome(args):
+    """Patch one line in place; every other line is kept byte for byte."""
+    project = args.project or project_name(args.repo)
+    branch = args.branch or git(args.repo, "rev-parse", "--abbrev-ref", "HEAD")
+    # Write through a symlink instead of replacing it with a regular file.
+    journal = os.path.realpath(args.journal)
+    with open(journal, encoding="utf-8") as fh:
+        lines = fh.read().splitlines()
+    this_branch = []
+    for index, line in enumerate(lines):
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(row, dict) and row.get("project") == project and row.get("branch") == branch:
+            this_branch.append((index, row))
+    where = f"{project}/{branch}"
+    if args.round is None:
+        candidates = [(index, row) for index, row in this_branch if not row.get("legacy")]
+        if not candidates:
+            return refuse_outcome(f"no non-legacy review for {where} (legacy lines are never patched)")
+        index, row = candidates[-1]
+    else:
+        candidates = [(index, row) for index, row in this_branch if row.get("round") == args.round]
+        if not candidates:
+            return refuse_outcome(f"no logged review for {where} round {args.round}")
+        if len(candidates) > 1:
+            return refuse_outcome(f"round {args.round} of {where} matches {len(candidates)} lines: "
+                                  "ambiguous")
+        index, row = candidates[0]
+        if row.get("legacy"):
+            return refuse_outcome(f"round {args.round} of {where} is a legacy line, never patched")
+    row.update(fixed=args.fixed, rejected=args.rejected, deferred=args.deferred)
+    problems = outcome_problems(row)
+    if problems:
+        return refuse_outcome(*problems)
+    row["pending"] = pending_findings(row)
+    lines[index] = json.dumps(row, ensure_ascii=True)
+    mode = stat.S_IMODE(os.stat(journal).st_mode)
+    # Same folder as the journal so os.replace stays atomic.
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=os.path.dirname(journal),
+                                     delete=False) as tmp:
+        tmp.write("\n".join(lines) + "\n")
+    os.chmod(tmp.name, mode)
+    os.replace(tmp.name, journal)
+    print(f"[learn] outcome recorded: {where} round {row.get('round')}, "
+          f"{row['fixed']} fixed, {row['rejected']} rejected, {row['deferred']} deferred, "
+          f"{row['pending']} pending")
+    return 0
+
+
 def cmd_last(args):
     ident = identity(args)
     known = compare_with_previous(args, ident)
-    print(json.dumps({"project": ident["project"], "branch": ident["branch"],
-                      "next_round": known["round"], "same_diff": known["same_diff"],
-                      "new_loc": known["new_loc"], "previous": known["previous"]},
-                     ensure_ascii=False))
+    report = {"project": ident["project"], "branch": ident["branch"],
+              "next_round": known["round"], "same_diff": known["same_diff"],
+              "new_loc": known["new_loc"], "previous": known["previous"]}
+    previous = known["previous"]
+    if previous and (previous.get("pending") or 0) > 0:
+        report["pending_outcome"] = previous["pending"]
+    print(json.dumps(report, ensure_ascii=False))
     return 0
 
 
@@ -259,12 +384,24 @@ def main(argv=None):
     log.add_argument("--out-of-scope", type=int, default=0)
     # Optional on purpose: a required field pushes the model to invent a number.
     log.add_argument("--tokens", type=int)
+    for outcome_key in OUTCOMES:
+        log.add_argument(f"--{outcome_key}", type=int)
+    # Free text on purpose: model names change faster than any enum.
+    log.add_argument("--model", type=lambda name: name.strip().lower())
+
+    outcome = sub.add_parser("outcome")
+    target_args(outcome)
+    outcome.add_argument("--fixed", required=True, type=int)
+    outcome.add_argument("--rejected", required=True, type=int)
+    outcome.add_argument("--deferred", type=int, default=0)
+    outcome.add_argument("--round", type=int, help="default is the last round of the branch")
 
     target_args(sub.add_parser("last"))
     sub.add_parser("check")
 
     args = parser.parse_args(argv)
-    return {"log": cmd_log, "last": cmd_last, "check": cmd_check}[args.command](args)
+    return {"log": cmd_log, "outcome": cmd_outcome, "last": cmd_last,
+            "check": cmd_check}[args.command](args)
 
 
 if __name__ == "__main__":
