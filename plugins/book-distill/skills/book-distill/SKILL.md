@@ -36,6 +36,7 @@ Chaque règle ci-dessous existe pour une raison documentée : `reference/science
 1. Lire `lessons.md` (même dossier) : les pièges connus, classés par thème.
 2. Vérifier l'outillage : `pdftotext -v` (poppler-utils). Un EPUB se traite directement (`unzip` + strip des balises : texte plus propre, frontières de chapitres gratuites).
 3. Localiser le fichier (`ls`, sinon `find`).
+4. **Tri avant lecture complète** quand le livre n'est pas déjà choisi par le demandeur (catalogue, nouveauté, livre proposé par toi) : un sous-agent applique `templates/agent-tri.md` (carte, introduction, conclusion, deux chapitres cœur, 60 000 caractères au plus) et rend LIRE EN ENTIER, FICHE COURTE ou PASSER. Mesuré sur une série de livres techniques : le tri prévoyait déjà la note finale à un point près, en lisant 60 000 caractères au lieu de 240 000 à 1 000 000.
 
 ## Phase 1 — Cartographier avant de lire
 
@@ -75,6 +76,8 @@ Extraire par tranches : `pdftotext -f N -l M` (~600 tokens/page). Pour chaque ch
 
 **Fan-out (optionnel, pour les gros livres)** : déléguer des groupes de chapitres à des sous-agents avec le contrat `templates/agent-lecteur.md` (l'adapter, ne pas le réinventer ; calibrer la concurrence sur la machine). Garder pour toi la préface, la conclusion et le chapitre-thèse. Sur un livre normal, lire séquentiellement soi-même est souvent plus simple et meilleur.
 
+**Modèles, quand des sous-agents tournent** : le modèle économique (Sonnet) pour le tri, la lecture, l'extraction, la vérification des claims, le juge aveugle et le lecteur novice ; le modèle fort (Opus) pour la seule passe de prose finale et la relecture finale. Test A/B (même fiche, mêmes notes, même brief) : exactitude et pédagogie à égalité, écart net sur la voix (titres qui portent une thèse, pourquoi dit en fin d'idée), pour ~3 500 tokens de sortie chacun ; le coût d'une rédaction est dominé par la lecture du skill et des notes, pas par la sortie. Chaque brief de sous-agent est autonome : sources, seuils, format de rendu (5 lignes + rapport dans un fichier), périmètre borné à la grille (un relecteur à qui l'on demande des problèmes en trouve toujours, y compris de pur style).
+
 ## Phase 3 — Distiller
 
 **Construire, ne pas tronquer.** Un bon résumé applique trois macro-règles (Kintsch & van Dijk) : supprimer le trivial, généraliser (remplacer des cas par leur principe), et **construire** des phrases nouvelles qui subsument plusieurs passages. Le marqueur du résumé expert (Brown & Day) : la proportion de phrases qui n'existent dans aucune phrase du livre. Le copy-delete (recopier en raccourcissant) est le marqueur du novice.
@@ -88,9 +91,12 @@ Extraire par tranches : `pdftotext -f N -l M` (~600 tokens/page). Pour chaque ch
 
 Règle d'Adler : on n'a le droit de dire « d'accord / pas d'accord » qu'après avoir pu dire « je comprends ». La note et la critique se produisent APRÈS les phases 1-3, jamais en parallèle.
 
-1. **Note /10** , convention Sivers : « sur 10 lecteurs de l'audience visée, combien devraient lire ce livre ? ». Pas une note de plaisir.
-2. **Sous-critères** (la note opaque ne s'argumente pas) : Idées / Applicable / Lisibilité / Actualité / Exemples, chacun justifiable par un élément précis du livre. Un profil tout à 8-9 est de la complaisance : le contraste fait la crédibilité.
-3. **Contrepoints obligatoires** (2-3) : limites, contre-arguments, ce que le livre ignore, ce qui est contesté depuis. C'est le manque n°1 documenté des résumés commerciaux : condenser sans jamais juger. Chercher l'actualité éditoriale avant d'écrire (nouvelle édition ? thèse contestée ? techno citée disparue ?).
+1. **Sous-critères** (la note opaque ne s'argumente pas) : Idées / Applicable / Lisibilité / Actualité / Exemples, chacun justifiable par un élément précis du livre. Un profil tout à 8-9 est de la complaisance : le contraste fait la crédibilité.
+2. **Note /10 = moyenne des cinq**, arrondie au dixième : reproductible, contrairement à une note globale posée d'instinct. La question de Sivers (« sur 10 lecteurs de l'audience visée, combien devraient lire ce livre ? ») sert de contrôle : un écart de plus de 1,5 se dit dans l'avis, il ne tord pas un sous-critère.
+3. **Juge aveugle** : un sous-agent séparé reçoit `reference/bareme-notation.md` et les notes de lecture (ou la fiche sans note, sous-critères, punchline ni phrase chiffrée), rien d'autre. Il ne voit JAMAIS la note du rédacteur : un juge qui voit une note proposée s'y ancre, et ni le raisonnement préalable ni la consigne « ignore ce score » ne suppriment l'effet. Mesuré : écart moyen 0,95 à la note de référence quand le relecteur voit une note fausse de ±1,5, contre 0,4 à l'aveugle.
+4. **Réconciliation** : écart > 1 sur un sous-critère ou > 1,0 sur la note = trancher avec un passage du livre à l'appui, et l'écrire. Entre 0,7 et 1,0, moyenner deux passages du juge : il varie de 0,3 en moyenne et jusqu'à 0,8 d'un passage à l'autre, un seuil plus bas se déclenche sur du bruit. Les relecteurs suivants jugent la fiche, pas la note.
+5. Quand le demandeur corrige une note, consigner l'écart (livre, sous-critère, avant → après) dans `lessons.md` et ajouter le livre aux ancres du barème : c'est la seule donnée humaine de calibration.
+6. **Contrepoints obligatoires** (2-3) : limites, contre-arguments, ce que le livre ignore, ce qui est contesté depuis. C'est le manque n°1 documenté des résumés commerciaux : condenser sans jamais juger. Chercher l'actualité éditoriale avant d'écrire (nouvelle édition ? thèse contestée ? techno citée disparue ?).
 
 ## Phase 5 — Écrire la fiche
 
@@ -100,7 +106,7 @@ Gabarit : `templates/fiche.md` (structure par défaut sensée ; adapter si le li
 2. **Concret avant abstrait** : pour chaque idée, l'exemple du livre d'abord, le principe ensuite. Jamais la règle abstraite seule (l'effet « exemples concrets » est un des mieux répliqués du champ).
 3. **Le pourquoi mécanistique sous chaque affirmation** : un néophyte ne peut pas générer l'explication lui-même, la fiche la livre (« ça marche parce que… », la chaîne causale, pas le seul résultat).
 4. **Vieux → neuf, phrase par phrase** : chaque phrase ouvre sur ce qui est déjà posé et ferme sur l'information neuve (contrat donné-nouveau, Clark & Haviland). Un passage « décousu », c'est presque toujours ça.
-5. **Signaler la structure** : titres porteurs de l'idée, phrases-clés en gras, renvois explicites entre idées (levier texte le mieux chiffré : g ≈ 0.5 en rétention). Un titre est une promesse : la section doit l'encaisser (un titre « X fait moins peur » exige la phrase qui le démontre).
+5. **Signaler la structure** : titres porteurs de l'idée, phrases-clés en gras, renvois explicites entre idées (levier texte le mieux chiffré : g ≈ 0.5 en rétention). Un titre est une promesse : la section doit l'encaisser (un titre « X fait moins peur » exige la phrase qui le démontre). Un titre d'idée est une affirmation courte qui frappe (« Pas de vérification, pas de victoire »), pas une étiquette ; il nomme l'objet quand c'est un terme propre au livre, et ne répète ni la citation placée dessous ni la phrase d'ouverture.
 6. **Une citation vérifiée par grande idée**, avec sa page : valeur lecteur + preuve d'ancrage.
 7. **Tout sigle décodé à sa première apparition ; tout terme technique suivi d'un exemple d'une ligne.** Règle absolue « **définir avant d'utiliser** » : un terme employé dans une phrase doit avoir été défini dans une phrase ANTÉRIEURE, jamais l'inverse, jamais « on y reviendra ». Pour un livre dense en jargon (patterns, architecture, domaine spécialisé), l'audience par défaut est **le nouveau qui rejoint l'équipe** : quelqu'un d'expérimenté mais étranger à CE vocabulaire, qui doit pouvoir suivre une discussion d'équipe après lecture. Ouvrir chaque concept par le problème qu'il résout avec une analogie du quotidien (relevé bancaire → event sourcing, boutique en ligne → CQRS, ticket de concert → process manager), nommer le concept seulement ensuite.
 8. **Embarquer du rappel** : 2-3 questions de récupération en fin de fiche (réponses repliées) + 1 prompt d'auto-explication dans le corps (« avant de lire la suite : pourquoi X échouerait-il si… ? »). La lecture seule crée une illusion de connaissance ; le rappel est la technique d'apprentissage la plus efficace documentée.
@@ -109,6 +115,11 @@ Gabarit : `templates/fiche.md` (structure par défaut sensée ; adapter si le li
 11. **Énumérations au point-virgule interdites** : trois propositions collées par « ; » ne racontent pas, réécrire en vraies phrases (souvent en escalade narrative). Exception : l'antithèse en deux volets, où le « ; » porte le contraste.
 12. **Italique d'emphase interdit** : l'italique est réservé aux titres d'œuvre et aux termes étrangers. L'emphase rhétorique (le *et*, le *est*) est redondante avec le texte ; si le contraste manque, l'écrire en toutes lettres.
 13. **Charge mémoire minimale** : jamais de référence que le lecteur doit résoudre (« le troisième temps » → le nommer : « le troisième temps : la vérification »), antécédent d'un pronom à une phrase maximum (deux noms du même genre en lice = répéter le nom), pas de « Et »/« Mais » nus en attaque de phrase (connecteur intégré : « Git, lui, … »). Le texte doit couler sans rien demander à retenir.
+14. **Un fil directeur** : la thèse du livre tient en une phrase, posée dès l'ouverture sous forme de problème ; les idées se regroupent en deux ou trois familles annoncées avant la première ; chaque idée s'ouvre sur une liaison qui dit pourquoi on passe de la précédente à elle. Test : après l'ouverture, un lecteur qui ne sait rien du livre peut redire le plan en une phrase. Sans fil, six idées exactes restent six astuces en vrac.
+15. **Phrases simples, la cause en toutes lettres** : une idée par phrase ; la chaîne racontée dans l'ordre où elle se produit (le geste, ce qui arrive, pourquoi, la parade) ; « or », « donc », « parce que » plutôt qu'une subordonnée enchâssée. Une phrase de plus de 25 mots ou à deux relatifs (qui/que/dont) se coupe. Une définition de plus de huit mots sort de la phrase qui raisonne et s'écrit juste avant ; deux termes nouveaux par paragraphe au plus. Une formule du livre traduite mot à mot se redit en clair dans la phrase suivante.
+16. **Exemples « chez soi »** : quand le livre n'offre pas d'exemple dans le métier de l'audience, en ajouter un, marqué « de mon cru, pas du livre », sans rien qui prétende venir du livre ; générique et public seulement (jamais un employeur, un client, un produit ou une donnée interne du demandeur).
+
+**Une règle de rédaction s'applique à toute la fiche**, pas seulement au passage qui l'a fait découvrir : la relancer partout (la règle 15 se compte mécaniquement). Tout ajout fait en relecture repasse par la chasse aux redites de la règle 9 : une idée ne vit qu'à un endroit.
 
 **Sorties courtes par section** : rédiger idée par idée, jamais la fiche d'un seul jet (la fidélité d'une génération longue se dégrade vers la fin, c'est mesuré).
 
@@ -120,6 +131,8 @@ Gabarit : `templates/fiche.md` (structure par défaut sensée ; adapter si le li
 - Vérifier chacune contre le texte extrait : `python3 ${CLAUDE_SKILL_DIR}/scripts/check-claim.py /tmp/distill-<slug>-*.txt "fragment"` (**exécuter** le script, ne pas le réécrire : il normalise les artefacts de rip — césures, ligatures, apostrophes typographiques — avant de chercher ; un FAIL est une présomption, re-tester un fragment plus court avant d'accuser).
 - Vérifier la claim seule contre sa source, **sans relire le raisonnement qui l'a produite** (la vérification découplée évite le biais de confirmation, c'est le principe Chain-of-Verification).
 - Consigne explicite : *même vraie dans le monde réel, une affirmation que le livre ne contient pas est FAUSSE pour la fiche.* Introuvable → corriger ou supprimer, jamais garder « parce que ça sonne juste ».
+- **Citations de chapitres ⊆ chapitres lus** : `python3 ${CLAUDE_SKILL_DIR}/scripts/check-sources.py /tmp/distill-<slug>-draft.md` liste les chapitres cités mais écartés (C) ou absents de la ligne de périmètre. Un écart se corrige en lisant le passage (et en le déclarant) ou en retirant la citation.
+- **Passe lecteur novice**, avant la relecture finale : un sous-agent qui ne connaît pas le domaine lit la fiche et liste chaque terme non compris ou défini après son premier emploi ; le rédacteur corrige à partir de cette liste. C'est le contrôle de la règle 7 par quelqu'un qui n'a pas le vocabulaire en tête.
 
 ### 6b. Auto-évaluation
 

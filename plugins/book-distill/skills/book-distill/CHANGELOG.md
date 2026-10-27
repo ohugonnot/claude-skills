@@ -1,5 +1,18 @@
 # Changelog — book-distill
 
+## 1.2.0 — 2026-10-27
+
+Leçons d'une série de onze fiches de livres techniques (skill privé `fiche-livre`), mesurées avant d'être promues :
+
+- **Tri avant lecture complète** (Phase 0, `templates/agent-tri.md`) : 60 000 caractères lus (carte, introduction, conclusion, deux chapitres cœur), verdict LIRE EN ENTIER / FICHE COURTE / PASSER. Sur la série, le tri prévoyait la note finale à un point près.
+- **Note = moyenne des sous-critères**, la question de Sivers devient un contrôle (écart > 1,5 signalé dans l'avis).
+- **Juge aveugle** (Phase 4, `reference/bareme-notation.md`) : un sous-agent note sans jamais voir la note du rédacteur, preuve d'abord, échelle ancrée sur des livres déjà notés, comparaison dans les deux ordres. Mesuré : écart 0,95 pour un relecteur ancré contre 0,4 à l'aveugle.
+- **Réconciliation à 1,0** sur la note (bruit du juge mesuré : 0,33 en moyenne, 0,8 au plus) ; entre 0,7 et 1,0, moyenner deux passages. Les corrections du demandeur sont consignées et deviennent des ancres.
+- **Écriture** : fil directeur (thèse en une phrase, familles d'idées annoncées, liaisons), phrases simples (25 mots, deux relatifs, définitions hors des phrases qui raisonnent), titres-affirmations qui nomment leur objet, exemples « de mon cru » marqués et publics seulement ; une règle nouvelle se relance sur toute la fiche, un ajout de relecture repasse la chasse aux redites. Tirées des corrections humaines d'une fiche.
+- **Vérification** : `scripts/check-sources.py` (chapitres cités ⊆ chapitres déclarés lus) et passe « lecteur novice » avant la relecture finale.
+- **Modèles** : économique pour lire, vérifier et juger ; fort pour la seule prose finale (A/B : voix meilleure, exactitude égale, ~3 500 tokens de sortie). Briefs de sous-agents autonomes et bornés à la grille.
+- `reference/science.md` § Noter : sources (ancrage du juge, biais de position, échelles ancrées, jurys) et mesures maison.
+
 ## 1.1.1 — 2026-06-28
 
 - Corrige des citations imprécises / mal attribuées (audit fact-check des références).

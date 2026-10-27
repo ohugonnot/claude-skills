@@ -40,6 +40,14 @@ Chaque règle du SKILL.md s'appuie sur un finding documenté. Ce fichier tient l
 - **Citations hallucinées** : 13-21 % mesurés dans des systèmes commerciaux (arXiv 2606.00898) → toute citation entre guillemets se retrouve mécaniquement dans le texte extrait avant publication. [INDICATIF]
 - **Map-reduce vs refine** (OpenAI « Summarizing books with human feedback » ; Google Cloud) : la décomposition récursive par sections est validée à l'échelle du livre et rend chaque étage auditable ; la synthèse finale recoud la cohérence que le map-reduce perd. [SOLIDE]
 
+## Noter (juge aveugle, Phase 4)
+
+- **Ancrage du juge** : un LLM juge qui voit une note proposée s'y aligne, et ni le raisonnement préalable ni la consigne d'ignorer le score ne suppriment l'effet (Kapetanovic et al., arXiv:2608.25869) → le juge ne voit jamais la note du rédacteur. [SOLIDE]
+- **Biais de position** : en comparaison par paires, le juge favorise une position selon l'ordre de présentation (Shi et al. ; Liusie et al. pour la supériorité du pairwise sur la note absolue) → comparer dans les deux ordres, une préférence qui s'inverse vaut égalité. [SOLIDE]
+- **Échelle ancrée** : décrire chaque niveau par des exemples (Prometheus, rubriques par niveau) et un jury plutôt qu'un juge unique (Verga et al., « Replacing judges with juries ») stabilisent la note. [SOLIDE]
+- **Mesures maison** (oct. 2026, livres techniques déjà notés, re-notés) : relecteur qui voit une note fausse de ±1,5 → écart moyen 0,95 à la note de référence ; juge aveugle ancré → 0,4. Bruit du juge aveugle sur 6 livres × 3 passages : étendue moyenne 0,33, maximum 0,8 → seuil de réconciliation à 1,0. Cela mesure la cohérence IA contre IA, pas la justesse : seule une correction humaine donne une vérité. [INDICATIF]
+- **Prose finale : modèle fort ou économique** (A/B maison, une fiche, un passage par modèle) : exactitude et pédagogie à égalité, voix nettement meilleure avec le modèle fort, sortie ~3 500 tokens chacun. Un seul livre et un juge unique : à revalider. [INDICATIF]
+
 ## Ce qui n'est PAS retenu (et pourquoi)
 
 - **Progressive summarization (Forte)** : aucun essai contrôlé ; Forte lui-même la présente comme un outil de découvrabilité de notes, pas d'apprentissage ; ses couches reposent sur le surlignage (utilité faible). Non intégré. [INDICATIF]
