@@ -67,6 +67,35 @@ Minimum text, maximum value. After the draft, cut half the words without losing 
 
 Add a diagram (SVG or image) when the idea is **spatial, sequential, or abstract** and the visual makes it land faster than prose: a data flow, an architecture, a state machine, a call chain, a before/after, a cycle. Never decorative. The test: if hiding the prose makes the diagram teach nothing a sentence wouldn't, drop it. Give it generous spacing (no text overlapping a shape, nothing past the viewBox) and verify the render at a narrow and a wide width, because generated coordinates are often wrong.
 
+## Companion code (a small POC the reader can run)
+
+An article that teaches a technique is worth more with code the reader can clone and run. Use a repository as soon as the code spans several files (module, tests, compose). Use a gist only for a single file.
+
+**Repository first, article second.** The snippets in the article are copied verbatim from the repository. Each one links to the full file **pinned to a commit** (`/blob/<sha>/path#L12-L40`), never to `main`.
+
+**What the repository needs**:
+- one command to run everything;
+- green tests, including at least one you have *seen fail* when you break what it protects;
+- an end-to-end check when there is a compose file;
+- CI;
+- a README that says plainly what is verified and what is not;
+- a license;
+- no secret in clear.
+
+**Three blocks in the article**:
+1. **A repository box** right after the opening: the run command, then a *proof ledger*. One line per claim about the code, marked "Verified" with what proves it (a named test, the e2e, CI) or "Not verified" with the reason. Include at least one honest "Not verified": an all-green ledger on a POC is suspicious.
+2. **A code reference** under each snippet, such as "Full file: `path`, lines 12-40". Keep each snippet to 15 lines or less, and leave the rest in the repository.
+3. **"The books behind this article"** at the end: title, author, publisher and year, what was taken (chapters or lessons), and what the book gets wrong or dated.
+
+**Lean build circuit (same quality, about half the tokens).** On a Go observability POC, 4 review rounds cost about 1.9 M agent tokens. Most round-1 findings were predictable oversights, and each batch of fixes fed the next round. Do this instead:
+1. **Plan on the strongest model**, with a written *definition of done* the author must meet before anyone reviews. Adapt it to the stack: server timeouts and input bounds, untrusted inbound headers on public ports, health checks excluded from SLIs, tests that fail when the code breaks, a stack that runs from a fresh clone with only the announced prerequisites. Specify any non-trivial rule, such as redaction or rate limits, with its positive and negative cases up front: a rule re-designed during review regresses.
+2. **Code on the standard model**, from that plan.
+3. **One review round**: up to 3 blind reviewers with distinct angles (code and security, tests, operability and docs). Only one of them starts the stack.
+4. **One batch of fixes.** Then **one final blind pass on a model different from the reviewers'**, on the strongest standard tier. Use the most expensive model only when the user asks for it.
+5. **Stop when nothing blocking or important is left.** Minor items go to the README or an issue. Two rounds at most, unless a blocker remains.
+6. **One end-to-end run per round** on the author's side. Restrict mutation testing to the invariants the article teaches.
+7. **Write the article in parallel** with the code review, not after it.
+
 ## SEO basics (without writing for robots)
 
 - One or two precise long-tail queries per article, no more.

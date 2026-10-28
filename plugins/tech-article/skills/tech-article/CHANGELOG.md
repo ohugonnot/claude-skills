@@ -1,5 +1,20 @@
 # Changelog — tech-article
 
+## 1.4.0 — 2026-10-28
+
+Nouvelle section « Companion code », qui ajoute à l'article un petit POC public que le lecteur peut lancer :
+- Le dépôt d'abord, l'article ensuite. Les extraits sont copiés du dépôt tels quels, et les liens sont figés sur un commit.
+- Ce que le dépôt doit avoir : tests, dont un vu au rouge, test de bout en bout, CI, et un README honnête sur ce qui est vérifié.
+- Trois blocs dans l'article : l'encart dépôt avec son registre de preuves Vérifié / Non vérifié, le renvoi au fichier complet sous chaque extrait, et « les livres derrière l'article ».
+
+« Lean build circuit » : un POC d'observabilité en Go a coûté environ 1,9 M tokens d'agents sur 4 tours de revue. Le tour 1 trouvait surtout des oublis prévisibles, et chaque série de corrections nourrissait le tour suivant. Le circuit retenu :
+- un plan avec une definition of done écrite d'avance ;
+- le code sur le modèle standard ;
+- un seul tour de revue à 3 relecteurs aveugles, dont un seul lance la pile ;
+- une passe finale aveugle sur un autre modèle, jamais le plus cher sans demande ;
+- l'arrêt quand il ne reste ni bloquant ni important, avec deux tours au plus ;
+- l'article écrit en parallèle de la revue.
+
 ## 1.3.0 — 2026-10-27
 
 Règles tirées des corrections d'un relecteur humain sur un texte pédagogique, chacune vérifiable :
