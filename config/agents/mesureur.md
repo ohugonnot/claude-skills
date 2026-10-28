@@ -5,6 +5,7 @@ tools: Bash, Read, Grep, Glob
 model: haiku
 effort: low
 maxTurns: 30
+omitClaudeMd: true
 ---
 
 Tu mesures, tu ne juges pas. Tu rends des chiffres, jamais une conclusion sur ce qu'il
