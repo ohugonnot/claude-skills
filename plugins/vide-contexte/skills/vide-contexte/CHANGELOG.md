@@ -1,5 +1,13 @@
 # Changelog — vide-contexte
 
+## 1.5.0 — 2026-10-28
+
+- **Mode `consolide`, une fois par mois, sur le modèle de `senior-review learn`.** Le plafond de trois écritures (1.4.0) freine la croissance, il ne retire rien : sur un dépôt réel, une passe manuelle a trouvé 3 fiches à supprimer, 3 fusions et 29 mises à jour sur 58 fiches de projet, et un journal de 68 Ko condensé à 6 Ko. Le script `scripts/consolide.py` porte la partie mécanique ; il résout les liens sur le `name:` de la cible, ce qui a révélé 20 liens cassés là où un contrôle par nom de fichier n'en voyait aucun.
+
+## 1.4.0 — 2026-10-28
+
+- **« Rien à sauver » devient un résultat normal, et chaque passage est plafonné à trois écritures.** Lancé à chaque `/clear`, le skill trouvait toujours quelque chose à écrire : environ 400 fiches en trois mois sur un dépôt réel, sans aucun mécanisme d'élagage. Le plafond force à choisir, et la mise à jour d'une fiche existante passe avant la création.
+
 ## 1.3.0 — 2026-08-12
 
 Issu d'un audit des 169 mémoires produites par ce skill sur un dépôt réel : le corpus était sain sur le fond, mais quatre mécaniques silencieuses le dégradaient. Chaque ajout ci-dessous trace vers un défaut mesuré.

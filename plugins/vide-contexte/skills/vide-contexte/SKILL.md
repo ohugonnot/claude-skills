@@ -4,8 +4,10 @@ description: >-
   Persists a conversation's non-obvious insights into memory files before its context is cleared
   or compacted — nothing is cleared by this skill, only saved. Use when the user says "vide le
   contexte", "clear context", "vide le context", "sauvegarde avant /clear", "save context before
-  clearing" or similar, even when they only announce the /clear without asking to save. NOT for
-  closing out a branch (use branch-wrap-up, which runs its own knowledge-capture pass).
+  clearing" or similar, even when they only announce the /clear without asking to save. With the
+  argument `consolide` ("consolide la mémoire", "ménage mémoire"), runs instead the monthly pass
+  that merges duplicates and retires stale memories, with the user's validation. NOT for closing
+  out a branch (use branch-wrap-up, which runs its own knowledge-capture pass).
 ---
 
 # Persister le contexte avant de le vider
@@ -14,6 +16,8 @@ Workflow en 4 étapes : scanner → dédupliquer → persister → vérifier.
 But : qu'une future session retrouve tout ce que cette conversation a appris de **non-déductible**, et rien d'autre.
 
 Deux règles gouvernent tout le reste. **Non-déductible** décide de ce qu'on écrit. **Le mécanisme, pas l'instantané** décide de comment on l'écrit — c'est ce qui fait qu'une mémoire vaut encore quelque chose dans six mois.
+
+**`consolide`** en premier argument : pas de sauvegarde, lire `reference/consolide.md` et s'y tenir (mesure par `scripts/consolide.py`, péremption jugée contre la forge et le code, un tableau par catégorie, rien d'écrit sans validation). À lancer une fois par mois : un passage ordinaire n'élague jamais.
 
 ## Ce qu'il faut sauvegarder
 
@@ -32,6 +36,8 @@ Deux règles gouvernent tout le reste. **Non-déductible** décide de ce qu'on �
 - Les plans et todos de session
 
 Test pour chaque insight : *« une future session pourrait-elle le déduire du dépôt ? »* Si oui → ne pas sauvegarder.
+
+**« Rien à sauver » est le résultat courant, pas un échec** : le dire en une ligne et n'écrire aucun fichier. Au plus **trois écritures par passage**, une mise à jour comptant comme une écriture, et la mise à jour d'un fichier existant passe avant toute création : la mémoire n'élague jamais seule, chaque fiche en trop dégrade le rappel de toutes les autres.
 
 ## La règle anti-pourrissement : le mécanisme, pas l'instantané
 
