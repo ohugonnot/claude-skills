@@ -21,3 +21,7 @@ __pycache__/
 # Config Claude vivante : lien depuis ~/.claude/settings.json, contient le contexte
 # du poste (orga, domaines, chemins). Le template public est settings.example.json.
 config/settings.json
+
+# Banc senior-review : cas tirés de code privé et traces de run (contiennent ce code)
+plugins/*/evals/private/
+plugins/*/evals/results/

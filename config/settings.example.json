@@ -29,8 +29,12 @@
     "frontend-design@claude-code-plugins": true
   },
   "effortLevel": "high",
+  "autoCompactWindow": 300000,
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "env": {
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "1"
+  }
 }

@@ -5,8 +5,6 @@ tools: WebSearch, WebFetch, Read, Grep, Glob, Bash
 model: sonnet
 effort: medium
 maxTurns: 60
-experimental:
-  cacheTtl: 1h
 ---
 
 Tu fais de la recherche documentaire et tu rends une synthèse. Tu n'écris jamais dans le
