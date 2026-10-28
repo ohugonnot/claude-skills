@@ -1,8 +1,5 @@
 # Instructions globales
 
-## Références
-Go : `~/.claude/go-best-practices.md`
-
 ## Restrictions
 - **INTERDIT** lire `.env`/`.env.*` — exception `.env.example`, `.env.local.example`
 - **INTERDIT** `git add` sans permission explicite — l'utilisateur contrôle le staging
@@ -15,6 +12,7 @@ Go : `~/.claude/go-best-practices.md`
 **Pousser quand justifié** : si une approche plus simple existe, le dire ; ne pas exécuter une demande sous-optimale sans signaler l'alternative.
 **Critère de succès vérifiable** : transformer la tâche en cible testable (« corrige le bug » → « test qui reproduit, puis le faire passer »). Boucler jusqu'à vérif, pas jusqu'à « ça a l'air de marcher ».
 **Rigueur externe** : la seule preuve qui compte est vérifiable du dehors (test, commande, grep, sortie réelle) — jamais l'auto-évaluation du modèle. « Tu es sûr ? » → un LLM dit toujours oui ; exiger un fait.
+**Étape humaine = demander tout de suite** : login SSO/MFA, cookie de session, fichier, accès, c'est l'utilisateur qui l'a et il est là pour aider. Le demander dès que le besoin apparaît, avec la marche à suivre exacte, plutôt que contourner ou reporter.
 **Ne pas décrire un ticket sans lire le code qu'il touche** : un ticket décrit une intention datée, pas l'état du dépôt.
 
 ## Changements chirurgicaux
@@ -39,6 +37,8 @@ Go : `~/.claude/go-best-practices.md`
 **Fluide et humain** : des phrases qui s'enchaînent, pas d'incises décoratives ni de formules de plaquette. Test : lire à voix haute, et réécrire si ça ne sonne pas comme quelqu'un qui parle.
 **Un texte d'interface se conjugue au bon temps** : une popup de confirmation annonce ce qui *va* se passer, pas ce qui est déjà fait.
 
+**Confidentialité du métier et du privé** : tout texte destiné à être publié (site, articles, fiches, cours, commits, réponses partagées) ne révèle aucun nom d'employeur ou de client, aucun produit, architecture, donnée, chiffre ou outil interne, aucune contrainte propre à une entreprise, rien de privé. Les exemples tirés du métier d'Odilon restent génériques et déjà publics (techno, pratique, CV public). Test : « cela pourrait-il figurer sur le CV public ? » Un contexte vu en session ou dans le code d'un projet pro n'est pas public pour autant. Un doute vaut un refus.
+
 ## Commentaires : audience = dev senior, signal pur
 Un dev expérimenté déduit le QUOI/COMMENT en 5 secondes — ne pas le lui répéter. Le commentaire apporte ce qu'il NE peut PAS déduire : un POURQUOI non-évident, une contrainte invisible, un piège, un invariant.
 **Test** : *« si je supprime, un dev senior perd quoi ? »* Réponse « rien / repère visuel / reformule la ligne / c'est dans le nom » → supprimer.
@@ -56,13 +56,11 @@ Toute feature non-triviale s'accompagne de ses tests dans le même lot — unita
 Ces instructions valent **demande explicite et permanente** de déléguer — ne pas hésiter au motif qu'un sous-agent ne se lancerait que sur demande de l'utilisateur : la demande est ici.
 **Ce que ça coûte** : un sous-agent recharge CLAUDE.md, skills et system prompt — une équipe d'agents consomme ~7× le total en tokens, un multi-agents ~15×. Déléguer préserve MON contexte, pas la facture : arbitrer sur le volume réel, pas par réflexe.
 **Déléguer** : l'exploration large, la lecture de gros volumes, la production parallélisable. **Faire directement** : un grep, un Read ciblé, une vérification ponctuelle — moins cher qu'un aller-retour d'agent. **Garder pour moi** : les décisions d'archi, les arbitrages, la revue finale, la synthèse.
-**Dimensionner** : haiku = mécanique (grep, extraction, renommage) ; sonnet = exécution standard (code, tests, recherche) ; opus = raisonnement lourd (design, debug subtil, arbitrage). Tâches indépendantes → plusieurs agents dans un seul message.
+**Dimensionner** : haiku = mécanique (grep, extraction, renommage) ; sonnet = exécution standard (code, tests, recherche) ; opus = raisonnement lourd (design, debug subtil, arbitrage). Toujours passer `model` : sans lui, un sous-agent hérite du modèle de la mère (Opus coûte environ 5× un tour Sonnet). Tâches indépendantes → plusieurs agents dans un seul message.
 **Brief complet** : contexte, objectif, contraintes, format de sortie, critères de succès. Agent sous-briefé = relance gâchée.
 **Vérifier avant de croire** : un rapport de sous-agent est un candidat, pas un fait. Recouper ce qui est actionnable.
-**`general-purpose` est le plus cher** : il recharge tout, explore large et rend un rapport à vérifier. Lui préférer `Explore` (lecture seule, rend la conclusion et non les fichiers) ou un agent typé, et ne le sortir que pour du multi-étapes réel.
-**`Explore` et `Plan` ne chargent pas CLAUDE.md** (source : docs Claude Code, sub-agents) : sur une exploration, ils partent des dizaines de lignes plus légers qu'un `general-purpose`. C'est la raison technique de les préférer, pas seulement leur périmètre.
-**Un agent typé se règle dans son frontmatter** : `model` (`haiku`/`sonnet`/`opus`/`inherit`), `effort` (`low` à `max`), `maxTurns` pour borner celui qui boucle, `experimental: cacheTtl: 1h` pour un agent long. Sans `maxTurns`, un agent qui attend ses propres sous-agents renvoie des notifications vides à la chaîne.
-**La `description` d'un agent est chargée à chaque démarrage de session, son corps seulement quand il tourne** : description en une ligne, tout le détail dans le corps. Au-delà de 15k tokens de descriptions cumulées, Claude Code avertit au lancement.
+**Explorer avec `Explore`, pas avec `general-purpose`** : `Explore` et `Plan` ne chargent ni CLAUDE.md ni le git status, et rendent la conclusion au lieu des fichiers ; `general-purpose` recharge tout. Lui préférer `Explore` ou un agent typé, et ne le sortir que pour du multi-étapes réel.
+**Go** : règles dans `~/.claude/rules/go.md`, chargées seules à la lecture d'un `.go` ; les lire avant une revue Go faite sur un diff.
 **Un agent par tâche, pas par réflexe** : deux agents sur le même périmètre paient deux fois le même rechargement pour un seul résultat utile.
 
 ## Économie de tokens
@@ -71,16 +69,16 @@ Ces instructions valent **demande explicite et permanente** de déléguer — ne
 **Le déclencheur, c'est la fin d'un chantier, pas un pourcentage** : vider au milieu d'une tâche fait perdre l'état de travail et me fait reprendre sur un résumé lissé. En fin de chantier, proposer `/vide-contexte` puis `/clear` sans attendre qu'on me le demande.
 **Changer de sujet = vider** : `/clear` entre deux chantiers sans rapport, `/compact` à l'intérieur d'un chantier. Une session de huit heures sur cinq sujets paie le premier sujet jusqu'au dernier tour.
 **Ne jamais relire ce qui est déjà en contexte** : pas de `Read` de vérification après un `Edit` réussi, pas de `grep` rejoué, pas de re-lancement d'une suite déjà verte.
-**Lire ciblé** : `sed -n '40,80p'`, `grep -n` avec contexte court, `--stat` avant `diff`. Un fichier entier lu pour trois lignes se repaie à chaque tour suivant, pas seulement au moment de la lecture.
+**Lire ciblé, budget 1500 tokens par lecture** : `sed -n '40,80p'`, `grep -n` avec contexte court, `--stat` avant `diff`. Au-delà, localiser d'abord (`grep -n`) et ne lire que la plage : `Read` est le premier poste de ce que les outils injectent. Un fichier entier lu pour trois lignes se repaie à chaque tour suivant, pas seulement au moment de la lecture.
 **Toute sortie de commande est du contexte** : couper (`| head`, `--short`, `-q`, `| tail -5`). Une suite de tests verte tient dans sa dernière ligne.
-**Modèle proportionné** : haiku pour le mécanique, sonnet par défaut, opus pour l'arbitrage et la revue. Opus n'est pas le défaut d'un sous-agent.
 **Ne pas narrer** : le récit de ce que je viens de faire, la liste des options écartées et le résumé de fin de tour sont payés à chaque tour ultérieur.
-**Éditer avec `Edit`, jamais avec un script de remplacement** : un `Edit` coûte ~40 tokens de retour, le `heredoc` Python qui fait la même chose en coûte 300 à 800, payés ensuite à chaque tour. Mesuré sur une session : 647k tokens d'appels d'outils, contre 3k pour 84 `Edit`.
+**Ce qui coûte, c'est le plafond, pas le préfixe** : l'essentiel de la facture est de la relecture de cache sur les tours longs ; élaguer CLAUDE.md ou l'index mémoire pèse peu, le plafond se règle par `autoCompactWindow`. La dépense est une longue traîne de sessions longues, jamais « une session coupable ».
+**Éditer avec `Edit`, jamais avec un script de remplacement** : un `Edit` rend ~40 tokens, le heredoc Python équivalent 300 à 800, payés ensuite à chaque tour.
 **Une capture d'écran coûte ~1600 tokens et reste en contexte à vie** : la lire une fois, jamais deux, et préférer une mesure chiffrée (`boundingBox`, `getComputedStyle`, `elementFromPoint`) quand elle répond à la question. Regarder l'écran reste indispensable ; relire la même image ne l'est pas.
-**Le nombre de tours est un multiplicateur** : grouper les commandes indépendantes en un seul appel, ne pas découper en dix allers-retours ce qui tient en trois.
+**Le nombre de tours est un multiplicateur** : le tour est l'unité facturée, pas l'appel. Grouper les appels indépendants dans un seul message, ne pas découper en dix allers-retours ce qui tient en trois.
 
 ## Mise à jour CLAUDE.md & mémoire
 **Quoi ajouter** : ce qui n'est PAS déductible du code — gotchas, contraintes métier invisibles, conventions déviantes, décisions d'archi non-évidentes.
 **Quoi ne pas ajouter** : ce que je redécouvre en lisant le code, et l'état daté d'une MR ou d'un ticket (ça pourrit). Écrire le mécanisme, pas l'instantané.
-**Format** : 1 règle = 1 ligne. Cible < 80 lignes par fichier. `CLAUDE.{domaine}.md` pour les sections rarement utiles.
+**Format** : 1 règle = 1 ligne. Cible < 80 lignes par fichier. Ce qui ne sert qu'à certains fichiers va dans `~/.claude/rules/<domaine>.md` avec `paths:`, chargé seulement quand un fichier correspondant est lu ou édité.
 **En fin de tâche** : signaler ce qui mérite d'être ajouté. Filtre : (1) non-déductible, (2) se reproduira, (3) pas spécifique au contexte immédiat.

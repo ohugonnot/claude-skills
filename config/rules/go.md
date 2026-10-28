@@ -1,6 +1,10 @@
-# Go Best Practices
+---
+paths:
+  - "**/*.go"
+  - "**/go.mod"
+---
 
-> Référence — consulter lors de reviews ou en cas de doute.
+# Go Best Practices
 
 ## Simplicité d'abord
 - Fonctions courtes (20-30 lignes max), 2-3 params max, sinon struct

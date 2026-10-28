@@ -77,7 +77,7 @@ git clone https://github.com/ohugonnot/claude-skills.git ~/claude-skills
 bash ~/claude-skills/bootstrap.sh
 ```
 
-`bootstrap.sh` symlinke la config et les skills depuis le repo (source de vérité unique, zéro dérive) et copie les templates de mémoire dans `~/.claude/memory/`. Idempotent, il sauvegarde tout fichier réel avant de le remplacer. Détail dans [`config/`](config/).
+`bootstrap.sh` symlinke la config et les skills depuis le repo (source de vérité unique, zéro dérive) et copie le template de profil dans `~/.claude/rules/profil.md`. Idempotent, il sauvegarde tout fichier réel avant de le remplacer. Détail dans [`config/`](config/).
 
 Restent locaux et jamais publiés : la mémoire perso, l'allowlist de permissions, l'auth (gh, MCP). Les fichiers `*.example` montrent quoi remplir.
 

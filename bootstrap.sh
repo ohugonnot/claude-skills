@@ -3,9 +3,9 @@
 #   git clone https://github.com/ohugonnot/claude-skills ~/claude-skills
 #   bash ~/claude-skills/bootstrap.sh
 #
-# Modèle dotfiles : la config (CLAUDE.md, go-best-practices, settings, statusline)
+# Modèle dotfiles : la config (CLAUDE.md, rules, settings, statusline)
 # et les skills sont SYMLINKÉS depuis ce repo → source de vérité unique, zéro dérive.
-# La mémoire perso est COPIÉE depuis les templates (reste locale, jamais publiée).
+# Le profil perso est COPIÉ depuis un template (reste local, jamais publié).
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,12 +26,17 @@ link() {  # link <src> <dest> ; sauvegarde un fichier réel existant avant de re
   ln -sfn "$src" "$dest"
 }
 
-mkdir -p "$CLAUDE_HOME/hooks" "$CLAUDE_HOME/memory" "$CLAUDE_HOME/skills" "$CLAUDE_HOME/agents"
+# rules/ est un vrai dossier : il mêle les règles du repo et le profil local, qui
+# atterrirait dans le repo public si le dossier entier était un symlink.
+[ -L "$CLAUDE_HOME/rules" ] && rm "$CLAUDE_HOME/rules"
+mkdir -p "$CLAUDE_HOME/hooks" "$CLAUDE_HOME/rules" "$CLAUDE_HOME/skills" "$CLAUDE_HOME/agents"
 
 # 1. Config symlinkée (source = repo) ------------------------------------------
-say "Config (CLAUDE.md, go-best-practices, settings, statusline)"
+say "Config (CLAUDE.md, rules, settings, statusline)"
 link "$REPO_DIR/config/CLAUDE.md"            "$CLAUDE_HOME/CLAUDE.md"
-link "$REPO_DIR/config/go-best-practices.md" "$CLAUDE_HOME/go-best-practices.md"
+for rule in "$REPO_DIR"/config/rules/*.md; do
+  link "$rule" "$CLAUDE_HOME/rules/$(basename "$rule")"
+done
 link "$REPO_DIR/config/settings.json"        "$CLAUDE_HOME/settings.json"
 link "$REPO_DIR/config/hooks/statusline.sh"  "$CLAUDE_HOME/hooks/statusline.sh"
 link "$REPO_DIR/config/hooks/guard.sh"       "$CLAUDE_HOME/hooks/guard.sh"
@@ -56,23 +61,20 @@ for plugdir in "$REPO_DIR"/plugins/*/; do
 done
 ok "skills liés : $(ls "$REPO_DIR"/plugins | tr '\n' ' ')"
 
-# 3. Mémoire : copie des templates si absente (jamais d'écrasement) ------------
-say "Mémoire (templates → copie locale si absente)"
-[ -e "$CLAUDE_HOME/memory/MEMORY.md" ] || cp "$REPO_DIR/config/memory/MEMORY.example.md" "$CLAUDE_HOME/memory/MEMORY.md"
-[ -e "$CLAUDE_HOME/memory/feedback_simplicity.md" ] || cp "$REPO_DIR/config/memory/feedback_simplicity.md" "$CLAUDE_HOME/memory/feedback_simplicity.md"
-for t in user_profile user_env; do
-  if [ ! -e "$CLAUDE_HOME/memory/$t.md" ]; then
-    cp "$REPO_DIR/config/memory/$t.example.md" "$CLAUDE_HOME/memory/$t.md"
-    warn "$t.md créé depuis le template — à remplir"
-  fi
-done
-ok "mémoire en place"
+# 3. Profil local : règle sans `paths`, donc chargée à chaque session ----------
+# ~/.claude/memory/ n'est lu par rien : la mémoire auto vit dans ~/.claude/projects/.
+say "Profil (template → ~/.claude/rules/profil.md si absent)"
+if [ ! -e "$CLAUDE_HOME/rules/profil.md" ]; then
+  cp "$REPO_DIR/config/profil.example.md" "$CLAUDE_HOME/rules/profil.md"
+  warn "profil.md créé depuis le template, à remplir"
+fi
+ok "profil en place"
 
 echo
 ok "Bootstrap terminé."
 printf '\n%s\n' \
 "À FAIRE À LA MAIN (secrets / état local, non automatisable) :" \
-"  - Remplir ~/.claude/memory/user_profile.md et user_env.md (templates posés)." \
+"  - Remplir ~/.claude/rules/profil.md (template posé)." \
 "  - Permissions : cp config/settings.local.example.json ~/.claude/settings.local.json puis adapter." \
 "  - Auth : gh auth login ; (re)connecter les serveurs MCP." \
 "  - Les CLAUDE.md de projet voyagent avec leurs repos git."
