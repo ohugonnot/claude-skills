@@ -31,6 +31,7 @@
 **Un nom dit la CHOSE, pas sa mécanique** : `results`, `res`, `data`, `tmp`, `val`, `list`, `obj` ne nomment rien. Nommer ce que la variable contient dans le domaine (`sourceCart`, `itemsToCopy`, `row`). Test : lire la fonction à voix haute doit raconter ce qu'elle fait, sans aller voir les déclarations.
 **Deux variables de même type dans une portée** se distinguent par leur rôle métier (`newXUUID` / `sourceXUUID`), jamais par un suffixe numérique ni par l'ordre des paramètres. Si l'inversion est plausible, typer l'un des deux pour que le compilateur la refuse.
 **Le nom porte l'intention, le commentaire porte le pourquoi** : si un commentaire explique ce que CONTIENT une variable, c'est le nom qui manque.
+**Ordre vertical = règle de descente** : l'appelant au-dessus de ses appelés, dans l'ordre où il les appelle, l'exporté avant le privé qu'il utilise. L'ordre de compilation ne compte pas. Ne jamais déplacer du code existant pour ça, sauf dans un chantier qui le réécrit déjà.
 
 ## Écriture pour des humains : UI, commits, MR, docs, réponses
 **Jamais de tiret cadratin (—)** : c'est la signature visuelle d'un texte généré. Couper la phrase, ou employer deux-points, parenthèses, virgules.
