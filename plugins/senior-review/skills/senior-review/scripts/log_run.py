@@ -27,7 +27,8 @@ Usage:
     python3 log_run.py log --tier standard --loc 227 --raised 18 --confirmed 14 \\
         --dropped-gate 4 --refuted-panel 0 --agents 4 --tokens 544918 \\
         --verdict request-changes [--base origin/main] [--loop] \\
-        [--fixed 9 --rejected 3 --deferred 1] [--model opus]
+        [--fixed 9 --rejected 3 --deferred 1] [--model opus] \\
+        [--transcript auto --since 2026-10-29T14:00:00Z]
     python3 log_run.py outcome --fixed 9 --rejected 3 [--deferred 1] [--round 2]
     python3 log_run.py check
 """
@@ -52,7 +53,9 @@ COUNTERS = ("loc", "raised", "confirmed", "dropped_gate", "refuted_panel",
             "settled", "out_of_scope", "agents")
 # What became of the confirmed findings; each is null while unknown.
 OUTCOMES = ("fixed", "rejected", "deferred")
-# Byte caps come from SKILL.md step 7; candidates has none, its size is shown anyway.
+# Orchestrator cost read from the session transcript; null when it cannot be read.
+ORCH_FIELDS = ("orch_turns", "orch_output", "orch_context")
+# Byte caps come from reference/memory.md; candidates has none, its size is shown anyway.
 MEMORIES = (("senior-review-lessons.md", 10240),
             ("senior-review-misses.md", 8192),
             ("senior-review-lessons-candidates.md", None))
@@ -64,6 +67,58 @@ def git(repo, *args):
     if proc.returncode != 0:
         return None
     return proc.stdout.decode("utf-8", "replace").strip()
+
+
+def transcript_path(spec):
+    """`auto` is this session's file; the project folder name is the cwd with every
+    non-alphanumeric character turned into '-'."""
+    if spec != "auto":
+        return os.path.expanduser(spec)
+    session = os.environ.get("CLAUDE_CODE_SESSION_ID")
+    if not session:
+        return None
+    folder = re.sub(r"[^A-Za-z0-9]", "-", os.getcwd())
+    return os.path.expanduser(os.path.join("~/.claude/projects", folder, session + ".jsonl"))
+
+
+def parse_instant(text):
+    instant = datetime.datetime.fromisoformat(text.replace("Z", "+00:00"))
+    if instant.tzinfo is None:
+        instant = instant.replace(tzinfo=datetime.timezone.utc)
+    return instant
+
+
+def orchestrator_usage(spec, since):
+    """Sum the assistant turns of the session transcript. One API message is written
+    on several lines (one per content block) with the same usage: count it once."""
+    empty = dict.fromkeys(ORCH_FIELDS)
+    path = transcript_path(spec) if spec else None
+    if not path:
+        return empty
+    messages = {}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for number, line in enumerate(fh):
+                try:
+                    entry = json.loads(line)
+                    if entry.get("type") != "assistant":
+                        continue
+                    if since and parse_instant(entry["timestamp"]) < since:
+                        continue
+                    message = entry["message"]
+                    usage = message["usage"]
+                    key = message.get("id") or f"line-{number}"
+                    messages[key] = (usage.get("output_tokens") or 0,
+                                     sum(usage.get(name) or 0 for name in (
+                                         "input_tokens", "cache_creation_input_tokens",
+                                         "cache_read_input_tokens")))
+                except (ValueError, KeyError, TypeError, AttributeError):
+                    continue
+    except OSError:
+        return empty
+    return {"orch_turns": len(messages),
+            "orch_output": sum(output for output, _ in messages.values()),
+            "orch_context": sum(context for _, context in messages.values())}
 
 
 def project_name(repo):
@@ -190,6 +245,10 @@ def validate(row):
             problems.append(f"{key} must be an integer >= 0")
     if row.get("tokens") is not None and not isinstance(row.get("tokens"), int):
         problems.append("tokens must be an integer or null")
+    for key in ORCH_FIELDS:
+        value = row.get(key)
+        if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value < 0):
+            problems.append(f"{key} must be an integer >= 0 or null")
     if not row.get("project") or not row.get("branch"):
         problems.append("project and branch are required")
     if not problems and row["raised"] != row["confirmed"] + row["dropped_gate"] + row["refuted_panel"]:
@@ -249,6 +308,7 @@ def append_run(args):
         "fixed": args.fixed, "rejected": args.rejected, "deferred": args.deferred,
         "model": args.model or None,
         "skill_version": skill_version(),
+        **orchestrator_usage(args.transcript, args.since),
     }
     problems = validate(row)
     if not problems:
@@ -388,6 +448,10 @@ def main(argv=None):
         log.add_argument(f"--{outcome_key}", type=int)
     # Free text on purpose: model names change faster than any enum.
     log.add_argument("--model", type=lambda name: name.strip().lower())
+    log.add_argument("--transcript", help="session transcript path, or `auto`; sums the "
+                     "orchestrator turns into orch_* (null when unreadable)")
+    log.add_argument("--since", type=parse_instant, help="ISO instant; earlier transcript "
+                     "lines are ignored (start of this review)")
 
     outcome = sub.add_parser("outcome")
     target_args(outcome)
