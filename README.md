@@ -21,6 +21,7 @@ Skills personnels pour [Claude Code](https://claude.com/claude-code) — une fam
 | 2 | [`feature-loop`](plugins/feature-loop) | **Implémenter.** Boucle autonome quality-gated : writer ≠ test-writer ≠ reviewer aveugle, gate objectif (build/lint/tests + mutation check) avant toute revue LLM, smoke test live obligatoire. `--issue=N` consomme directement l'issue produite par issue-mr. | issue/spec → code livré + rapport |
 | 3 | [`senior-review`](plugins/senior-review) | **Relire.** Revue niveau senior en seconde paire d'yeux : reviewers aveugles par dimension (correctness/sécurité/design/tests), findings vérifiés par receipts, panel adversarial sur les critiques. Tiers `--quick` / standard / `--deep`. | diff/branche/PR → verdict + findings prouvés |
 | 4 | [`branch-wrap-up`](plugins/branch-wrap-up) | **Clôturer.** Review déléguée à senior-review, proposition de commit conventionnel, suggestion push + MR/PR, capture de connaissances (CLAUDE.md/mémoire). Propose-only : l'utilisateur valide chaque action git. | branche finie → commitée, poussée, documentée |
+| — | [`ticket`](plugins/ticket) | **Livrer un ticket.** Le chemin du milieu entre coder à la main et l'équipe d'agents de feature-loop : lit le ticket et le code qu'il touche, plan par un agent fort, test rouge au plus près du réel (e2e rejouable, captures par profil d'appareil), exécution TDD déléguée, vérification par la session principale, puis `senior-review --loop` jusqu'à un tour sans modification. | ticket → MR/PR prouvée + rétrospective |
 | — | [`vide-contexte`](plugins/vide-contexte) | **Mémoriser.** Orthogonal au pipeline : avant un `/clear`, extrait les insights non-déductibles de la conversation et les persiste en fichiers mémoire (dédup contre l'index). Une fois par mois, `consolide` fusionne les doublons et retire le périmé, avec validation. | conversation → mémoire persistante |
 | — | [`book-distill`](plugins/book-distill) | **Distiller.** Hors pipeline dev : lit un livre (PDF/EPUB) et produit une fiche de lecture markdown fidèle et pédagogique — cartographie Adler A/B/C, notes verbatim-first, distillation thématique, contrepoints, citations vérifiées mot à mot contre le texte (`check-claim.py`), boucle qualité ≥ 85/100. | livre → fiche de lecture vérifiée |
 | — | [`tech-article`](plugins/tech-article) | **Rédiger.** Hors pipeline dev : écrit un article de blog technique qui sonne humain, pas IA — story-first, tueur d'AI-slop (EN + FR), mécaniques de fluidité (vieux-neuf, mot fort en fin), coupe à l'essentiel, diagramme seulement s'il le mérite. | sujet/brouillon → article qui ne sent pas l'IA |
@@ -36,6 +37,7 @@ Les jointures sont câblées dans les skills eux-mêmes — pas besoin de les or
 - **feature-loop → branch-wrap-up** : en sortie de run, feature-loop suggère `branch-wrap-up --no-review` — sa review interne en aveugle tient lieu de passe senior-review, pas de double review. Si feature-loop a déjà commité (mode auto-commit), branch-wrap-up le détecte et saute directement au push/MR.
 - **senior-review → branch-wrap-up** : sur verdict `approve` d'un travail local, senior-review suggère `branch-wrap-up --no-review` pour la clôture.
 - **branch-wrap-up → senior-review / issue-mr** : branch-wrap-up ne review jamais lui-même, il délègue à senior-review (cible adaptée : working tree ou `--base`). Et si le travail non commité est hors-sujet ou la branche protégée, il redirige vers issue-mr (mode ISOLER) — isolation ≠ clôture.
+- **ticket → issue-mr / senior-review / branch-wrap-up** : ticket ouvre le ticket par issue-mr si on le lui demande, boucle avec `senior-review --loop` et laisse le bloc commit à `branch-wrap-up --no-review` quand le commit n'est pas autorisé. Chaque appel est conditionnel : sans le skill voisin, ticket écrit son repli.
 - **Capture mémoire sans doublons** : feature-loop écrit ses insights de run, branch-wrap-up et vide-contexte lisent l'existant avant de proposer — chaque insight n'est persisté qu'une fois.
 
 **Usage typique.** Tâche complète : `/issue-mr <description>` → `/feature-loop --issue=N` → `/branch-wrap-up --no-review`. Travail fait à la main : `/branch-wrap-up` (il déclenche senior-review tout seul). Juste une relecture : `/senior-review`. Tâche floue : `/issue-mr --analyse` d'abord.
@@ -53,7 +55,7 @@ Ce dépôt est un **marketplace Claude Code**. On l'ajoute une fois, puis on ins
 /reload-plugins
 ```
 
-Chaque skill est un plugin installable séparément (`feature-loop`, `senior-review`, `issue-mr`, `branch-wrap-up`, `book-distill`, `vide-contexte`, `tech-article`, `code-mentor`, `skill-builder`, `rediger-cir`). On peut tout prendre ou juste ce qu'on veut.
+Chaque skill est un plugin installable séparément (`feature-loop`, `senior-review`, `issue-mr`, `ticket`, `branch-wrap-up`, `book-distill`, `vide-contexte`, `tech-article`, `code-mentor`, `skill-builder`, `rediger-cir`). On peut tout prendre ou juste ce qu'on veut.
 
 ### À la main (sans le marketplace)
 
@@ -61,12 +63,12 @@ En symlink, pour rester synchronisé avec le repo :
 
 ```bash
 git clone https://github.com/ohugonnot/claude-skills.git ~/claude-skills
-for s in issue-mr feature-loop senior-review branch-wrap-up vide-contexte book-distill tech-article code-mentor skill-builder rediger-cir; do
+for s in issue-mr feature-loop senior-review ticket branch-wrap-up vide-contexte book-distill tech-article code-mentor skill-builder rediger-cir; do
   ln -s ~/claude-skills/plugins/$s/skills/$s ~/.claude/skills/$s
 done
 ```
 
-Les skills s'invoquent ensuite via `/issue-mr`, `/feature-loop`, `/senior-review`, `/branch-wrap-up`, `/vide-contexte`, `/book-distill`, `/tech-article`, `/code-mentor`, `/skill-builder`, `/rediger-cir` — ou se déclenchent automatiquement quand la demande correspond à leur description.
+Les skills s'invoquent ensuite via `/issue-mr`, `/feature-loop`, `/senior-review`, `/ticket`, `/branch-wrap-up`, `/vide-contexte`, `/book-distill`, `/tech-article`, `/code-mentor`, `/skill-builder`, `/rediger-cir` — ou se déclenchent automatiquement quand la demande correspond à leur description.
 
 ### Bootstrap d'une machine
 
