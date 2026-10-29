@@ -1,7 +1,7 @@
 {
   "name": "ticket",
   "description": "Takes a ticket from description to a reviewed, tested MR/PR: reads the ticket and the code it touches, plans with a strong-model agent, red test first closest to real use (replayable e2e, device-profile captures), delegated TDD execution, self-verification, then a /senior-review loop until a round changes nothing.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Odilon Hugonnot",
     "url": "https://www.web-developpeur.com"
