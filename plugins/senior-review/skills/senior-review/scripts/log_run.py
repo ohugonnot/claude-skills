@@ -46,6 +46,8 @@ import subprocess
 import sys
 import tempfile
 
+import fanout_cap
+
 JOURNAL = os.path.expanduser("~/.claude/skill-memory/senior-review-runs.jsonl")
 TIERS = ("quick", "standard", "deep", "confirmation")
 VERDICTS = ("approve", "approve-after-fixes", "request-changes", "needs-discussion")
@@ -289,7 +291,10 @@ def journal_lock(journal):
 
 def cmd_log(args):
     with journal_lock(args.journal):
-        return append_run(args)
+        status = append_run(args)
+    if status == 0 and os.environ.get("CLAUDE_CODE_SESSION_ID"):
+        fanout_cap.reset(os.environ["CLAUDE_CODE_SESSION_ID"])
+    return status
 
 
 def append_run(args):

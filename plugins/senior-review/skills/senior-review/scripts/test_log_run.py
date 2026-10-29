@@ -66,6 +66,21 @@ class LogRunTest(unittest.TestCase):
         self.assertFalse(row["loop"])
         self.assertIsNone(row["same_diff"])
 
+    def test_logged_round_resets_the_fanout_cap(self):
+        with mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": "sess"}), \
+                mock.patch.object(log_run.fanout_cap, "reset") as reset:
+            self.run_cmd("log", *COUNTS)
+        reset.assert_called_once_with("sess")
+
+    def test_refused_log_keeps_the_fanout_count(self):
+        counts = list(COUNTS)
+        counts[counts.index("--raised") + 1] = "9"
+        with mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": "sess"}), \
+                mock.patch.object(log_run.fanout_cap, "reset") as reset:
+            code, _, _ = self.run_cmd("log", *counts)
+        self.assertNotEqual(code, 0)
+        reset.assert_not_called()
+
     def test_broken_invariant_writes_nothing(self):
         counts = list(COUNTS)
         counts[counts.index("--confirmed") + 1] = "3"

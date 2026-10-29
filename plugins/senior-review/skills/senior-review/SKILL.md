@@ -7,10 +7,10 @@ argument-hint: "[learn | path | --pr N | --base ref | --staged] [--quick|--deep]
 
 # Senior Review
 
-**skill_version : 1.28.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
+**skill_version : 1.29.0** (historique : `CHANGELOG.md`). Revue de code de niveau senior, conçue à partir de l'état de l'art académique (LLM-as-judge, vérification, mutation) et des meilleurs outils de revue IA (CodeRabbit, Greptile, Cursor BugBot, GitHub Copilot agentic, Qodo, Snyk).
 
 **Fichiers annexes, chargés à la demande** :
-- `scripts/mutate.py` : harnais de mutation (Étape 4) ; `scripts/log_run.py` : journal des runs (Étapes 0 et 7) ; `scripts/tree_guard.py` : garde de l'arbre (Étape 3)
+- `scripts/mutate.py` : harnais de mutation (Étape 4) ; `scripts/log_run.py` : journal des runs (Étapes 0 et 7) ; `scripts/tree_guard.py` : garde de l'arbre (Étape 3) ; `scripts/fanout_cap.py` : hook du plafond de fan-out (`hooks/hooks.json` du plugin)
 - `../../agents/blind-reviewer.md` : l'agent relecteur sans outil d'écriture (Étape 3)
 - `reference/dimensions/_common.md` et `reference/dimensions/<dim>.md` : brief commun et rubrique, lus par le relecteur (Étape 3)
 - `reference/loop.md` : mode `--loop` actif
@@ -103,7 +103,7 @@ La recherche converge sur **un seul vrai critère de qualité : le rapport signa
 
 **Mode boucle** — `--loop`, ou toute formulation de l'utilisateur qui demande une boucle (« en boucle », « jusqu'au vert », « recommence jusqu'à ce qu'il n'y ait plus rien ») : ce n'est pas une intensité, c'est un **contrat de terminaison**. Voir Étape 6.5. En une phrase : on ne s'arrête pas sur un tour propre, on s'arrête sur un tour qui **n'a rien changé**.
 
-**Plafond de fan-out : 5 agents par tour, refuteurs et passe finale compris.** Environ un relecteur par 150 LOC non générées, plancher 2, plafond 5 ; au-delà, un tour de plus. Compter les agents AVANT de lancer le message de fan-out. Mesure : `reference/budget.md`.
+**Plafond de fan-out : 5 agents par tour, refuteurs et passe finale compris.** Environ un relecteur par 150 LOC non générées, plancher 2, plafond 5 ; au-delà, un tour de plus. Compter les agents AVANT de lancer le message de fan-out : le hook `scripts/fanout_cap.py` (PreToolUse) refuse le 6e `blind-reviewer` du tour, et `log_run.py log` remet le compteur à zéro. Un refus = finir le tour et en ouvrir un autre. Mesure : `reference/budget.md`.
 
 **Autres** : `--ticket <id>` (force le rattachement spec), `--security` (force la passe sécu profonde même en quick/standard), `--adversarial` (force la dimension crash/robustesse quel que soit le routage ; c'est aussi ce que veut dire « essaie de le faire tomber »), `--fix` (applique les fixes high-confidence après confirmation), `--comment` (poste le rapport/inline sur la PR après confirmation), `--no-tools` (si lint/tests indisponibles).
 
@@ -304,4 +304,4 @@ Learnings repo, lessons, misses et ledger : règles, formats et plafonds dans `r
 Détail complet (académique + outils + pratiques, avec ce que chaque source fonde) : `reference/references.md`.
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.28.0**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.29.0**.
