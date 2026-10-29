@@ -1,0 +1,3 @@
+# CHANGELOG — ticket
+
+- **1.0.0** (2026-10-29) : Version publique initiale. Un chemin du milieu entre « je code moi-même » et l'équipe d'agents de `feature-loop` : lire le ticket et le code qu'il touche, plan par un agent fort, test rouge au plus près du réel (e2e dans le harnais du projet, captures mobile/tablette/desktop par profil d'appareil), exécution TDD déléguée, vérification par la session principale (gate, mutation inverse, application relancée), `/senior-review --loop` jusqu'à un tour sans modification, puis une rétrospective de 3 lignes au plus que l'utilisateur valide. Les skills voisins (`issue-mr`, `senior-review`, `branch-wrap-up`, `feature-loop` pour son script de sonde) sont utilisés s'ils sont installés, avec un repli écrit sinon.

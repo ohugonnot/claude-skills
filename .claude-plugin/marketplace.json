@@ -75,6 +75,28 @@
       "category": "Workflow"
     },
     {
+      "name": "ticket",
+      "displayName": "Ticket",
+      "source": "./plugins/ticket",
+      "description": "Takes a ticket from description to a reviewed, tested MR/PR: reads the ticket and the code it touches, plans with a strong-model agent, red test first closest to real use (replayable e2e, device-profile captures), delegated TDD execution, self-verification, then a /senior-review loop until a round changes nothing.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Odilon Hugonnot",
+        "url": "https://www.web-developpeur.com"
+      },
+      "homepage": "https://github.com/ohugonnot/claude-skills/tree/main/plugins/ticket",
+      "repository": "https://github.com/ohugonnot/claude-skills",
+      "keywords": [
+        "ticket",
+        "tdd",
+        "e2e",
+        "playwright",
+        "code-review",
+        "workflow"
+      ],
+      "category": "Workflow"
+    },
+    {
       "name": "branch-wrap-up",
       "displayName": "Branch Wrap-up",
       "source": "./plugins/branch-wrap-up",
