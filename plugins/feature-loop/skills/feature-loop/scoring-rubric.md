@@ -205,7 +205,7 @@ Vérifier sur screenshots — estimer le ratio à l'œil sur les textes principa
 ### Responsive
 | Score | Critères |
 |---|---|
-| 10 | Parfait sur mobile (375px), tablet (768px), desktop (1440px+), pas de scroll horizontal, breakpoints justifiés, touch targets ≥ 44px |
+| 10 | Parfait sur mobile (390px), tablet (820px), desktop (1280px+) et autour de chaque breakpoint, pas de scroll horizontal, breakpoints justifiés, touch targets ≥ 44px |
 | 8 | Fonctionne sur tous viewports, quelques détails à mobile (texte un peu serré, bouton un peu petit) |
 | 6 | Un viewport moins bien traité |
 | 4 | Casse sur mobile (overflow, illisible) |

@@ -8,9 +8,9 @@ argument-hint: "[description | status | learn] [--issue=N] [--fast|--paranoid|--
 
 # Feature Loop
 
-**skill_version : 8.17.0** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
+**skill_version : 8.17.1** (historique : `CHANGELOG.md`). Implémentation itérative auto-notée d'une feature jusqu'à convergence sur un radar de qualité.
 
-**Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `scripts/log_run.py` (runs-log, cf. 5.7), `lessons.md` (instantané publié, promu à la main — la mémoire de travail est hors dépôt dans `~/.claude/skill-memory/feature-loop-lessons.md`, chargée par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
+**Fichiers du skill (progressive disclosure)** : `scoring-rubric.md` (chargé par le reviewer), `scripts/log_run.py` (runs-log, cf. 5.7), `scripts/probe-viewports.mjs` (rapport visuel multi-appareils, cf. 4.5), `lessons.md` (instantané publié, promu à la main — la mémoire de travail est hors dépôt dans `~/.claude/skill-memory/feature-loop-lessons.md`, chargée par la mère à l'init), `reference/subcommands.md` (lu au dispatch `status`/`learn`), `reference/report-template.md` (lu au §5.4), `reference/git-recipes.md` (recettes shell snapshot/restore/conflicts, lues aux §4.2/5.0/5.1bis), `reference/log-example.md` (trace de run illustrative), `reference/limitations.md` (lu si contexte concerné), `reference/references.md` (sources académiques, à la demande), `reference/stack-*.md` (packs spécialistes — symfony, golang, htmx, javascript, cqrs-es — chargés à l'Étape 2bis selon la stack détectée, combinables).
 
 **Architecture** (patterns officiels Anthropic, *Building Effective Agents*) :
 - **Orchestrator-workers** : une **mère** (Opus, haute réflexion) estime, décompose, délègue à des sous-agents spécialisés, puis synthétise. Elle reste le cerveau ; les workers sont les bras.
@@ -504,7 +504,7 @@ npx eslint --config <config> --no-eslintrc --rulesdir ... --rule '...' <files>
 
 Stocker counts par catégorie : `a11y_errors`, `security_warnings`, `hooks_errors`, etc. Passer ces résultats au reviewer en 4.6.
 
-Si scope front + tout pass : capturer screenshots Playwright multi-viewport (375/768/1440) pour la review visuelle.
+Si scope front + tout pass : captures Playwright aux tailles 390×844, 820×1180 et 1280×900 pour la review visuelle. Le mobile passe par un **profil d'appareil** (`devices["iPhone 15"]` : tactile, user-agent, densité), jamais par un simple redimensionnement ; un écran qui vise l'iPhone tourne aussi en **WebKit** (un `calc-size()` passe dans Chromium, pas dans WebKit). Le constat se lit dans le **rapport JSON d'un script** Playwright : écouteurs console, `pageerror` et réponses en erreur posés **avant** `goto`, débordement mesuré contre `screen.width` (Chromium émulé élargit `innerWidth` sur une page qui déborde). Ce que WebKit sous Linux ne montre pas d'iOS (barre d'adresse et `100vh`, `safe-area-inset`, zoom des champs) est déclaré non vérifié dans le rapport. Les trois tailles fixes ne suffisent pas : lire le CSS de l'écran et ajouter une largeur de part et d'autre de chaque breakpoint, cliquer chaque contrôle nouveau `pageerror` à l'écoute, relever les cibles tactiles sous 44 px (un script improvisé par Claude, Chromium seul, a manqué un défaut sur deux). Un clic qui expire seulement en Chromium iPhone signale une page qui déborde, pas un test instable. Le rapport n'affirme une absence que si son compteur existe et vaut 0. Ce script existe déjà, ne pas le réécrire : `node <skill>/scripts/probe-viewports.mjs <url> --widths <breakpoints±1> --click <sélecteur>` lancé depuis le projet (il y prend son Playwright), une ligne par moteur et taille, le JSON et les captures dans le dossier qu'il imprime. `--storage-state` pour une page connectée.
 
 #### 4.5b — RED-CHECK (un test critique doit pouvoir échouer)
 
@@ -882,7 +882,7 @@ Analyse les runs-logs (+ champ `anomalies` = échecs de la boucle elle-même), c
 
 - `EnterWorktree`, `ExitWorktree` (UNIQUEMENT en mode `--worktree` ; inutiles en in-place où l'on reste dans le repo via `git checkout -b`)
 - `AskUserQuestion` — tous les points d'arbitrage user de la boucle (cadrage, gate, arrêt) passent par lui ; jamais dans un workflow.
-- `mcp__playwright__browser_*` (si front — review visuelle ET smoke test LIVE §5.1b)
+- Script Playwright lancé par `Bash` (si front : review visuelle par `scripts/probe-viewports.mjs` ET smoke test LIVE §5.1b) : il rend un rapport JSON, quelques centaines de tokens contre plus de dix mille pour l'arbre d'accessibilité du MCP. `mcp__playwright__browser_*` sert à explorer une page inconnue, lancé avec `--device` pour le mobile (`browser_resize` n'émule ni le tactile ni le user-agent) ; ses snapshots s'écrivent dans `.playwright-mcp/`, à exclure des grep.
 - `Bash` avec `run_in_background: true` — pour le smoke test LIVE (§5.1b) : lancer/relancer le serveur dev et capturer ses logs sans bloquer. Relancer un serveur déjà up = tuer **par PID du listener** (`ss -ltnp | grep :<port>`), jamais `pkill -f <motif>` qui matche la commande courante (auto-kill).
 - `Agent` (natif, supporte `model: haiku|sonnet|opus|fable…` selon les modèles de la génération courante) — **socle de la séparation des rôles** : un appel `Agent` distinct par rôle (impl A, tests B, review C, devil's advocate, juges du panel), chacun en contexte vierge. La mère ne fait jamais le rôle d'un agent qu'elle a déjà joué sur la même itération. Les agents ne peuvent pas eux-mêmes spawner d'agents (la mère reste seule à déléguer).
 - `WebSearch`, `WebFetch` — recherche externe « en cas de doute » version/API/framework (cf. Principes) : doc officielle d'abord, l'oracle reste le gate objectif + red-check + smoke live.
@@ -941,4 +941,4 @@ Fondements : `reference/references.md`.
 ---
 
 ## CHANGELOG
-Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.17.0**.
+Historique complet des versions : `CHANGELOG.md` (à côté de ce fichier). Version courante : **8.17.1**.
