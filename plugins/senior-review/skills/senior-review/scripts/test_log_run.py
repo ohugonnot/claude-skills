@@ -278,6 +278,60 @@ class LogRunTest(unittest.TestCase):
         self.run_cmd("log", *COUNTS)
         self.assertEqual([row["model"] for row in self.rows()], ["opus", None])
 
+    def write_transcript(self, *entries):
+        path = os.path.join(self.tmp.name, "session.jsonl")
+        with open(path, "w") as fh:
+            for entry in entries:
+                fh.write(json.dumps(entry) + "\n")
+        return path
+
+    def assistant(self, stamp, output, fresh, created, read, message_id=None):
+        message = {"usage": {"input_tokens": fresh, "cache_creation_input_tokens": created,
+                             "cache_read_input_tokens": read, "output_tokens": output}}
+        if message_id:
+            message["id"] = message_id
+        return {"type": "assistant", "timestamp": stamp, "message": message}
+
+    def test_transcript_sums_assistant_turns_only(self):
+        path = self.write_transcript(
+            self.assistant("2026-10-29T10:00:00.000Z", 10, 1, 100, 1000),
+            {"type": "user", "timestamp": "2026-10-29T10:00:30.000Z", "message": {}},
+            self.assistant("2026-10-29T10:01:00.000Z", 20, 2, 200, 2000))
+        self.assertEqual(self.run_cmd("log", *COUNTS, "--transcript", path)[0], 0)
+        row = self.rows()[0]
+        self.assertEqual((row["orch_turns"], row["orch_output"], row["orch_context"]),
+                         (2, 30, 3303))
+
+    def test_since_excludes_earlier_turns(self):
+        path = self.write_transcript(
+            self.assistant("2026-10-29T10:00:00.000Z", 10, 1, 100, 1000),
+            {"type": "user", "timestamp": "2026-10-29T10:00:30.000Z", "message": {}},
+            self.assistant("2026-10-29T10:01:00.000Z", 20, 2, 200, 2000))
+        self.run_cmd("log", *COUNTS, "--transcript", path, "--since", "2026-10-29T10:00:45Z")
+        row = self.rows()[0]
+        self.assertEqual((row["orch_turns"], row["orch_output"], row["orch_context"]),
+                         (1, 20, 2202))
+
+    def test_message_written_on_several_lines_counts_once(self):
+        path = self.write_transcript(
+            self.assistant("2026-10-29T10:00:00.000Z", 10, 1, 100, 1000, "msg_a"),
+            self.assistant("2026-10-29T10:00:01.000Z", 10, 1, 100, 1000, "msg_a"))
+        self.run_cmd("log", *COUNTS, "--transcript", path)
+        self.assertEqual(self.rows()[0]["orch_turns"], 1)
+
+    def test_missing_transcript_gives_null_and_exit_zero(self):
+        missing = os.path.join(self.tmp.name, "absent.jsonl")
+        self.assertEqual(self.run_cmd("log", *COUNTS, "--transcript", missing)[0], 0)
+        self.assertEqual(self.run_cmd("log", *COUNTS)[0], 0)
+        for row in self.rows():
+            self.assertEqual([row[key] for key in log_run.ORCH_FIELDS], [None, None, None])
+
+    def test_auto_transcript_path_follows_cwd_and_session(self):
+        with mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": "abc"}), \
+                mock.patch.object(os, "getcwd", return_value="/home/me/.cfg/proj"):
+            path = log_run.transcript_path("auto")
+        self.assertTrue(path.endswith("/.claude/projects/-home-me--cfg-proj/abc.jsonl"))
+
     def test_check_reports_bad_lines_and_skips_legacy(self):
         os.makedirs(os.path.dirname(self.journal))
         self.run_cmd("log", *COUNTS)

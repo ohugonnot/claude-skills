@@ -28,7 +28,7 @@ import log_run
 
 LESSON_TAGS = {"spec", "correctness", "security", "design", "tests", "perf", "harness"}
 MISS_TAGS = {"bruit", "manqué", "coût"}
-# (file, byte cap, entry cap, max chars per entry). Caps come from SKILL.md step 7.
+# (file, byte cap, entry cap, max chars per entry). Caps come from reference/memory.md.
 MEMORY_RULES = {
     "lessons": ("senior-review-lessons.md", 10240, 40, 600),
     "misses": ("senior-review-misses.md", 8192, 40, 300),
