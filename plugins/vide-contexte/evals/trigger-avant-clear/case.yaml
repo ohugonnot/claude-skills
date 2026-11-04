@@ -1,0 +1,17 @@
+schema_version: "1.1"
+name: vide-contexte-trigger-avant-clear
+tags: [trigger, should-fire]
+execution:
+  prompt: "Je vais faire /clear, sauvegarde d'abord ce qu'on a appris dans cette session."
+  allowed_tools: [Skill, Read, Glob, Grep]
+  max_turns: 6
+  timeout_seconds: 300
+runs: 3
+graders:
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?vide-contexte"'
+    min: 1
+    arm: both
+expected_outcome: 'Announces the /clear and asks to save first.'

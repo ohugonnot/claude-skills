@@ -6,17 +6,33 @@ a filename-based check had reported none, because a link resolves on the target'
 `name:`, not on its filename. The mechanical part is measured here, the model judges
 staleness against the forge and the code, the user validates.
 
+Verdicts the model gives are cached per file, outside any repository (default under
+~/.claude/skill-memory/), so a monthly pass only re-judges what changed.
+
 Usage:
     python3 consolide.py [--memory-dir DIR] [--index-cap BYTES] [--file-cap BYTES]
+                         [--cache FILE] [--repo-root DIR]
+    python3 consolide.py --record FILE --verdict V --reason R [--forge-unreachable]
 """
 
 import argparse
+import datetime
+import hashlib
+import json
 import os
 import re
 import subprocess
 import sys
 
 INDEX_CAP = 15_000
+# Bump when the staleness criteria change: every cached verdict then lapses.
+CRITERIA_VERSION = 1
+VERDICT_TTL_DAYS = 90
+UNVERIFIABLE = "non vérifiable"
+BARE_REASONS = {"unchanged", "superseded"}
+DEFAULT_CACHE = "~/.claude/skill-memory/consolide-verdicts.json"
+# A path cited in backticks: at least one slash, no glob, placeholder or URL.
+CITED_PATH_RE = re.compile(r"`((?:~/|/|\./|\.\./)?[\w.@-]+(?:/[\w.@-]+)+)`")
 FILE_CAP = 8_000
 # A slug is a bare word: `[[:space:]]` in a quoted bash regex is not a link.
 LINK_RE = re.compile(r"\[\[([\w-]+)\]\]")
@@ -100,7 +116,69 @@ def index_report(files):
     return missing, orphans
 
 
-def report(memory_dir, index_cap=INDEX_CAP, file_cap=FILE_CAP):
+def cited_paths(text, repo_root):
+    """Backticked paths of the file that exist now (relative ones resolve on repo_root)."""
+    found = set()
+    for cited in CITED_PATH_RE.findall(text):
+        if os.path.exists(os.path.join(repo_root, os.path.expanduser(cited))):
+            found.add(cited)
+    return sorted(found)
+
+
+def verdict_key(text):
+    return f"{CRITERIA_VERSION}:{hashlib.sha256(text.encode('utf-8')).hexdigest()}"
+
+
+def load_cache(cache_path):
+    try:
+        with open(os.path.expanduser(cache_path), encoding="utf-8") as fh:
+            cache = json.load(fh)
+        if isinstance(cache.get("verdicts"), dict):
+            return cache
+    except (OSError, ValueError, AttributeError):
+        pass
+    return {"verdicts": {}}
+
+
+def record_verdict(cache_path, memory_dir, filename, verdict, reason, repo_root,
+                   forge_unreachable=False, now=None):
+    """Store the verdict for the file's current content. An unreachable forge never yields 'périmé'."""
+    verdict, reason = verdict.strip(), reason.strip()
+    if not verdict:
+        raise ValueError("a verdict is required")
+    if reason.strip(" .").lower() in BARE_REASONS | {""}:
+        raise ValueError("the reason must say why, 'unchanged' or 'superseded' alone is refused")
+    if forge_unreachable:
+        verdict = UNVERIFIABLE
+    with open(os.path.join(memory_dir, filename), encoding="utf-8") as fh:
+        text = fh.read()
+    cache_path = os.path.expanduser(cache_path)
+    cache = load_cache(cache_path)
+    cache["verdicts"][verdict_key(text)] = {
+        "file": filename, "verdict": verdict, "reason": reason,
+        "date": (now or datetime.date.today()).isoformat(),
+        "paths": cited_paths(text, repo_root)}
+    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+    tmp = cache_path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(cache, fh, ensure_ascii=False, indent=1)
+    os.replace(tmp, cache_path)
+
+
+def cache_status(files, cache, repo_root, now=None):
+    """Split files into (cached, to_judge). 'non vérifiable' is never served: the forge may be back."""
+    today = now or datetime.date.today()
+    cached, to_judge = [], []
+    for filename, text in sorted(files.items()):
+        entry = cache["verdicts"].get(verdict_key(text))
+        fresh = entry and entry["verdict"] != UNVERIFIABLE and \
+            (today - datetime.date.fromisoformat(entry["date"])).days <= VERDICT_TTL_DAYS and \
+            all(os.path.exists(os.path.join(repo_root, os.path.expanduser(p))) for p in entry["paths"])
+        (cached if fresh else to_judge).append(filename)
+    return cached, to_judge
+
+
+def report(memory_dir, index_cap=INDEX_CAP, file_cap=FILE_CAP, cache_path=None, repo_root=None):
     files = load(memory_dir)
     names = names_of(files)
     total = sum(len(text.encode("utf-8")) for text in files.values())
@@ -134,6 +212,11 @@ def report(memory_dir, index_cap=INDEX_CAP, file_cap=FILE_CAP):
     ]
     for title, items in sections:
         out += ["", f"## {title}", ""] + ([f"- {item}" for item in items] or ["none"])
+    if cache_path:
+        cached, to_judge = cache_status({f: t for f, t in files.items() if in_scope(f)},
+                                        load_cache(cache_path), repo_root or os.getcwd())
+        out += ["", "## Verdict cache (only the files below need judging)", "",
+                f"{len(cached)} en cache, {len(to_judge)} à juger"] + [f"- {f}" for f in to_judge]
 
     flags = []
     if index_size > index_cap:
@@ -152,12 +235,28 @@ def main(argv=None):
     parser.add_argument("--memory-dir", default=None)
     parser.add_argument("--index-cap", type=int, default=INDEX_CAP)
     parser.add_argument("--file-cap", type=int, default=FILE_CAP)
+    parser.add_argument("--cache", default=DEFAULT_CACHE)
+    parser.add_argument("--repo-root", default=None)
+    parser.add_argument("--record", metavar="FILE")
+    parser.add_argument("--verdict")
+    parser.add_argument("--reason", default="")
+    parser.add_argument("--forge-unreachable", action="store_true")
     args = parser.parse_args(argv)
     memory_dir = args.memory_dir or default_memory_dir()
     if not os.path.isdir(memory_dir):
         print(f"no memory folder at {memory_dir}")
         return 2
-    lines, flags = report(memory_dir, args.index_cap, args.file_cap)
+    repo_root = args.repo_root or os.getcwd()
+    if args.record:
+        try:
+            record_verdict(args.cache, memory_dir, args.record, args.verdict or "", args.reason,
+                           repo_root, args.forge_unreachable)
+        except (ValueError, OSError) as err:
+            print(f"refused: {err}")
+            return 2
+        print(f"recorded {args.record}")
+        return 0
+    lines, flags = report(memory_dir, args.index_cap, args.file_cap, args.cache, repo_root)
     print("\n".join(lines))
     print("\n## To decide\n")
     print("\n".join(f"- {flag}" for flag in flags) or "Nothing crosses a threshold.")

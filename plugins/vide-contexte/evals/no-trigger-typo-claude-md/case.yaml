@@ -1,0 +1,18 @@
+schema_version: "1.1"
+name: vide-contexte-no-trigger-typo-claude-md
+tags: [trigger, should-not-fire]
+execution:
+  prompt: "Corrige la faute de frappe dans CLAUDE.md, ligne 12."
+  allowed_tools: [Skill, Read, Glob, Grep]
+  max_turns: 6
+  timeout_seconds: 300
+runs: 3
+graders:
+  - type: tool_used
+    name: skill-not-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?vide-contexte"'
+    min: 0
+    max: 0
+    arm: both
+expected_outcome: 'Editing a project instruction file is not a memory capture.'

@@ -4,6 +4,8 @@ Déclenchée par `consolide` en premier argument, ou par « consolide la mémoir
 
 ## 1. Mesurer
 `python3 <skill>/scripts/consolide.py` imprime le corpus face à ses plafonds, puis une liste **To decide**. Il couvre ce qui est mécanique : liens morts, liens qui ne se résolvent que par nom de fichier (un lien se résout sur le `name:` de la cible, jamais sur son fichier ; un contrôle par fichier a déjà rendu « 0 lien mort » sur un dossier qui comptait 5 liens morts et 15 liens par nom de fichier), lignes d'index orphelines, fiches sans `name:`, fiches de plus de 8 Ko, fiches à titres datés ou numérotés (« Passe 5 », « REPRISE »), et les références `!N`/`#N` à vérifier. Ne recompter aucun chiffre à la main : une métrique qui manque s'ajoute au script, avec son test.
+Il tient aussi un cache de verdicts hors dépôt (`~/.claude/skill-memory/`, clé = hash de la fiche + version des critères, 90 jours, périmé dès qu'un chemin cité disparaît) : ne juger que les fiches de la section « Verdict cache », et noter chaque verdict par `--record <fiche> --verdict <v> --reason "<motif autonome>"` (motif vide, « unchanged » ou « superseded » seuls : refusé).
+Forge injoignable : `--forge-unreachable` enregistre « non vérifiable », jamais « périmé », et la fiche reste à juger. Lancer depuis la racine du dépôt jugé (ou `--repo-root`), les chemins cités s'y résolvent.
 
 Hors périmètre : les `arbitrages-*` (cycle de vie porté par senior-review, Étape 1.9) et `senior_review_learnings.md` (plafond tenu par `senior-review learn`).
 

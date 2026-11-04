@@ -1,0 +1,17 @@
+schema_version: "1.1"
+name: vide-contexte-trigger-consolide
+tags: [trigger, should-fire]
+execution:
+  prompt: "consolide la mémoire"
+  allowed_tools: [Skill, Read, Glob, Grep]
+  max_turns: 6
+  timeout_seconds: 300
+runs: 3
+graders:
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?vide-contexte"'
+    min: 1
+    arm: both
+expected_outcome: 'Argument consolide: the monthly consolidation pass.'

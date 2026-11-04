@@ -1,0 +1,18 @@
+schema_version: "1.1"
+name: vide-contexte-no-trigger-readme-summary
+tags: [trigger, should-not-fire]
+execution:
+  prompt: "Résume le README de ce dépôt en trois phrases."
+  allowed_tools: [Skill, Read, Glob, Grep]
+  max_turns: 6
+  timeout_seconds: 300
+runs: 3
+graders:
+  - type: tool_used
+    name: skill-not-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?vide-contexte"'
+    min: 0
+    max: 0
+    arm: both
+expected_outcome: 'Unrelated request.'

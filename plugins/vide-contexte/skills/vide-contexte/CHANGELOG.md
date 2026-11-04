@@ -1,5 +1,9 @@
 # Changelog — vide-contexte
 
+## 1.6.0 (2026-11-04)
+
+- **`consolide` : cache de verdicts par fiche, hors dépôt.** La passe mensuelle rejugeait toutes les fiches, inchangées ou non. `consolide.py` imprime désormais `N en cache, M à juger` ; clé = hash du contenu + version des critères, motif obligatoire, 90 jours, invalidation si un chemin cité disparaît, « non vérifiable » quand la forge est injoignable. Tests ajoutés à `test_consolide.py`. Aucun octet de plus dans `SKILL.md`.
+
 ## 1.5.0 — 2026-10-28
 
 - **Mode `consolide`, une fois par mois, sur le modèle de `senior-review learn`.** Le plafond de trois écritures (1.4.0) freine la croissance, il ne retire rien : sur un dépôt réel, une passe manuelle a trouvé 3 fiches à supprimer, 3 fusions et 29 mises à jour sur 58 fiches de projet, et un journal de 68 Ko condensé à 6 Ko. Le script `scripts/consolide.py` porte la partie mécanique ; il résout les liens sur le `name:` de la cible, ce qui a révélé 20 liens cassés là où un contrôle par nom de fichier n'en voyait aucun.
