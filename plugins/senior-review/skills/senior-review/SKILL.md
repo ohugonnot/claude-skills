@@ -7,7 +7,7 @@ argument-hint: "[learn | path | --pr N | --base ref | --staged] [--quick|--deep]
 
 # Senior Review
 
-**skill_version : 1.30.0** (historique : `CHANGELOG.md` ; sources : `reference/references.md`).
+**skill_version : 1.30.1** (historique : `CHANGELOG.md` ; sources : `reference/references.md`).
 
 ## Pipeline en bref
 
@@ -41,7 +41,7 @@ Noter d'abord l'instant de départ : `start=$(date -u +%FT%TZ)` (repris par `log
 
 **Mode boucle** — `--loop`, ou toute formulation de l'utilisateur qui demande une boucle (« en boucle », « jusqu'au vert », « recommence jusqu'à ce qu'il n'y ait plus rien ») : un **contrat de terminaison**, pas une intensité (Étape 6.5).
 
-**Plafond de fan-out : 5 agents par tour, refuteurs et passe finale compris.** Environ un relecteur par 150 LOC non générées, plancher 2, plafond 5 ; au-delà, un tour de plus. Compter les agents AVANT de lancer le message de fan-out : le hook `scripts/fanout_cap.py` (PreToolUse) refuse le 6e `blind-reviewer` du tour, et `log_run.py log` remet le compteur à zéro. Un refus = finir le tour et en ouvrir un autre. Mesure : `reference/budget.md`.
+**Plafond de fan-out : 5 agents par tour, refuteurs et passe finale compris.** Environ un relecteur par 150 LOC non générées, plancher 2, plafond 5 ; au-delà, un tour de plus. Compter les agents AVANT de lancer le message de fan-out : le hook `scripts/fanout_cap.py` (PreToolUse) refuse le 6e `blind-reviewer` du tour, et `log_run.py last`/`log` remet le compteur à zéro. Un refus = finir le tour et en ouvrir un autre. Mesure : `reference/budget.md`.
 
 **Autres** : `--ticket <id>` (force le rattachement spec), `--security` (force la passe sécu profonde même en quick/standard), `--adversarial` (force la dimension crash/robustesse quel que soit le routage), `--fix` (applique les fixes high-confidence après confirmation), `--comment` (poste le rapport/inline sur la PR après confirmation), `--no-tools` (si lint/tests indisponibles).
 

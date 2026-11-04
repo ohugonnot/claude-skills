@@ -11,3 +11,5 @@
 | 9+ | 7 | 12,7 | 1 384 k | 109 k |
 
 Passer de 6-8 à 9+ coûte **+50 % de tokens pour +0,1 finding par tour**. La zone 4-5 est le meilleur rapport. Donc : **au plus 5 agents par tour**, refuteurs compris ; s'il en faut davantage, c'est un tour de plus, pas un tour plus large, et un tour de delta trouve à 55 k le finding contre 109 k pour un dixième agent. Dimensionner sur le **volume du diff** et non sur l'enjeu ressenti : environ un reviewer par 150 LOC non générées, plancher 2, plafond 5.
+
+Ce que le hook compte : tout agent de type `blind-reviewer` lancé depuis la dernière remise à zéro, quel que soit son rôle. `log_run.py last` (ouverture d un tour) et `log_run.py log` (clôture) remettent le compteur à zéro. Un audit ou une vérification lancés avant la revue ne mangent donc pas le plafond du tour, mais hors revue, préférer `Explore` ou `general-purpose` à `blind-reviewer` : lancé pendant un tour, un agent de ce type compte.

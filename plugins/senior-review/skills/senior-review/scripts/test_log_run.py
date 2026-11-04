@@ -79,6 +79,21 @@ class LogRunTest(unittest.TestCase):
             self.run_cmd("log", *COUNTS)
         reset.assert_called_once_with("sess")
 
+    def test_opening_a_round_resets_the_fanout_cap(self):
+        with mock.patch.dict(os.environ, {"CLAUDE_CODE_SESSION_ID": "sess"}), \
+                mock.patch.object(log_run.fanout_cap, "reset") as reset:
+            self.run_cmd("last")
+        reset.assert_called_once_with("sess")
+
+    def test_opening_a_round_without_a_session_resets_nothing(self):
+        env = {key: value for key, value in os.environ.items()
+               if key != "CLAUDE_CODE_SESSION_ID"}
+        with mock.patch.dict(os.environ, env, clear=True), \
+                mock.patch.object(log_run.fanout_cap, "reset") as reset:
+            code, _, _ = self.run_cmd("last")
+        self.assertEqual(code, 0)
+        reset.assert_not_called()
+
     def test_refused_log_keeps_the_fanout_count(self):
         counts = list(COUNTS)
         counts[counts.index("--raised") + 1] = "9"

@@ -422,6 +422,10 @@ def cmd_last(args):
     if previous and (previous.get("pending") or 0) > 0:
         report["pending_outcome"] = previous["pending"]
     print(json.dumps(report, ensure_ascii=False))
+    # `last` opens a round (Step 0). Reviewer-typed agents launched earlier in the
+    # session for an audit or a check are not part of this round's fan-out.
+    if os.environ.get("CLAUDE_CODE_SESSION_ID"):
+        fanout_cap.reset(os.environ["CLAUDE_CODE_SESSION_ID"])
     return 0
 
 
