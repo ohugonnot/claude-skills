@@ -1,5 +1,9 @@
 # Changelog — skill-builder
 
+## 1.4.0 (2026-11-04)
+
+- **Section « Official limits »** : les onze points de la doc Anthropic qui manquaient (limites de `description` et `name`, références à un niveau, TOC, pas d'information datée, terminologie constante, évaluations d'abord, `claude plugin eval`, plafond de listing, champs de frontmatter, compaction, règle du corps), chacun avec son URL. « Claude UNDER-triggers » devient une consigne de mesure (3 prompts qui doivent déclencher, 3 qui ne doivent pas). « docx fait 590 lignes » est remplacé par la règle officielle des 500 lignes.
+
 ## 1.3.0 — 2026-10-27
 
 - **Anti-pattern « deux-points non quoté dans la description »** : YAML invalide, frontmatter chargé vide sans aucun avertissement, skill qui ne se déclenche plus. Vu sur trois skills d'un même dépôt en une journée. Parade : bloc `>-` ou chaîne quotée, et une ligne de checklist qui parse tous les frontmatters.

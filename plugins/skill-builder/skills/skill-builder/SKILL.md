@@ -36,7 +36,7 @@ If the answer is "knowledge or a procedure the model should apply when the situa
 
 ## The description is everything (the #1 lever)
 
-A skill only helps if it triggers at the right moment. The `description` in the frontmatter decides that almost entirely. Spend most of your effort here — and know the real failure mode: **Claude UNDER-triggers skills** far more than it over-triggers (it only consults a skill when it can't trivially handle the task itself). So lean inclusive and a little "pushy".
+A skill only helps if it triggers at the right moment. The `description` in the frontmatter decides that almost entirely. Spend most of your effort here. Whether yours under- or over-triggers is a measurement, not a given: write 3 prompts that must trigger it and 3 that must not, run them (`tool_used: Skill` grader, see the official limits below), and tune the description on the result. Until measured, lean inclusive and a little "pushy".
 
 A strong description:
 
@@ -61,7 +61,7 @@ Name: lowercase, hyphens, a verb-or-noun that reads as a command (`book-distill`
 
 Three loading levels: **metadata** (name + description, always in context) → **SKILL.md body** (loaded when the skill fires) → **bundled resources** (loaded or executed on demand). Keep the body lean so it doesn't crowd the context.
 
-- **< 500 lines is the target, not a law.** Anthropic's own docx skill is 590. Go longer when the domain warrants it, but past ~500 add a layer of hierarchy and clear pointers ("for X, read references/x.md").
+- **Body under 500 lines** (official rule, not a target). Past that, split into files linked directly from SKILL.md ("for X, read references/x.md").
 - **Externalize the heavy stuff — when it pays.** Two thirds of Anthropic's official skills are a single SKILL.md; split only when it earns it. When you do, **`scripts/` (executable, deterministic ops) earns its place far more often than `references/` (docs)** — the document skills (pdf, xlsx, docx) are mostly scripts. Use `references/<variant>.md` for multi-framework domains; a reference over ~300 lines gets a table of contents.
 - **Imperative and concrete.** "Do X. Never Y." Minimal example over paragraphs of theory.
 - A checklist at the end beats a wall of prose.
@@ -112,9 +112,9 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 
 ## Anti-patterns
 
-- **Vague description** ("helps with code") — it never triggers. The most common failure, and worse than over-triggering.
-- **Over-restrictive description** — too many caveats and the skill under-triggers (the bigger risk). Lean pushy; reserve "NOT for" for genuine sibling competition.
-- **Monster SKILL.md** — only a problem if the bulk is detail that belongs in scripts/ or references/; size alone isn't the sin (docx is 590 lines).
+- **Vague description** ("helps with code"): it never triggers.
+- **Over-restrictive description**: too many caveats and the skill stops triggering. Lean pushy; reserve "NOT for" for genuine sibling competition.
+- **Monster SKILL.md**: a body past 500 lines, or one whose bulk is detail that belongs in scripts/ or references/.
 - **Hardcoding one project's specifics** in a skill meant to be reused — keep it stack-agnostic, discover specifics live.
 - **Renaming the concept mid-body** — one term, used consistently (the model anchors on it).
 - **Wrong primitive** — an always-on rule should be CLAUDE.md or a hook, not a skill.
@@ -123,14 +123,32 @@ Validate before publishing: `claude plugin validate <path>`. Pin a `version` (om
 - **Unquoted colon in the description** — `description: Use when … : …` is invalid YAML (`mapping values are not allowed here`). Nothing warns you: the frontmatter silently loads empty and the skill never triggers. Use a folded block (`description: >-`, text indented on the next lines) or quote the string. Seen on three skills of one repo in a single day, all with French text (« … : … »).
 - **Rules duplicated across skills** — the same cost or style section pasted into several skills drifts apart. Put it once in a versioned file every machine sees (the repo's CLAUDE.md, a shared reference), point to it, and keep in each skill only the line specific to it. A pointer to an unversioned file (a global `~/.claude/CLAUDE.md`) breaks on every other machine.
 
+## Official limits (checked 2026-11-04)
+
+Authoring rules, https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices :
+1. `description` 1,024 characters at most, in the third person ("Processes X", not "I can help"); `name` 64 at most, lowercase, digits, hyphens.
+2. References one level deep from SKILL.md; a reference file over 100 lines opens with a table of contents.
+3. No time-sensitive information: history goes to an "old patterns" section or the CHANGELOG.
+4. One term per concept across the whole skill.
+5. Build evaluations first: three at least, run on Haiku, Sonnet and Opus.
+
+Claude Code, https://code.claude.com/docs/en/skills and https://code.claude.com/docs/en/plugin-evals :
+6. `claude plugin eval` has free graders (`regex`, `tool_used`, `tool_order`, `file_exists`); `claude plugin eval init` proposes prompts that should and should not trigger; skill-creator iterates on one skill in a session.
+7. `description` plus `when_to_use` are cut at 1,536 characters in the listing; `/skill-doctor` shows what each skill costs, `skillOverrides: "name-only"` collapses one.
+8. Other frontmatter fields: `when_to_use`, `paths`, `context: fork` with `agent`, `hooks`, `allowed-tools`.
+9. Compaction keeps the first 5,000 tokens of each invoked skill (25,000 shared): essentials first.
+10. Body under 500 lines, and under 5k tokens once loaded (https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview).
+11. Triggering is measured with a trigger eval (a `tool_used: Skill` grader, `min: 0` and `max: 0` for a prompt that must not fire it), never asserted.
+
 ## Checklist
 
 - [ ] A skill is the right primitive (not CLAUDE.md / subagent / hook / MCP)
-- [ ] `description` has Use-when + real trigger phrases, leans pushy (under-triggering is the bigger risk); NOT-for only if a sibling competes
+- [ ] `description` has Use-when + real trigger phrases, leans pushy, checked by a trigger eval (3 prompts that must fire, 3 that must not); NOT-for only if a sibling competes
 - [ ] Name is lowercase-hyphen, reads like a command
 - [ ] Body is skimmable; heavy detail lives in reference/
 - [ ] One leading word the model already knows, repeated in name + description + body; imperative, minimal examples
 - [ ] The skill gives the agent a checkable "done" signal (completion criteria)
-- [ ] Triggers on the intended phrases, silent on adjacent cases
+- [ ] Triggers on the intended phrases, silent on adjacent cases (measured, not assumed)
+- [ ] Passes the official limits below (description, references, terminology, evals)
 - [ ] Frontmatter parses: `python3 -c "import sys,yaml; [yaml.safe_load(open(f).read().split('---')[1]) for f in sys.argv[1:]]" */SKILL.md` exits 0 (catches the unquoted-colon trap)
 - [ ] If shared: plugin.json + marketplace.json, version pinned, `claude plugin validate` passes
