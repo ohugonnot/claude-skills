@@ -13,7 +13,14 @@ import log_run
 
 COUNTS = ["--tier", "standard", "--verdict", "approve", "--loc", "10", "--raised", "3",
           "--confirmed", "2", "--dropped-gate", "1", "--refuted-panel", "0", "--agents", "2",
-          "--tokens", "1000"]
+          "--tokens", "1000", "--model", "sonnet"]
+
+
+def without(argv, flag):
+    if flag not in argv:
+        return list(argv)
+    at = argv.index(flag)
+    return argv[:at] + argv[at + 2:]
 
 
 def sh(repo, *cmd):
@@ -96,7 +103,7 @@ class LogRunTest(unittest.TestCase):
             self.run_cmd("log", *counts)
 
     def test_missing_tokens_is_logged_as_null(self):
-        counts = COUNTS[:COUNTS.index("--tokens")]
+        counts = without(COUNTS, "--tokens")
         self.assertEqual(self.run_cmd("log", *counts)[0], 0)
         self.assertIsNone(self.rows()[0]["tokens"])
 
@@ -140,7 +147,7 @@ class LogRunTest(unittest.TestCase):
     def test_log_without_outcome_stores_null(self):
         self.assertEqual(self.run_cmd("log", *COUNTS)[0], 0)
         row = self.rows()[0]
-        for key in ("fixed", "rejected", "deferred", "model"):
+        for key in ("fixed", "rejected", "deferred"):
             self.assertIsNone(row[key])
         self.assertEqual(row["pending"], 2)
 
@@ -288,10 +295,19 @@ class LogRunTest(unittest.TestCase):
             self.run_cmd("log", *COUNTS)
         self.assertEqual(held, [True])
 
-    def test_model_is_free_text_or_null(self):
-        self.run_cmd("log", *COUNTS, "--model", " Opus ")
-        self.run_cmd("log", *COUNTS)
-        self.assertEqual([row["model"] for row in self.rows()], ["opus", None])
+    def test_model_is_free_text_and_null_stays_valid_on_old_lines(self):
+        self.run_cmd("log", *without(COUNTS, "--model"), "--model", " Opus ")
+        row = self.rows()[0]
+        self.assertEqual(row["model"], "opus")
+        self.assertEqual(log_run.validate(dict(row, model=None)), [])
+
+    def test_log_without_model_is_refused(self):
+        # Optional, it was filled on 16 % of the lines: the per-model table stayed blind.
+        with self.assertRaises(SystemExit) as refused, \
+                contextlib.redirect_stderr(io.StringIO()):
+            self.run_cmd("log", *without(COUNTS, "--model"))
+        self.assertEqual(refused.exception.code, 2)
+        self.assertFalse(os.path.exists(self.journal))
 
     def write_transcript(self, *entries):
         path = os.path.join(self.tmp.name, "session.jsonl")

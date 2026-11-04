@@ -38,6 +38,7 @@ Regroupe les sources citées en abrégé dans le SKILL.md, avec ce qu'elles fond
 - **Greptile** — graphe multi-hop ; bench : diff seul ~44 % de catch-rate vs ~82 % avec contexte cross-fichiers → context-first.
 - **Cursor BugBot** — passes parallèles + majority vote → agentic.
 - **GitHub Copilot code review** — agentic + silence intentionnel (~29 % de revues silencieuses assumées).
+- **Qodo, Intercom, Cursor** : un agent par dimension plutôt qu'un « God reviewer », chaque agent a un focus net et les faux positifs d'une dimension ne contaminent pas les autres.
 - **Qodo** — agents par dimension. **Snyk DeepCode** — symbolic+neural. **Atlassian Rovo** — judge + classifier.
 
 ## Pratiques d'ingénierie

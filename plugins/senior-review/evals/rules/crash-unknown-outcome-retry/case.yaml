@@ -1,0 +1,19 @@
+schema_version: "1.0"
+name: crash-unknown-outcome-retry
+tags: [recall, rule, crash]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "Relis mes modifications non commitées avec /senior-review --quick --adversarial. Termine par le rapport complet dans ton dernier message."
+  allowed_tools: [Read, Glob, Grep, Skill, Bash, Agent]
+  max_turns: 150
+  timeout_seconds: 1800
+runs: 3
+graders:
+  # Rule witness: a timed-out Send may have moved the money; retrying without Find can pay twice.
+  - type: regex
+    name: hit_final
+    target: last_message
+    flags: u
+    pattern: '## 🔴(?:(?!\n## [🟡🔵👍V])[\s\S])*?payout\.go(?:(?!\n## [🟡🔵👍V])[\s\S])*?(?:idempot|deux fois|double|doublon|twice|issue inconnue|[ée]tat distant|Find\()'
+expected_outcome: "Pay retries Send after a timeout without reading the transfer state (no idempotency key, no Find), so one payout can be sent twice; flagged as blocking."

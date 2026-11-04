@@ -1,0 +1,19 @@
+schema_version: "1.0"
+name: trigger-relis-avant-merge
+tags: [trigger]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "Relis mon code avant que je merge, je veux un regard neuf sur mes modifications non commitées."
+  allowed_tools: [Read, Glob, Grep, Skill, Bash]
+  max_turns: 10
+  timeout_seconds: 300
+runs: 3
+graders:
+  # Trigger check: run with --ablation none, or this grader only shows as an indicator.
+  - type: tool_used
+    name: skill_fired
+    tool: Skill
+    input_match: 'senior-review'
+    min: 1
+expected_outcome: "The senior-review skill is invoked without being named."

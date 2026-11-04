@@ -1,0 +1,19 @@
+schema_version: "1.0"
+name: gate-relaxed-nolint
+tags: [recall, rule, gate]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "Relis mes modifications non commitées avec /senior-review --quick. Termine par le rapport complet dans ton dernier message."
+  allowed_tools: [Read, Glob, Grep, Skill, Bash, Agent]
+  max_turns: 150
+  timeout_seconds: 1800
+runs: 3
+graders:
+  # Rule witness: the diff drops errcheck from .golangci.yml and adds a nolint; the rule says blocking until justified.
+  - type: regex
+    name: hit_final
+    target: last_message
+    flags: u
+    pattern: '## 🔴(?:(?!\n## [🟡🔵👍V])[\s\S])*?(?:nolint|golangci|gate (?:d[ée]tendue|affaiblie)|lint.{0,40}(?:d[ée]sactiv|retir|supprim))'
+expected_outcome: "The diff relaxes the lint gate (errcheck removed from .golangci.yml, nolint added) without justification; flagged as blocking."

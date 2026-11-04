@@ -22,12 +22,27 @@ Subcommands:
 The outcome counts come from the user or from the loop, never from the model's
 own judgement. Left out, they are stored as null (unknown), never as 0.
 
+Rules for `log`:
+    raised = confirmed + dropped_gate + refuted_panel, checked here.
+    --settled and --out-of-scope count ledger entries and stay out of that sum.
+    --fixed + --rejected + --deferred may not exceed confirmed (exit 2).
+    --fixed and --rejected go together: if only one is known, give neither,
+    and `learn` skips the line.
+    --tokens is left out rather than estimated.
+    --model names the reviewers' model, free text stored lowercase; required.
+    --transcript auto --since <start of the review> fills orch_turns,
+    orch_output and orch_context (null when the transcript cannot be read).
+    The report's cost is subagent tokens plus orch_output/orch_context.
+    It also prints each memory file size against its cap; OVER CAP goes in the
+    report. Exit != 0 means the counts are wrong: recount and run again, never
+    append the line by hand.
+
 Usage:
     python3 log_run.py last [--base origin/main]
     python3 log_run.py log --tier standard --loc 227 --raised 18 --confirmed 14 \\
         --dropped-gate 4 --refuted-panel 0 --agents 4 --tokens 544918 \\
-        --verdict request-changes [--base origin/main] [--loop] \\
-        [--fixed 9 --rejected 3 --deferred 1] [--model opus] \\
+        --verdict request-changes --model opus [--base origin/main] [--loop] \\
+        [--fixed 9 --rejected 3 --deferred 1] \\
         [--transcript auto --since 2026-10-29T14:00:00Z]
     python3 log_run.py outcome --fixed 9 --rejected 3 [--deferred 1] [--round 2]
     python3 log_run.py check
@@ -427,7 +442,9 @@ def cmd_check(args):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    # The whole docstring, because SKILL.md points here for the counter rules.
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--journal", default=JOURNAL)
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -451,8 +468,10 @@ def main(argv=None):
     log.add_argument("--tokens", type=int)
     for outcome_key in OUTCOMES:
         log.add_argument(f"--{outcome_key}", type=int)
-    # Free text on purpose: model names change faster than any enum.
-    log.add_argument("--model", type=lambda name: name.strip().lower())
+    # Free text on purpose: model names change faster than any enum. Required because
+    # the per-model table of `learn` needs it, and the orchestrator always knows it.
+    log.add_argument("--model", required=True, type=lambda name: name.strip().lower(),
+                     help="model of the dimension reviewers, e.g. sonnet")
     log.add_argument("--transcript", help="session transcript path, or `auto`; sums the "
                      "orchestrator turns into orch_* (null when unreadable)")
     log.add_argument("--since", type=parse_instant, help="ISO instant; earlier transcript "

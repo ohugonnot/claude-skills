@@ -1,0 +1,17 @@
+schema_version: "1.0"
+name: no-trigger-build-feature
+tags: [trigger]
+execution:
+  prompt: "Implémente une fonction ParseAmount dans amount.go qui lit un montant décimal en centimes, avec ses tests."
+  allowed_tools: [Read, Glob, Grep, Skill, Bash]
+  max_turns: 10
+  timeout_seconds: 300
+runs: 3
+graders:
+  # Trigger check: run with --ablation none, or this grader only shows as an indicator.
+  - type: tool_used
+    name: skill_fired
+    tool: Skill
+    input_match: 'senior-review'
+    max: 0
+expected_outcome: "A feature request: senior-review must not be invoked."

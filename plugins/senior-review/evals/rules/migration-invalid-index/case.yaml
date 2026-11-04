@@ -1,0 +1,19 @@
+schema_version: "1.0"
+name: migration-invalid-index
+tags: [recall, rule, migrations]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: "Relis mes modifications non commitées avec /senior-review. Termine par le rapport complet dans ton dernier message."
+  allowed_tools: [Read, Glob, Grep, Skill, Bash, Agent]
+  max_turns: 150
+  timeout_seconds: 1800
+runs: 3
+graders:
+  # Rule witness: after a failed CONCURRENTLY build the index exists but is INVALID, and IF NOT EXISTS skips it.
+  - type: regex
+    name: hit_final
+    target: last_message
+    flags: u
+    pattern: '## (?:🔴|🟡)(?:(?!\n## [🔵👍V])[\s\S])*?(?:INVALID|indisvalid|invalide)'
+expected_outcome: "The retry migration uses CREATE INDEX CONCURRENTLY IF NOT EXISTS, which skips the INVALID index left by the failed 0002; flagged as blocking or important with an indisvalid check."
