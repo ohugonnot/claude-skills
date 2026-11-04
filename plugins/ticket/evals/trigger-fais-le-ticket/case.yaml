@@ -1,0 +1,17 @@
+schema_version: "1.1"
+name: ticket-trigger-fais-le-ticket
+tags: [trigger, should-fire]
+execution:
+  prompt: "Prends le ticket 214 et fais-le de bout en bout : plan, TDD, tests, puis une MR relue."
+  allowed_tools: [Skill, Read, Glob, Grep]
+  max_turns: 6
+  timeout_seconds: 300
+runs: 3
+graders:
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?ticket"'
+    min: 1
+    arm: both
+expected_outcome: 'A numbered ticket handed over for end to end delivery.'

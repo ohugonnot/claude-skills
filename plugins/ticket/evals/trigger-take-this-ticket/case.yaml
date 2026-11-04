@@ -1,0 +1,17 @@
+schema_version: "1.1"
+name: ticket-trigger-take-this-ticket
+tags: [trigger, should-fire]
+execution:
+  prompt: "Take this ticket: users cannot reset their password when the email contains uppercase letters. Plan it, implement it test-first, review it in a loop, then open the MR."
+  allowed_tools: [Skill, Read, Glob, Grep]
+  max_turns: 6
+  timeout_seconds: 300
+runs: 3
+graders:
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?ticket"'
+    min: 1
+    arm: both
+expected_outcome: 'English phrasing of the same intent, ticket content inline.'

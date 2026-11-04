@@ -7,18 +7,14 @@ description: >-
   test e2e et captures playwright au plus près du réel", "/senior-review en boucle et commit push si
   tout est ok", "comme d'hab", or just a ticket number or link plus "vas-y" / "go". Use it whenever a
   ticket has to be delivered end to end, even if the word "ticket" is never used as a skill name.
-  A light ticket method: read the ticket and the code it touches, plan by a strong-model agent, TDD
-  execution by a standard-model agent, proof closest to real use (replayable Playwright e2e with
-  mobile/tablet/desktop captures), a /senior-review loop, then a retrospective that proposes rule
-  lines for the user to approve. NOT for the heavy autonomous loop (use feature-loop), nor for only
-  creating the issue/branch/MR shell (use issue-mr), nor for closing already-written work (use
+  NOT for the heavy autonomous loop (use feature-loop), nor for only creating the issue/branch/MR shell (use issue-mr), nor for closing already-written work (use
   branch-wrap-up), nor for a review alone (use senior-review).
 argument-hint: "<numéro ou lien du ticket | description> [--trivial]"
 ---
 
 # Ticket : de la description à la MR prouvée
 
-**skill_version : 1.1.0** (historique : `CHANGELOG.md`).
+**skill_version : 1.2.0** (historique : `CHANGELOG.md`).
 
 Un ticket est fini quand sa preuve se vérifie **du dehors** : un test vu rouge puis vert, une capture lue, un tour de revue qui ne change plus rien. Jamais quand « ça a l'air de marcher ». Ce skill est léger exprès : il enchaîne des outils qui existent (`/issue-mr`, `/senior-review --loop`, `/branch-wrap-up`, chacun si disponible) et ne fait lui-même que l'orchestration et les vérifications.
 
@@ -87,19 +83,15 @@ Tout le reste suit le déroulé complet. Dans le doute, annoncer le choix en une
 **Fini quand** : la sortie rouge est conservée et son message nomme le défaut visé.
 
 ### 3.5 Exécution déléguée (agent standard)
-Un `Agent` `general-purpose`, `model: sonnet` (ou le modèle demandé). Le brief n'hérite de rien, il contient :
+Un `Agent` `subagent_type: tdd-executor` (`ticket:tdd-executor` plugin installé), `model: sonnet` ou le modèle demandé. Il porte l'ordre TDD, la mutation, les interdits et le format du rapport. Absent des types : `general-purpose` avec `agents/tdd-executor.md` en tête du brief. Le brief n'hérite de rien, il contient seulement :
 - le chemin du plan, les fichiers autorisés, les commandes de test et de gate du dépôt ;
-- l'ordre TDD : test rouge montré, puis code, puis vert ;
-- les interdits, écrits en clair : ne pas lire `.env*` (sauf `.env.example`), ni `git add`/`commit`/`checkout`/`stash`, rien en prod, aucune écriture hors du dépôt, aucune action refusée à la session principale ;
-- commentaires : zéro par défaut, une ligne en anglais simple pour un pourquoi non déductible, aucun numéro de ticket ;
 - pas d'interface ni de paramètre ajouté pour les seuls tests ;
-- les pistes données sont des amorces, le rendement attendu est dans ce qui n'est pas listé ;
-- réponse en 5 lignes : ce qui a changé, les commandes lancées et leur résultat réel.
+- les pistes données sont des amorces, le rendement attendu est dans ce qui n'est pas listé.
 
 Écran par écran : un écran, son test et sa capture avant le suivant. Les correctifs suivants repartent au **même** exécutant (`SendMessage`), il garde son contexte. Jamais deux agents qui modifient le même module en parallèle.
 
 ### 3.6 Vérifier soi-même, jamais sur parole
-- `git diff --stat`, puis lecture ciblée du diff. Supprimer les sondes jetables restées dans l'arbre.
+- `git diff --stat`, puis lecture ciblée du diff. Supprimer les sondes jetables restées dans l'arbre, puis `git diff <base> | grep -nE '^\+.*(fmt\.Print|log\.Print.*DEBUG|console\.log|t\.Skip|nolint)'` : chaque occurrence se justifie ou sort.
 - Relancer **soi-même** la gate du dépôt une fois, en fin de lot : build, lint, tests des paquets touchés, suite large (des tests anciens peuvent encoder le bug : les inverser sur le nouveau contrat, jamais les neutraliser).
 - Une gate verte dit ce qu'elle a exercé (nombre de tests) : ne jamais tronquer sa sortie par `head`, filtrer les lignes `ok`/`FAIL` et compter les deux.
 - **Mutation inverse** : annuler le correctif doit faire rougir le test **sur une assertion**, pas à la compilation. Copier le fichier hors du dépôt, muter, restaurer par `cp`, vérifier par `diff -q`. Jamais `git checkout -- <fichier>` sur un fichier non commité : il efface le correctif avec la mutation.
@@ -128,6 +120,8 @@ Dans le rapport, distinguer en une ligne chacun :
 - **le code est juste** : quels tests, rouges puis verts, et la mutation inverse ;
 - **l'effet est visible** pour l'utilisateur final, et sous quelle condition ;
 - **le décor** : ce que le parcours a réellement déroulé, ce qui était fabriqué (état de départ en base, réponse d'API simulée) et ce qui reste non exercé, avec la raison.
+
+Chaque preuve porte un statut parmi `vérifié` / `échoué` / `non fait` / `non applicable`, suivi de la commande ou de la raison ; « non fait » est une réponse valide, jamais un blanc.
 
 « Testé » sans ces trois lignes est une affirmation non prouvée. Une tâche de fond s'annonce au passé, après l'appel.
 

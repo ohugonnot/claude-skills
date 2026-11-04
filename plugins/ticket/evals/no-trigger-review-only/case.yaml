@@ -1,0 +1,18 @@
+schema_version: "1.1"
+name: ticket-no-trigger-review-only
+tags: [trigger, should-not-fire]
+execution:
+  prompt: "Relis mes modifications non commitées et dis-moi si je peux merger."
+  allowed_tools: [Skill, Read, Glob, Grep]
+  max_turns: 6
+  timeout_seconds: 300
+runs: 3
+graders:
+  - type: tool_used
+    name: skill-not-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?ticket"'
+    min: 0
+    max: 0
+    arm: both
+expected_outcome: 'Belongs to senior-review: review alone.'

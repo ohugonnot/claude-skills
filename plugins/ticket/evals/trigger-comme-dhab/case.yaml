@@ -1,0 +1,17 @@
+schema_version: "1.1"
+name: ticket-trigger-comme-dhab
+tags: [trigger, should-fire]
+execution:
+  prompt: "Ticket 57, comme d'hab."
+  allowed_tools: [Skill, Read, Glob, Grep]
+  max_turns: 6
+  timeout_seconds: 300
+runs: 3
+graders:
+  - type: tool_used
+    name: skill-fired
+    tool: Skill
+    input_match: '"skill"\s*:\s*"(?:[\w-]+:)?ticket"'
+    min: 1
+    arm: both
+expected_outcome: 'Shortest launch phrase: a ticket number plus the habitual formula.'
