@@ -11,13 +11,13 @@ import unittest
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SKILL_PATH = os.path.join(SKILL_DIR, "SKILL.md")
 
-MAX_SKILL_BYTES = 34_000
+MAX_SKILL_BYTES = 29_000
 # A line this long is a paragraph that dodges the line-count rule.
 MAX_LINE_BYTES = 1_200
 MAX_DESCRIPTION_CHARS = 1_024
-# Compaction keeps about the first 5,000 tokens of an invoked skill.
-COMPACTION_KEPT_BYTES = 16_000
-MIN_STEPS_BEFORE_COMPACTION_CUT = 5
+# Compaction keeps about the first 5,000 tokens of an invoked skill. This file
+# runs near 4.2 bytes per token and was seen cut near 20,500 bytes.
+COMPACTION_KEPT_BYTES = 19_000
 # Claude Code ignores unknown keys without a word, so a typo goes unnoticed.
 ALLOWED_FRONTMATTER_KEYS = {
     "name", "description", "when_to_use", "argument-hint", "arguments",
@@ -98,11 +98,14 @@ class SkillSizeTest(unittest.TestCase):
                              f"description is {len(text)} characters")
 
     def test_steps_survive_compaction(self):
-        head = self.raw[:COMPACTION_KEPT_BYTES].decode("utf-8", errors="ignore")
-        steps = re.findall(r"^## Étape", head, re.M)
-        self.assertGreaterEqual(len(steps), MIN_STEPS_BEFORE_COMPACTION_CUT,
-                                f"only {len(steps)} steps in the first "
-                                f"{COMPACTION_KEPT_BYTES} bytes")
+        # A review cut mid-pipeline skipped its run log: every step must fit,
+        # so the first section after the steps starts before the cut.
+        after_steps = re.split(r"^## Étape .*$", self.text, flags=re.M)[-1]
+        next_section = re.search(r"^## ", after_steps, re.M)
+        self.assertIsNotNone(next_section, "no section after the last step")
+        steps_end = len(self.text.encode()) - len(after_steps[next_section.start():].encode())
+        self.assertLessEqual(steps_end, COMPACTION_KEPT_BYTES,
+                             f"the steps end at byte {steps_end}")
 
 
 class HelpersTest(unittest.TestCase):

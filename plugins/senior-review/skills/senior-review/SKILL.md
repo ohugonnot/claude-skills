@@ -7,7 +7,7 @@ argument-hint: "[learn | path | --pr N | --base ref | --staged] [--quick|--deep]
 
 # Senior Review
 
-**skill_version : 1.30.1** (historique : `CHANGELOG.md` ; sources : `reference/references.md`).
+**skill_version : 1.31.0** (historique : `CHANGELOG.md` ; sources : `reference/references.md`).
 
 ## Pipeline en bref
 
@@ -53,22 +53,11 @@ Déterminer la cible et le tier. **Cible vide** (working tree propre sans `--bas
 
 ## Étape 1 — Context assembly (NE PAS sauter — c'est le différenciateur)
 
-Construire un **context pack** (placé en tête de chaque prompt reviewer = zone stable, cache-friendly) :
+Lire `reference/context-pack.md` maintenant et le suivre : il construit le **context pack**, écrit une fois et placé en tête de chaque prompt relecteur (zone stable, cache-friendly). Ses neuf entrées :
 
-1. **Le changeset** : hunks modifiés ; pour un fichier neuf (untracked), son contenu entier. Jamais le repo entier.
-2. **Ticket / spec** : auto-détecter l'id (nom de branche `feature/123-…`, `--ticket`, PR liée) → `gh issue view` / `glab issue view` → titre + corps + **critères d'acceptation**. Si introuvable, le dire et reviewer sans.
-3. **Conventions projet** (court, < 50 lignes) : `CLAUDE.md` racine + des dossiers touchés, `.cursor/rules`, `CONTRIBUTING.md`, configs lint. Extraire un digest des règles **réellement applicables** (`wc -l` d'abord : ≤ 200 lignes au total, lecture directe ; au-delà, agent `Explore` avec `model: haiku`). Inclure les `.claude/rules/*.md` dont les `paths` couvrent le diff.
-4. **Contexte cross-fichiers** : pour chaque symbole exporté modifié, trouver **call sites / callers / implémentations** (grep, ou LSP/gopls si dispo : `findReferences`, `goToImplementation`). Détecter les *breaking changes hors diff* (un appelant que le changement casse). **Chaque fait cross-file du pack porte son receipt** — la ligne d'import ou de déclaration, pas un grep de méthode : `x.Client.Foo(` ne dit pas quel type est derrière. **Sémantique nouvelle sur un champ générique** : dès que le diff donne un sens nouveau à la valeur d'un champ existant (« si `correlation_id` est un uuid, c'est un lien vers X »), le pack liste **tous les producteurs** de ce champ (`grep "Field:"`), avec leur type de valeur.
-5. **Historique git** : `git blame`/`git log -p` ciblé sur les lignes/fichiers touchés → *pourquoi* ce code existe, changements récents liés, anti-régression.
-6. **Stack / architecture / versions** : langage, framework, **archi dominante** (CQRS/ES, hexagonal, event-driven, microservices, monolithe modulaire…), deps majeures + versions. En cas d'archi/dep peu familière, une recherche web ciblée est permise (cf. principe « recherche externe »).
-7. **Learnings repo** (mémoire de feedback) : lire `~/.claude/projects/<encoded-cwd>/memory/senior_review_learnings.md` s'il existe → FP déjà confirmés à ne pas répéter + conventions d'équipe découvertes (plafond et format d'entrée : `reference/memory.md`). Logger `[context] N learnings repo chargés`.
-8. **Lessons cross-projet (mémoire du skill)** : `~/.claude/skill-memory/senior-review-lessons.md`, **hors dépôt** ; absent au premier run, continuer sans. Leçons **confirmées** sur *comment reviewer*. Ne **jamais** charger `senior-review-lessons-candidates.md`, qui porte les leçons vues une seule fois. Chaque leçon porte une étiquette de dimension en tête de ligne : `[spec] [correctness] [security] [design] [tests] [perf] [harness]`. Les injecter dans le context pack en **routant chaque leçon vers la dimension concernée** ; `[harness]` va à l'orchestrateur et à l'Étape 4. **En tier `--quick`, ne charger que `[harness]` et `[correctness]`** (`grep -E '^- \[(harness|correctness)\]' lessons.md`), les autres dimensions n'y sont pas reviewées. Logger `[context] M lessons confirmées chargées`.
-   **Misses cross-projet** : `~/.claude/skill-memory/senior-review-misses.md` — **hors dépôt**, même régime d'absence, les **échecs** de la revue (`[bruit]`, `[manqué]`, `[coût]`). Les injecter **uniquement dans « ce qu'on NE flague PAS »** (Étape 3) et jamais dans le brief de recherche d'un reviewer — un miss est un filtre, pas une piste. Logger `[context] K misses chargés`.
+1. le changeset (fichiers neufs en entier), 2. le ticket et ses critères d'acceptation, 3. un digest des conventions applicables, 4. le contexte cross-fichiers, chaque fait avec son receipt, 5. l'historique git des lignes touchées, 6. stack, architecture et **mode spécialiste**, 7. les learnings du repo, 8. les lessons confirmées et les misses cross-projet, 9. le ledger d'arbitrages de la branche.
 
-**Reconnaissance d'architecture → mode spécialiste.** **Nommer la combinaison** stack + archi (ex. « Shopify + CQRS/ES en Go »). Si elle porte des invariants propres qui changent la revue et que l'utilisateur n'a pas donné l'angle, demander via `AskUserQuestion` « je revois en expert senior <stack> ? » (en non-interactif, assumer le mode détecté **en le signalant**). Chaque relecteur devient alors un **senior 10+ ans de cette stack précise** et reçoit la **liste d'invariants/pièges connus** à vérifier en priorité. Exemples : *CQRS/ES* → idempotence des commandes, immutabilité/rejouabilité des events, cohérence projection↔agrégat, sagas/effets de bord rétroactifs ; *Shopify* → pagination/éviction, normalisation E.164, scopes/permissions, throttling, champs version-dépendants de l'Admin API ; *front* → hydratation, a11y, états de chargement.
-
-9. **Ledger d'arbitrages de CETTE branche** : lire `~/.claude/projects/<encoded-cwd>/memory/arbitrages-<branche|PR>.md` s'il existe ; ses trois catégories (`tranché`, `prouvé`, `hors périmètre`) et son format sont dans `reference/memory.md`. Il ne porte **jamais** les findings, sévérités ou verdicts des tours précédents, qui ancreraient le jugement. **L'orchestrateur** lit les trois catégories ; **les reviewers** ne reçoivent que `tranché` aplati en « ne flague pas ça » et `prouvé` en « ne le refais pas », jamais le récit. Une entrée `tranché` reste **réouvrable au prix d'un receipt exécuté**. Logger `[context] ledger: N tranchés, M prouvés (tour K)`.
-   S'il existe d'autres `arbitrages-*.md` que celui de la branche : balayage selon `reference/memory.md`, lancé en `run_in_background` pendant le fan-out de l'Étape 3.
+Deux règles tiennent même sans le fichier : un miss ne va que dans « ce qu'on NE flague PAS », jamais dans une piste de recherche ; du ledger, les relecteurs ne reçoivent que `tranché` et `prouvé` aplatis, jamais les findings ni les verdicts des tours précédents.
 
 Logger `[context] ticket=<#id|absent>, N conventions, M call-sites tracés, stack=<...>, mode spécialiste=<stack | généraliste> (confirmé|détecté)`.
 
@@ -119,10 +108,8 @@ Logger `[review:<dim>] N findings (x bloquants, y importants)`.
 - **sécurité** : confirmer que la source est réellement attaquant-contrôlée ET atteint le sink (traçage flux). Sinon → drop.
 - **« ça va tout casser »** (un changement de contrat ferait échouer N flux) → grille appelant par appelant avant tout panel : `reference/receipts.md`.
 - **« tests faibles »** → **red-check mutation** : muter la ligne ciblée (inverser une condition / constante, type-préservant), relancer la suite. Si rien ne rougit → le test est vacant → finding réel. Si le test ciblé rougit (et lui seul) → les tests protègent → finding FAUX, drop.
-  **Passer par `scripts/mutate.py`, pas par des commandes improvisées** : spec JSON (`name`, `file`, `old`, `new`, `cmd`, `expect`, `must_match` optionnel), format et garanties dans `mutate.py --help`.
+  **Passer par `scripts/mutate.py`, pas par des commandes improvisées** : spec JSON (`name`, `file`, `old`, `new`, `cmd`, `expect`, `must_match` optionnel), format et garanties dans `mutate.py --help`. Jamais `git checkout/restore` sur un fichier suivi, aucun `.bak` dans le dépôt (`reference/receipts.md`).
   Un écart entre prédiction et résultat **se re-mesure avant d'être cru** : `ANCHOR`, `NO-TESTS` et `NO-MATCH` disent que le harnais a raté, pas que le test est faible.
-
-Muter un fichier suivi : seulement via `scripts/mutate.py`, jamais `git checkout/restore`, aucun `.bak` dans le dépôt ; détail `reference/receipts.md`.
 
 Findings non prouvés → **drop silencieux** (ou rétrogradés en `low confidence — à vérifier`). **Exception au drop** : un désaccord inter-couches (count↔display, granularité de jointure) dont le receipt exige de fabriquer un jeu de données multi-entités, voir `reference/receipts.md`. Logger `[verify] k/n findings confirmés, j droppés (faux positifs)`.
 
@@ -136,32 +123,7 @@ Logger `[panel] x findings réfutés, y confirmés` · `[calib] 🔴N 🟡N 🔵
 
 ## Étape 6 — Verdict + rapport (discipline signal/bruit)
 
-Rapport structuré, concis, **commente le code jamais l'auteur**, chaque finding avec `file:line` + raison + fix concret + confiance (+ preuve de vérif si critique) :
-
-```markdown
-# Revue — <cible> (<N fichiers, M LOC>)
-
-## Spec-coverage
-<Le diff fait-il ce que le ticket #<id> demande ? — Oui / Partiel (gaps listés) / Hors-sujet>
-<Scope creep éventuel : modifs hors ticket>
-<Décisions non spécifiées : choix de l'implémentation que le ticket ne précisait pas, ou "aucune">
-
-## 🔴 Bloquants (N)   <vrais merge-blockers — sinon "aucun">
-1. <constat> — `file.go:42` (confiance: haute) — preuve: <vérif> — fix: <concret>
-
-## 🟡 Importants (N)
-…
-
-## 🔵 Mineurs / suggestions (N inline, +K en plus non listés)
-…
-
-## 👍 Bien vu (≤2)
-…
-
-## Verdict
-<approve | request-changes | needs-discussion> — <1 phrase>
-Métriques: lint <…> · typecheck <…> · tests <…/…> · SAST <…> · coût: <N agents, ~M tokens>
-```
+Rapport structuré et concis, qui **commente le code, jamais l'auteur** ; chaque finding porte `file:line`, raison, fix concret, confiance, et sa preuve s'il est critique. Gabarit à suivre : `reference/report.md` (Spec-coverage, 🔴 Bloquants, 🟡 Importants, 🔵 Mineurs, 👍 Bien vu, Verdict avec métriques et coût).
 
 Si rien de matériel : **le dire** (« Aucun bloquant. N suggestions mineures. Le changement améliore la base. »), le silence est une feature. Le seuil de greenlight : le changement **améliore** la base, pas « est parfait ».
 
@@ -169,7 +131,7 @@ Si rien de matériel : **le dire** (« Aucun bloquant. N suggestions mineures. L
 
 Verdict `approve` ET un skill `branch-wrap-up` disponible ET la cible est du travail local non clôturé (working tree/branche, pas une PR déjà ouverte) → suggérer en une ligne `branch-wrap-up --no-review` pour la clôture (commit/push/MR-PR), la review étant faite.
 
-**Passe finale sur un autre modèle, avant `approve`** : dès que 3 relecteurs ou plus d'un même modèle sont passés. Opus par défaut, jamais Fable sans `AskUserQuestion` (sauf `--model fable`). Aveugle, diff complet, tranché/prouvé fournis, aucune liste de pistes, finir par « ce qui m'a surpris ». En standard/deep hors boucle, si les dimensions actives sont ≤ 4, la lancer dans le même fan-out que les relecteurs (plafond 5 tenu) ; sinon après. Brief détaillé : `reference/final-pass.md`.
+**Passe finale sur un autre modèle, avant `approve`** : dès que 3 relecteurs ou plus d'un même modèle sont passés. Opus par défaut, jamais Fable sans `AskUserQuestion` (sauf `--model fable`). Hors boucle, avec 4 dimensions actives au plus, elle part dans le même fan-out que les relecteurs ; sinon après. Brief : `reference/final-pass.md`.
 
 Grounding live et vérif visuelle (script Playwright) : `reference/gate.md`.
 
@@ -181,7 +143,7 @@ Contrat : on boucle tant qu'un tour a modifié du code ; arrêt au premier tour 
 
 ## Étape 7 — Learnings (ledger de branche + mémoire par repo + lessons cross-projet)
 
-- **Ligne de run** : une par revue, TOUJOURS, quel que soit le projet, la branche ou le verdict, **écrite par le script et jamais à la main** : `python3 <skill>/scripts/log_run.py log --tier <quick|standard|deep|confirmation> [--loop] --verdict <approve|approve-after-fixes|request-changes|needs-discussion> --model <modèle des relecteurs> --loc N --raised N --confirmed N --dropped-gate N --refuted-panel N [--settled N] [--out-of-scope N] --agents N [--tokens N] [--fixed N --rejected N --deferred N] [--base <ref>|--staged] [--branch pr-N] [--transcript auto --since <start>]`. Ce sont des comptes, jamais des estimations : `--tokens` s'omet plutôt que s'estimer, `--fixed`/`--rejected`/`--deferred` viennent de l'utilisateur ou de la boucle, jamais du jugement du modèle. **Exit ≠ 0 = les compteurs sont faux** : recompter et relancer, jamais contourner par un `echo >>`. Invariants, champs dérivés et `orch_*` (ajoutés au `coût:` du rapport) : `log_run.py --help`. Un `OVER CAP` imprimé se signale dans le rapport. Le journal n'est **jamais chargé** en revue, il sert à `learn`.
+- **Ligne de run** : une par revue, TOUJOURS, quel que soit le projet, la branche ou le verdict, **écrite par le script et jamais à la main** : `python3 <skill>/scripts/log_run.py log --tier … --verdict … --model … --loc N --raised N --confirmed N --dropped-gate N --refuted-panel N --agents N [--transcript auto --since <start>]` (valeurs admises et options : `log_run.py log --help`). Ce sont des comptes, jamais des estimations : `--tokens` s'omet plutôt que s'estimer, `--fixed`/`--rejected`/`--deferred` viennent de l'utilisateur ou de la boucle, jamais du jugement du modèle. **Exit ≠ 0 = les compteurs sont faux** : recompter et relancer, jamais contourner par un `echo >>`. Invariants, champs dérivés et `orch_*` (ajoutés au `coût:` du rapport) : `log_run.py --help`. Un `OVER CAP` imprimé se signale dans le rapport. Le journal n'est **jamais chargé** en revue, il sert à `learn`.
 Learnings repo, lessons, misses et ledger : règles, formats et plafonds dans `reference/memory.md`, à lire dès qu'un FP est confirmé, qu'une leçon ou un miss est à écrire, ou à partir du tour 2.
 
 ## Logs (préfixes, style factuel, pas d'emojis hors rapport final)
