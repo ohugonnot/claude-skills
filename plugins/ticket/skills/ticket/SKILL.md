@@ -14,7 +14,7 @@ argument-hint: "<numéro ou lien du ticket | description> [--trivial]"
 
 # Ticket : de la description à la MR prouvée
 
-**skill_version : 1.2.0** (historique : `CHANGELOG.md`).
+**skill_version : 1.3.0** (historique : `CHANGELOG.md`).
 
 Un ticket est fini quand sa preuve se vérifie **du dehors** : un test vu rouge puis vert, une capture lue, un tour de revue qui ne change plus rien. Jamais quand « ça a l'air de marcher ». Ce skill est léger exprès : il enchaîne des outils qui existent (`/issue-mr`, `/senior-review --loop`, `/branch-wrap-up`, chacun si disponible) et ne fait lui-même que l'orchestration et les vérifications.
 
@@ -135,6 +135,7 @@ Cookie de session, SSO, MFA, accès à un environnement : le demander **dès que
 - **Push** : jamais chaîné au commit dans la même commande ; vérifier la branche courante avant, et que sa MR n'est pas déjà mergée (un push après un merge en squash ressuscite la branche). Après : `git ls-remote origin <branche>`.
 - **MR/PR** : reste en draft jusqu'à ce que tout soit tenu, puis sortie du draft (pas pour une MR empilée sur une MR non mergée). Jamais de merge.
 - **Description de MR** : sections « Livré » et « Tests » ; captures jointes quand un écran change ; constats hors périmètre dans « Suites connues (pas dans cette MR) », impact mesuré, plutôt qu'un ticket par constat. Un ajustement adjacent né de la recette va dans la même MR.
+- **Scinder une MR** (une partie dépend d'un autre déploiement ou d'un autre relecteur) : nouveau ticket, branche depuis la base à jour, `git cherry-pick` des commits qui partent, gate relancée sur la nouvelle branche. Puis les retirer de la branche d'origine (`git rebase --onto <commit>^ <commit>`), relancer sa gate et pousser avec `--force-with-lease`, jamais `--force`. Réécrire une branche déjà poussée se demande. Chaque MR reprend sa description et ses preuves : rien ne doit citer ce qui est parti.
 
 ## 7. Rétrospective (proposer, l'utilisateur valide)
 
@@ -158,4 +159,4 @@ Source : **les corrections de l'utilisateur pendant ce ticket** (« tu as testé
 ---
 
 ## CHANGELOG
-Historique complet : `CHANGELOG.md` (à côté de ce fichier). Version courante : **1.1.0**.
+Historique complet : `CHANGELOG.md` (à côté de ce fichier).
