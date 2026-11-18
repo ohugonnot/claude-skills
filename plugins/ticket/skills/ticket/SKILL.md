@@ -14,7 +14,7 @@ argument-hint: "<numéro ou lien du ticket | description> [--trivial]"
 
 # Ticket : de la description à la MR prouvée
 
-**skill_version : 1.3.0** (historique : `CHANGELOG.md`).
+**skill_version : 1.3.1** (historique : `CHANGELOG.md`).
 
 Un ticket est fini quand sa preuve se vérifie **du dehors** : un test vu rouge puis vert, une capture lue, un tour de revue qui ne change plus rien. Jamais quand « ça a l'air de marcher ». Ce skill est léger exprès : il enchaîne des outils qui existent (`/issue-mr`, `/senior-review --loop`, `/branch-wrap-up`, chacun si disponible) et ne fait lui-même que l'orchestration et les vérifications.
 
@@ -51,6 +51,7 @@ Tout le reste suit le déroulé complet. Dans le doute, annoncer le choix en une
 ### 3.1 Lire le ticket ET le code qu'il touche
 - Lire le ticket **avec ses commentaires** (`glab issue view N --comments`, `gh issue view N --comments`) : les décisions prises après coup y sont. Une consigne orale qui contredit le ticket : réécrire le ticket et la description de MR avant de coder.
 - Lire le code sur la **base à jour** (`git fetch`, comparer à `origin/<branche par défaut>`, jamais une branche locale périmée).
+- Une version concurrente poussée sur la branche du ticket pendant le travail : la comparer à la nôtre avant d'aller plus loin, partir du sommet poussé et porter nos ajouts par-dessus (un commit de plus, jamais une réécriture), garder ses fichiers intacts sauf ce qu'on améliore vraiment.
 - Un ticket décrit une intention datée : chercher si une partie est déjà faite ailleurs (`grep` du symbole, `git log -S`). Une mesure qui invalide un point du ticket : ne pas le coder, écrire pourquoi dans la MR.
 - Avant de créer une surface (route, table, colonne, type), prouver par une commande qu'elle n'existe pas, côté producteur et côté consommateur. Avant de changer un comportement, lire le nom des tests qui le couvrent : un comportement nommé est un comportement décidé.
 - Bug ou perf : **reproduire et mesurer avant** de proposer un correctif.
@@ -79,6 +80,7 @@ Tout le reste suit le déroulé complet. Dans le doute, annoncer le choix en une
 - Une capture qui ne peut pas être produite fait échouer le test.
 - Le test s'exécute et **rougit pour la bonne raison** avant toute ligne de code (garder la sortie).
 - Un test qui doit prouver un **délai** (debounce, timeout) espace ses évènements, sinon une rafale synchrone tient dans une seule tâche et la mutation « délai à 0 » survit.
+- Un e2e sur un écran qui raisonne en UTC (jour de calendrier, minuit, expiration) fixe `timezoneId` du navigateur ; la variable `TZ` du shell n'y change rien. Le rejouer sous un fuseau à +14 h et un à -11 h avant de le déclarer stable.
 
 **Fini quand** : la sortie rouge est conservée et son message nomme le défaut visé.
 
