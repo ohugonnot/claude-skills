@@ -14,7 +14,7 @@ argument-hint: "<numéro ou lien du ticket | description> [--trivial]"
 
 # Ticket : de la description à la MR prouvée
 
-**skill_version : 1.3.1** (historique : `CHANGELOG.md`).
+**skill_version : 1.3.2** (historique : `CHANGELOG.md`).
 
 Un ticket est fini quand sa preuve se vérifie **du dehors** : un test vu rouge puis vert, une capture lue, un tour de revue qui ne change plus rien. Jamais quand « ça a l'air de marcher ». Ce skill est léger exprès : il enchaîne des outils qui existent (`/issue-mr`, `/senior-review --loop`, `/branch-wrap-up`, chacun si disponible) et ne fait lui-même que l'orchestration et les vérifications.
 
@@ -134,6 +134,7 @@ Cookie de session, SSO, MFA, accès à un environnement : le demander **dès que
 ## 6. Livraison
 
 - **Commit** : seulement si la phrase de lancement l'autorise, et seulement quand § 3.6 et § 3.7 sont tenus. Sinon `/branch-wrap-up --no-review` (si disponible) propose le bloc commit. Message dans le style du dépôt (`git log --oneline -20`), en respectant les règles de l'utilisateur sur l'attribution (CLAUDE.md). L'autorisation couvre ce ticket, pas le suivant. Vérifier la branche courante (`git rev-parse --abbrev-ref HEAD`) juste avant, et lire la MR d'une branche existante avant d'y ajouter un travail sans rapport. Commit à valider par l'utilisateur : présenter le diff hunk par hunk (changement, motif, preuve), pas par thème.
+- **Demande de go** : une phrase qui se lit seule (branche, fichiers, message de commit), sans renvoi à un autre ticket ni sigle non expliqué. Une commande git refusée par le contrôle de permissions malgré l'autorisation de lancement ne se relance pas : demander, dans cette même forme, un seul go qui couvre add, commit et push.
 - **Push** : jamais chaîné au commit dans la même commande ; vérifier la branche courante avant, et que sa MR n'est pas déjà mergée (un push après un merge en squash ressuscite la branche). Après : `git ls-remote origin <branche>`.
 - **MR/PR** : reste en draft jusqu'à ce que tout soit tenu, puis sortie du draft (pas pour une MR empilée sur une MR non mergée). Jamais de merge.
 - **Description de MR** : sections « Livré » et « Tests » ; captures jointes quand un écran change ; constats hors périmètre dans « Suites connues (pas dans cette MR) », impact mesuré, plutôt qu'un ticket par constat. Un ajustement adjacent né de la recette va dans la même MR.

@@ -5,3 +5,4 @@
 - **1.2.0** (2026-11-04) : L'exécutant TDD devient un agent livré par le plugin (`agents/tdd-executor.md`), le brief du § 3.5 se réduit à ce que l'agent ne porte pas. Grep des traces de debug au § 3.6. Quatre statuts fermés par preuve au rapport (§ 4 et agent). Description ramenée sous 1 024 caractères.
 - **1.3.0** (2026-11-10) : Cas « scinder une MR » : cherry-pick vers une branche neuve, retrait par rebase, `--force-with-lease`, descriptions et preuves refaites des deux côtés. Le pied de page ne répète plus la version.
 - **1.3.1** (2026-11-16) : Version concurrente poussée sur la branche du ticket : comparer, partir du sommet poussé, ajouter un commit par-dessus. E2E sur un écran en UTC : fixer `timezoneId` et rejouer sous deux fuseaux extrêmes.
+- **1.3.2** (2026-11-18) : Demande de go en une phrase qui se lit seule, et un seul go quand le contrôle de permissions refuse une commande git malgré l'autorisation de lancement.
