@@ -146,26 +146,37 @@ def project_name(repo):
     return os.path.basename(top)
 
 
+def uncommitted(repo):
+    """Working-tree changes against HEAD, untracked contents included (`git diff HEAD`
+    misses new files). None when git fails, empty when the tree is clean."""
+    diff = git(repo, "diff", "HEAD")
+    untracked = git(repo, "ls-files", "--others", "--exclude-standard")
+    if diff is not None and untracked:
+        parts = [diff]
+        for path in sorted(untracked.splitlines()):
+            try:
+                with open(os.path.join(repo, path), "rb") as fh:
+                    parts.append(path + "\0" + hashlib.sha256(fh.read()).hexdigest())
+            except OSError:
+                parts.append(path)
+        diff = "\n".join(parts)
+    return diff
+
+
 def diff_sha(repo, base, staged):
     """Identity of the code under review. A merge of the base without content
     conflict keeps `base...HEAD` identical, which is what confirmation wants."""
     if base:
         diff = git(repo, "diff", f"{base}...HEAD")
+        # Loop fixes stay uncommitted between rounds: without them the identity would
+        # not move and `last` would call a changed tree "unchanged" (zero reviewers).
+        pending = uncommitted(repo)
+        if diff and pending:
+            diff = diff + "\n" + pending
     elif staged:
         diff = git(repo, "diff", "--cached")
     else:
-        # `git diff HEAD` misses new files, so hash untracked contents too.
-        diff = git(repo, "diff", "HEAD")
-        untracked = git(repo, "ls-files", "--others", "--exclude-standard")
-        if diff is not None and untracked:
-            parts = [diff]
-            for path in sorted(untracked.splitlines()):
-                try:
-                    with open(os.path.join(repo, path), "rb") as fh:
-                        parts.append(path + "\0" + hashlib.sha256(fh.read()).hexdigest())
-                except OSError:
-                    parts.append(path)
-            diff = "\n".join(parts)
+        diff = uncommitted(repo)
     # An empty diff (committed work reviewed without --base) identifies nothing.
     if not diff:
         return None

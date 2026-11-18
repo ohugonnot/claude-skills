@@ -142,6 +142,16 @@ class LogRunTest(unittest.TestCase):
         _, out, _ = self.run_cmd("last")
         self.assertFalse(json.loads(out)["same_diff"])
 
+    def test_uncommitted_fix_between_base_rounds_is_not_same_diff(self):
+        self.commit("b.txt", "x\n")
+        self.run_cmd("log", *COUNTS, "--base", "main")
+        _, out, _ = self.run_cmd("last", "--base", "main")
+        self.assertTrue(json.loads(out)["same_diff"])
+        with open(os.path.join(self.repo, "b.txt"), "w") as fh:
+            fh.write("x\nfixed\n")
+        _, out, _ = self.run_cmd("last", "--base", "main")
+        self.assertFalse(json.loads(out)["same_diff"])
+
     def test_committed_work_without_base_is_not_same_diff(self):
         # Reviewing committed work without --base hashes an empty diff: two
         # different commits must not look like an unchanged diff.
