@@ -75,7 +75,7 @@ Ces instructions valent **demande explicite et permanente** de déléguer — ne
 **Ne pas narrer** : le récit de ce que je viens de faire, la liste des options écartées et le résumé de fin de tour sont payés à chaque tour ultérieur.
 **Ce qui coûte, c'est le plafond, pas le préfixe** : l'essentiel de la facture est de la relecture de cache sur les tours longs ; élaguer CLAUDE.md ou l'index mémoire pèse peu, le plafond se règle par `autoCompactWindow`. La dépense est une longue traîne de sessions longues, jamais « une session coupable ».
 **Éditer avec `Edit`, jamais avec un script de remplacement** : un `Edit` rend ~40 tokens, le heredoc Python équivalent 300 à 800, payés ensuite à chaque tour.
-**Une capture d'écran coûte ~1600 tokens et reste en contexte à vie** : la lire une fois, jamais deux, et préférer une mesure chiffrée (`boundingBox`, `getComputedStyle`, `elementFromPoint`) quand elle répond à la question. Regarder l'écran reste indispensable ; relire la même image ne l'est pas.
+**Une capture d'écran coûte ⌈largeur/28⌉ × ⌈hauteur/28⌉ tokens et reste en contexte à vie** (mobile 390×844 ≈ 430, bureau 1280×900 ≈ 1500, iPhone en DPR 3 ≈ 3800 : capturer en `scale: 'css'`) : la lire une fois, jamais deux, et préférer une mesure chiffrée (`boundingBox`, `getComputedStyle`, `elementFromPoint`) quand elle répond à la question. Regarder l'écran reste indispensable ; relire la même image ne l'est pas.
 **Le nombre de tours est un multiplicateur** : le tour est l'unité facturée, pas l'appel. Grouper les appels indépendants dans un seul message, ne pas découper en dix allers-retours ce qui tient en trois.
 
 ## Mise à jour CLAUDE.md & mémoire
