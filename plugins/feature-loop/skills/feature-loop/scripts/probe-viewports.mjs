@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Opens one URL on phone, tablet and desktop in Chromium, Firefox and WebKit,
-// and writes a JSON report plus full-page screenshots. Every signal is always
+// and writes a JSON report plus screen-high screenshots. Every signal is always
 // present in the report, so a 0 is a measure, not a missing check.
 //
 //   node probe-viewports.mjs <url> [--engines chromium,firefox,webkit]
@@ -21,6 +21,7 @@ const SIGNALS = ['overflowX', 'clipped', 'smallTargets', 'closeTargets', 'imgNoA
 // What a headless engine on Linux cannot show of a real iPhone.
 const NOT_VERIFIED = ['iOS address bar over 100vh', 'safe-area-inset', 'iOS zoom on inputs under 16px', 'real device identity (navigator.platform says Linux)'];
 const DESKTOP = { chromium: 'Desktop Chrome', firefox: 'Desktop Firefox', webkit: 'Desktop Safari' };
+const MAX_SLICES = 6;
 const VIEWPORTS = {
   mobile: { device: 'iPhone 15', size: { width: 390, height: 844 } },
   tablet: { device: 'iPad (gen 7)', size: { width: 820, height: 1180 } },
@@ -165,9 +166,9 @@ async function probe(pw, browser, engine, name, opts) {
     const slowest = [...requests].sort((a, b) => b.duration - a.duration).slice(0, 3).map((r) => `${Math.round(r.duration)}ms ${r.name}`);
     return n && { ttfbMs: Math.round(n.responseStart), domReadyMs: Math.round(n.domContentLoadedEventEnd), loadMs: Math.round(n.loadEventEnd), requests: requests.length, slowest };
   });
-  const shot = path.join(opts.out, `${engine}-${name}.png`);
-  await page.screenshot({ path: shot, fullPage: true });
+  const shots = await screenSlices(page, path.join(opts.out, `${engine}-${name}`));
   const findings = await page.evaluate(audit);
+  if (shots.cut) findings.notes.push(`page ${shots.pageHeight}px tall: screenshots stop at ${MAX_SLICES} screens`);
   let clicked = 0;
   for (const selector of opts.clicks) {
     phase = `click ${selector}`;
@@ -188,7 +189,26 @@ async function probe(pw, browser, engine, name, opts) {
   await ctx.close();
   const { notes, viewport, ...rest } = findings;
   const signals = { ...rest, ...events };
-  return { viewport, timing, counts: Object.fromEntries(SIGNALS.map((s) => [s, signals[s].length])), clicked, signals, notes, screenshot: shot };
+  return { viewport, timing, counts: Object.fromEntries(SIGNALS.map((s) => [s, signals[s].length])), clicked, signals, notes, screenshots: shots.files };
+}
+
+// Claude shrinks an image whose long side passes 2576 px (1568 on older models), so a
+// full-page capture of a long page turns its text into a blur. Screen-high slices stay
+// readable, and scale 'css' keeps a density-3 phone at 390 px wide: 9x fewer image tokens.
+// Scroll, never fullPage: on an emulated phone, fullPage leaves Chromium at the widened
+// width with pointer:fine, and the audit that follows misses the overflow.
+async function screenSlices(page, base) {
+  const { height } = page.viewportSize();
+  const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+  const files = [];
+  for (let y = 0; y < pageHeight && files.length < MAX_SLICES; y += height) {
+    await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y);
+    const file = `${base}-${files.length + 1}.png`;
+    await page.screenshot({ path: file, scale: 'css' });
+    files.push(file);
+  }
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  return { files, pageHeight, cut: pageHeight > height * MAX_SLICES };
 }
 
 export async function run(opts) {

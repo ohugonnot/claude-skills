@@ -6,3 +6,4 @@
 - **1.3.0** (2026-11-10) : Cas « scinder une MR » : cherry-pick vers une branche neuve, retrait par rebase, `--force-with-lease`, descriptions et preuves refaites des deux côtés. Le pied de page ne répète plus la version.
 - **1.3.1** (2026-11-16) : Version concurrente poussée sur la branche du ticket : comparer, partir du sommet poussé, ajouter un commit par-dessus. E2E sur un écran en UTC : fixer `timezoneId` et rejouer sous deux fuseaux extrêmes.
 - **1.3.2** (2026-11-18) : Demande de go en une phrase qui se lit seule, et un seul go quand le contrôle de permissions refuse une commande git malgré l'autorisation de lancement.
+- **1.3.3** (2026-11-18) : Une capture que Claude doit lire se prend écran par écran en `scale: 'css'`, jamais en `fullPage` : au-delà de 2 576 px de côté, l'image est réduite et le texte d'une page longue devient illisible, et la densité 3 d'un profil de téléphone coûte neuf fois plus de tokens.
